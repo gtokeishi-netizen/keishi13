@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // グローバル変数から必要データを取得
-global $post, $user_favorites, $current_view, $display_mode;
+global $post, $current_view, $display_mode;
 
 $post_id = get_the_ID();
 if (!$post_id) return;
@@ -29,13 +29,6 @@ $view_class = 'grant-view-' . $display_mode;
 $grant_data = function_exists('gi_get_complete_grant_data') 
     ? gi_get_complete_grant_data($post_id)
     : gi_get_all_grant_meta($post_id);
-
-// お気に入り情報
-$user_favorites = $user_favorites ?? (function_exists('gi_get_user_favorites_safe') 
-    ? gi_get_user_favorites_safe() 
-    : gi_get_user_favorites());
-
-$is_favorite = in_array($post_id, $user_favorites);
 
 // 基本データ取得
 $title = get_the_title($post_id);
@@ -725,40 +718,6 @@ static $assets_loaded = false;
     outline-offset: 2px;
 }
 
-.favorite-btn {
-    width: 3rem;
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border: 2px solid var(--clean-gray-200);
-    border-radius: 50%;
-    color: var(--clean-gray-500);
-    cursor: pointer;
-    transition: var(--clean-transition-slow);
-    flex-shrink: 0;
-    position: relative;
-    box-shadow: var(--clean-shadow-sm);
-    z-index: 20;
-    font-size: 1.125rem;
-}
-
-.favorite-btn:hover {
-    background: var(--clean-gradient-primary);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-    transform: scale(1.05);
-    box-shadow: var(--clean-shadow-md);
-}
-
-.favorite-btn.favorited {
-    background: var(--clean-gradient-primary);
-    border-color: var(--clean-primary);
-    color: var(--clean-white);
-}
-
 /* ホバー時の詳細表示 */
 .grant-hover-details {
     position: absolute;
@@ -1173,11 +1132,6 @@ static $assets_loaded = false;
         font-size: 0.8125rem;
     }
     
-    .favorite-btn {
-        width: 2.625rem;
-        height: 2.625rem;
-    }
-    
     /* モバイルでタップで詳細表示 */
     .grant-card-unified {
         cursor: pointer;
@@ -1213,7 +1167,6 @@ static $assets_loaded = false;
     }
     
     .grant-hover-details,
-    .favorite-btn,
     .grant-featured-badge {
         display: none !important;
     }
@@ -1239,7 +1192,6 @@ static $assets_loaded = false;
 @media (prefers-reduced-motion: reduce) {
     .grant-card-unified,
     .grant-btn,
-    .favorite-btn,
     .grant-info-item {
         transition: none;
         animation: none;
@@ -1252,7 +1204,6 @@ static $assets_loaded = false;
 
 /* フォーカス管理 */
 .grant-btn:focus,
-.favorite-btn:focus,
 .grant-hover-close:focus {
     outline: 2px solid var(--clean-gray-800);
     outline-offset: 2px;
@@ -1625,27 +1576,6 @@ static $assets_loaded = false;
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // お気に入り機能
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.favorite-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const btn = e.target.closest('.favorite-btn');
-            const postId = btn.dataset.postId;
-            
-            // 既存のAJAX関数を呼び出し
-            if (typeof gi_toggle_favorite === 'function') {
-                gi_toggle_favorite(postId, btn);
-            } else if (typeof window.toggleFavorite === 'function') {
-                window.toggleFavorite(postId, btn);
-            } else {
-                // フォールバック：ローカルストレージ
-                toggleLocalFavorite(postId, btn);
-            }
-        }
-    });
-    
     // カードクリック処理（詳細ボタンのみでページ遷移）
     document.addEventListener('click', function(e) {
         // 詳細ボタンがクリックされた場合のみページ遷移
@@ -1702,7 +1632,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.addEventListener('touchend', function(e) {
         if (!e.target.closest('.grant-card-unified')) return;
-        if (e.target.closest('.grant-btn, .favorite-btn')) return;
+        if (e.target.closest('.grant-btn')) return;
         
         tapCount++;
         
@@ -1730,114 +1660,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // ローカルお気に入り処理
-    function toggleLocalFavorite(postId, btn) {
-        let favorites = JSON.parse(localStorage.getItem('gi_favorites') || '[]');
-        const isFavorited = btn.classList.contains('favorited');
-        
-        if (isFavorited) {
-            favorites = favorites.filter(id => id !== postId);
-            btn.classList.remove('favorited');
-            btn.innerHTML = '<i class="far fa-heart"></i>';
-            btn.setAttribute('aria-pressed', 'false');
-            btn.setAttribute('aria-label', 'お気に入りに追加');
-            showToast('お気に入りから削除しました', 'remove');
-        } else {
-            favorites.push(postId);
-            btn.classList.add('favorited');
-            btn.innerHTML = '<i class="fas fa-heart"></i>';
-            btn.setAttribute('aria-pressed', 'true');
-            btn.setAttribute('aria-label', 'お気に入りから削除');
-            
-            // ハートアニメーション
-            animateHeart(btn);
-            showToast('お気に入りに追加しました', 'add');
-        }
-        
-        localStorage.setItem('gi_favorites', JSON.stringify(favorites));
-        updateFavoriteCount(favorites.length);
-    }
-    
-    // ハートアニメーション
-    function animateHeart(btn) {
-        btn.style.transform = 'scale(1.2)';
-        btn.style.filter = 'brightness(1.1)';
-        setTimeout(() => {
-            btn.style.transform = '';
-            btn.style.filter = '';
-        }, 200);
-        
-        // パーティクルエフェクト
-        createHeartParticles(btn);
-    }
-    
-    // ハートパーティクル生成
-    function createHeartParticles(btn) {
-        const rect = btn.getBoundingClientRect();
-        const particles = 6;
-        
-        for (let i = 0; i < particles; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'heart-particle';
-            particle.innerHTML = '♥';
-            particle.style.cssText = `
-                position: fixed;
-                left: ${rect.left + rect.width / 2}px;
-                top: ${rect.top + rect.height / 2}px;
-                color: #000000;
-                font-size: 1rem;
-                pointer-events: none;
-                z-index: 9999;
-                animation: particle-float 1s ease-out forwards;
-                transform: rotate(${Math.random() * 360}deg);
-            `;
-            
-            document.body.appendChild(particle);
-            
-            setTimeout(() => {
-                particle.remove();
-            }, 1000);
-        }
-    }
-    
-    // トースト通知
-    function showToast(message, type) {
-        const existingToast = document.querySelector('.grant-toast');
-        if (existingToast) {
-            existingToast.remove();
-        }
-        
-        const toast = document.createElement('div');
-        toast.className = 'grant-toast';
-        toast.innerHTML = `
-            <div class="grant-toast-icon">
-                <i class="fas fa-${type === 'add' ? 'check' : 'times'}"></i>
-            </div>
-            <span>${message}</span>
-        `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 10);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 2500);
-    }
-    
-    // お気に入り数更新
-    function updateFavoriteCount(count) {
-        const countElement = document.querySelector('.favorite-count');
-        if (countElement) {
-            countElement.textContent = count;
-        }
-    }
     
     // ホバー詳細の閉じるボタン
     document.addEventListener('click', function(e) {
@@ -1907,23 +1729,8 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
     
-    // 初期お気に入り状態の設定
-    function initFavorites() {
-        const favorites = JSON.parse(localStorage.getItem('gi_favorites') || '[]');
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-            const postId = btn.dataset.postId;
-            if (favorites.includes(postId)) {
-                btn.classList.add('favorited');
-                btn.innerHTML = '<i class="fas fa-heart"></i>';
-                btn.setAttribute('aria-pressed', 'true');
-                btn.setAttribute('aria-label', 'お気に入りから削除');
-            }
-        });
-        updateFavoriteCount(favorites.length);
-    }
-    
     // ボタンのフォーカス管理
-    document.querySelectorAll('.grant-btn, .favorite-btn, .grant-hover-close').forEach(btn => {
+    document.querySelectorAll('.grant-btn, .grant-hover-close').forEach(btn => {
         btn.addEventListener('focus', function() {
             this.style.outline = '2px solid var(--clean-gray-800)';
             this.style.outlineOffset = '2px';
@@ -1942,9 +1749,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // 初期化
-    initFavorites();
     
     // ウィンドウリサイズ対応
     window.addEventListener('resize', function() {
@@ -2428,13 +2232,6 @@ document.head.appendChild(grantCardStyles);
             </a>
             <?php endif; ?>
         </div>
-        <button class="favorite-btn <?php echo $is_favorite ? 'favorited' : ''; ?>" 
-                data-post-id="<?php echo esc_attr($post_id); ?>" 
-                title="お気に入り"
-                aria-label="<?php echo $is_favorite ? 'お気に入りから削除' : 'お気に入りに追加'; ?>"
-                aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
-            <i class="<?php echo $is_favorite ? 'fas' : 'far'; ?> fa-heart" aria-hidden="true"></i>
-        </button>
     </footer>
     
     <!-- ホバー時の詳細表示 -->
