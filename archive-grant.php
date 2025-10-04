@@ -198,7 +198,7 @@ $grants_query = new WP_Query($initial_args);
 // タクソノミー取得
 $all_categories = get_terms([
     'taxonomy' => 'grant_category',
-    'hide_empty' => false,
+    'hide_empty' => true,  // 0件のカテゴリを非表示
     'orderby' => 'count',
     'order' => 'DESC'
 ]);
@@ -206,7 +206,7 @@ $all_categories = get_terms([
 // 47都道府県を北海道から沖縄まで固定順序で取得
 $all_prefectures_terms = get_terms([
     'taxonomy' => 'grant_prefecture',
-    'hide_empty' => false
+    'hide_empty' => true  // 0件の都道府県を非表示
 ]);
 
 // まずタームが取得できているか確認
@@ -241,7 +241,7 @@ if (empty($all_prefectures_terms) || is_wp_error($all_prefectures_terms)) {
 // 市町村タクソノミー取得
 $all_municipalities = get_terms([
     'taxonomy' => 'grant_municipality',
-    'hide_empty' => false,
+    'hide_empty' => true,  // 0件の市町村を非表示
     'orderby' => 'name',
     'order' => 'ASC'
 ]);

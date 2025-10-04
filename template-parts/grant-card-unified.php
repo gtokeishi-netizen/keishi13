@@ -571,8 +571,8 @@ static $assets_loaded = false;
 
 .grant-ai-summary-text {
     color: var(--clean-gray-700);
-    font-size: 0.875rem;
-    line-height: 1.5;
+    font-size: 0.9375rem;
+    line-height: 1.6;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -660,9 +660,10 @@ static $assets_loaded = false;
     justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
+    min-height: 44px;
     border: 2px solid transparent;
     border-radius: 2rem;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--clean-transition-slow);
