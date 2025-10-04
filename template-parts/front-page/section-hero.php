@@ -498,7 +498,7 @@ $mobile_quick_stats = array(
     overflow: hidden;
     display: flex;
     align-items: center;
-    padding: var(--spacing-xl) 0;
+    padding: 80px 0 40px 0;
     background: var(--bg-primary);
     color: var(--text-primary);
 }
@@ -1643,8 +1643,8 @@ CSS removed for mobile simplification */
 
 @media (max-width: 768px) {
     .hero-stylish {
-        padding-top: 60px; /* ヘッダー分のパディングを削減 */
-        padding-bottom: 40px;
+        padding-top: 70px;
+        padding-bottom: 30px;
     }
     
     .container-main {
@@ -1685,8 +1685,8 @@ CSS removed for mobile simplification */
 
 @media (max-width: 640px) {
     .hero-stylish {
-        padding-top: 50px; /* さらに削減 */
-        padding-bottom: 30px;
+        padding-top: 60px;
+        padding-bottom: 25px;
     }
     
     .mobile-layout {
@@ -1751,7 +1751,7 @@ CSS removed for mobile simplification */
 /* 超小型スマホ対応 */
 @media (max-width: 375px) {
     .hero-stylish {
-        padding-top: 40px;
+        padding-top: 50px;
         padding-bottom: 20px;
     }
     

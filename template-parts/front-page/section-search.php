@@ -1508,7 +1508,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     gap: 20px;
 }
 
-/* No Results */
+/* No Results - Monochrome Stylish Design */
 .no-results {
     text-align: center;
     padding: 60px 20px;
@@ -1523,6 +1523,251 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 .no-results p {
     font-size: 14px;
     color: #999;
+}
+
+/* Smart No Results - White/Black Stylish */
+.smart-no-results {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 30px;
+}
+
+.no-results-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.no-results-header .icon-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    background: #f5f5f5;
+    border: 3px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.no-results-header .icon-circle::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 2px solid #e5e5e5;
+    border-radius: 50%;
+}
+
+.no-results-header .icon-circle i {
+    font-size: 40px;
+    color: #000;
+}
+
+.no-results-header h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.no-results-header p {
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+}
+
+.suggestions-section {
+    margin-bottom: 50px;
+    padding: 30px;
+    background: #fafafa;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+}
+
+.suggestions-section h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggestions-section h4 i {
+    font-size: 20px;
+    color: #000;
+}
+
+.suggestion-chips,
+.category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.suggestion-chip,
+.category-chip {
+    padding: 12px 20px;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.suggestion-chip::before,
+.category-chip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #000;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+    z-index: 0;
+}
+
+.suggestion-chip:hover::before,
+.category-chip:hover::before {
+    transform: scaleX(1);
+}
+
+.suggestion-chip:hover,
+.category-chip:hover {
+    color: #fff;
+}
+
+.suggestion-chip .chip-text,
+.suggestion-chip .chip-icon,
+.category-chip .chip-text,
+.category-chip .chip-count {
+    position: relative;
+    z-index: 1;
+}
+
+.chip-count {
+    padding: 2px 8px;
+    background: #000;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.suggestion-chip:hover .chip-count {
+    background: #fff;
+    color: #000;
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.tip-card {
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.tip-card:hover {
+    border-color: #000;
+    transform: translateY(-2px);
+}
+
+.tip-icon {
+    width: 50px;
+    height: 50px;
+    background: #f5f5f5;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.tip-content h5 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 8px;
+}
+
+.tip-content p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.tip-example {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #000;
+    font-weight: 600;
+}
+
+.popular-grants {
+    display: grid;
+    gap: 16px;
+}
+
+.popular-grant-card {
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.popular-grant-card:hover {
+    border-color: #000;
+    transform: translateX(4px);
+}
+
+.popular-grant-card h5 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.popular-grant-card p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.view-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
 }
 
 /* Error Message */
@@ -1591,6 +1836,33 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     
     .assistant-chat {
         min-height: 200px;
+    }
+    
+    /* Smart No Results - Mobile */
+    .smart-no-results {
+        padding: 40px 20px;
+    }
+    
+    .no-results-header .icon-circle {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .no-results-header .icon-circle i {
+        font-size: 32px;
+    }
+    
+    .no-results-header h3 {
+        font-size: 20px;
+    }
+    
+    .suggestions-section {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .tips-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1780,6 +2052,42 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     
     .section-container {
         padding: 0 16px;
+    }
+    
+    /* Smart No Results - Ultra Small */
+    .smart-no-results {
+        padding: 30px 16px;
+    }
+    
+    .no-results-header .icon-circle {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .no-results-header .icon-circle i {
+        font-size: 28px;
+    }
+    
+    .no-results-header h3 {
+        font-size: 18px;
+    }
+    
+    .no-results-header p {
+        font-size: 14px;
+    }
+    
+    .suggestions-section {
+        padding: 16px;
+    }
+    
+    .suggestions-section h4 {
+        font-size: 16px;
+    }
+    
+    .suggestion-chip,
+    .category-chip {
+        padding: 10px 16px;
+        font-size: 13px;
     }
 }
 </style>
@@ -2499,7 +2807,9 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             let html = `
                 <div class="smart-no-results">
                     <div class="no-results-header">
-                        <div class="icon">🔍</div>
+                        <div class="icon-circle">
+                            <i class="fas fa-search"></i>
+                        </div>
                         <h3>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</h3>
                         <p>以下の方法をお試しください</p>
                     </div>
@@ -2509,7 +2819,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.alternative_queries && suggestions.alternative_queries.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><span class="icon">💡</span> こちらのキーワードで検索してみませんか？</h4>
+                        <h4><i class="fas fa-lightbulb"></i> こちらのキーワードで検索してみませんか？</h4>
                         <div class="suggestion-chips">
                 `;
                 
@@ -2532,7 +2842,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.search_tips && suggestions.search_tips.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><span class="icon">✨</span> 検索のヒント</h4>
+                        <h4><i class="fas fa-wand-magic-sparkles"></i> 検索のヒント</h4>
                         <div class="tips-grid">
                 `;
                 
@@ -2559,7 +2869,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.related_categories && suggestions.related_categories.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><span class="icon">📁</span> 関連するカテゴリから探す</h4>
+                        <h4><i class="fas fa-folder"></i> 関連するカテゴリから探す</h4>
                         <div class="category-chips">
                 `;
                 
@@ -2582,7 +2892,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.popular_grants && suggestions.popular_grants.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><span class="icon">🔥</span> 人気の助成金</h4>
+                        <h4><i class="fas fa-fire"></i> 人気の助成金</h4>
                         <div class="popular-grants">
                 `;
                 
@@ -2591,7 +2901,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         <a href="${grant.url}" class="popular-grant-card">
                             <h5>${this.escapeHtml(grant.title)}</h5>
                             <p>${this.escapeHtml(grant.excerpt)}</p>
-                            ${grant.view_count ? `<span class="view-count">👁 ${grant.view_count}回閲覧</span>` : ''}
+                            ${grant.view_count ? `<span class="view-count"><i class="fas fa-eye"></i> ${grant.view_count}回閲覧</span>` : ''}
                         </a>
                     `;
                 });
