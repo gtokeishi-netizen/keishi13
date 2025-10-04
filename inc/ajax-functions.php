@@ -314,8 +314,8 @@ function gi_ajax_process_voice_input() {
         }
         
         // OpenAI統合を使用して音声認識を試行
-        $openai = GI_OpenAI_Integration::getInstance();
-        if ($openai->is_configured()) {
+        $openai = class_exists('GI_OpenAI_Integration') ? GI_OpenAI_Integration::getInstance() : null;
+        if ($openai && $openai->is_configured() && method_exists($openai, 'transcribe_audio')) {
             $transcribed_text = $openai->transcribe_audio($audio_data);
             $confidence = 0.9; // OpenAI Whisperの場合は高い信頼度
         } else {
@@ -442,10 +442,9 @@ function gi_verify_ajax_nonce() {
  */
 function gi_enhanced_semantic_search($query, $filter = 'all', $page = 1, $per_page = 20) {
     // OpenAI統合がある場合はセマンティック検索を試行
-    $openai = GI_OpenAI_Integration::getInstance();
-    $semantic_search = GI_Grant_Semantic_Search::getInstance();
+    $openai = class_exists('GI_OpenAI_Integration') ? GI_OpenAI_Integration::getInstance() : null;
     
-    if ($openai->is_configured() && get_option('gi_ai_semantic_search', false)) {
+    if ($openai && $openai->is_configured() && get_option('gi_ai_semantic_search', false)) {
         try {
             return gi_perform_ai_enhanced_search($query, $filter, $page, $per_page);
         } catch (Exception $e) {
@@ -590,9 +589,9 @@ function gi_format_grant_result($post_id, $relevance_score = 0.8) {
  * コンテキスト付きAI応答生成
  */
 function gi_generate_contextual_ai_response($query, $grants, $filter = 'all') {
-    $openai = GI_OpenAI_Integration::getInstance();
+    $openai = class_exists('GI_OpenAI_Integration') ? GI_OpenAI_Integration::getInstance() : null;
     
-    if ($openai->is_configured()) {
+    if ($openai && $openai->is_configured()) {
         $context = [
             'grants' => array_slice($grants, 0, 3), // 上位3件のコンテキスト
             'filter' => $filter,
@@ -674,9 +673,9 @@ function gi_generate_fallback_response($query, $grants, $filter = 'all') {
  * Enhanced Grant応答生成
  */
 function gi_generate_enhanced_grant_response($post_id, $question, $grant_details, $intent) {
-    $openai = GI_OpenAI_Integration::getInstance();
+    $openai = class_exists('GI_OpenAI_Integration') ? GI_OpenAI_Integration::getInstance() : null;
     
-    if ($openai->is_configured()) {
+    if ($openai && $openai->is_configured()) {
         $context = [
             'grant_details' => $grant_details,
             'intent' => $intent
@@ -1385,9 +1384,9 @@ function gi_analyze_user_intent($message) {
 }
 
 function gi_generate_contextual_chat_response($message, $context, $intent) {
-    $openai = GI_OpenAI_Integration::getInstance();
+    $openai = class_exists('GI_OpenAI_Integration') ? GI_OpenAI_Integration::getInstance() : null;
     
-    if ($openai->is_configured()) {
+    if ($openai && $openai->is_configured()) {
         $prompt = "ユーザーの質問: {$message}\n意図: {$intent}";
         
         try {
@@ -1871,6 +1870,27 @@ function gi_normalize_date($date_input) {
  */
 function gi_get_user_favorites_safe() {
     return gi_get_user_favorites();
+}
+
+/**
+ * =============================================================================
+ * Missing Helper Functions Continued
+ * =============================================================================
+ */
+
+/**
+ * gi_get_user_favorites - Get user favorites
+ */
+if (!function_exists('gi_get_user_favorites')) {
+    function gi_get_user_favorites() {
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            return [];
+        }
+        
+        $favorites = get_user_meta($user_id, 'gi_favorites', true);
+        return is_array($favorites) ? $favorites : [];
+    }
 }
 
 /**
