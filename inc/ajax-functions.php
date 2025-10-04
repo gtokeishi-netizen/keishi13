@@ -2202,3 +2202,194 @@ function gi_ajax_load_grants() {
         'debug' => defined('WP_DEBUG') && WP_DEBUG ? $args : null,
     ]);
 }
+
+/**
+ * Archive page grants loading with municipality support
+ * アーカイブページの補助金読み込み（市町村対応）
+ */
+function gi_load_grants() {
+    // Nonce verification
+    check_ajax_referer('gi_ajax_nonce', 'nonce');
+    
+    // Get parameters
+    $search = sanitize_text_field($_POST['search'] ?? '');
+    $categories = isset($_POST['categories']) ? json_decode(stripslashes($_POST['categories']), true) : [];
+    $prefectures = isset($_POST['prefectures']) ? json_decode(stripslashes($_POST['prefectures']), true) : [];
+    $municipalities = isset($_POST['municipalities']) ? json_decode(stripslashes($_POST['municipalities']), true) : [];
+    $region = sanitize_text_field($_POST['region'] ?? '');
+    $amount = sanitize_text_field($_POST['amount'] ?? '');
+    $status = isset($_POST['status']) ? json_decode(stripslashes($_POST['status']), true) : [];
+    $only_featured = sanitize_text_field($_POST['only_featured'] ?? '');
+    $sort = sanitize_text_field($_POST['sort'] ?? 'date_desc');
+    $view = sanitize_text_field($_POST['view'] ?? 'grid');
+    $page = max(1, intval($_POST['page'] ?? 1));
+    
+    // Build query args
+    $args = [
+        'post_type' => 'grant',
+        'posts_per_page' => 12,
+        'post_status' => 'publish',
+        'paged' => $page,
+    ];
+    
+    // AI-enhanced semantic search
+    $use_semantic_search = false;
+    $semantic_results = [];
+    
+    if (!empty($search)) {
+        // Try semantic search first if available
+        if (class_exists('GI_Semantic_Search')) {
+            try {
+                $semantic_search = GI_Semantic_Search::getInstance();
+                if ($semantic_search && method_exists($semantic_search, 'search')) {
+                    $semantic_results = $semantic_search->search($search, [
+                        'limit' => 50, // Get more results for filtering
+                        'threshold' => 0.7,
+                    ]);
+                    
+                    if (!empty($semantic_results) && isset($semantic_results['posts'])) {
+                        $use_semantic_search = true;
+                        $post_ids = array_column($semantic_results['posts'], 'ID');
+                        
+                        // Use post__in for semantic search results
+                        $args['post__in'] = $post_ids;
+                        $args['orderby'] = 'post__in'; // Preserve semantic ranking
+                    }
+                }
+            } catch (Exception $e) {
+                error_log('Semantic search error in gi_load_grants: ' . $e->getMessage());
+            }
+        }
+        
+        // Fallback to traditional search if semantic search didn't work
+        if (!$use_semantic_search) {
+            $args['s'] = $search;
+        }
+    }
+    
+    // Taxonomy query
+    $tax_query = ['relation' => 'AND'];
+    
+    if (!empty($categories)) {
+        $tax_query[] = [
+            'taxonomy' => 'grant_category',
+            'field' => 'slug',
+            'terms' => $categories,
+        ];
+    }
+    
+    if (!empty($prefectures)) {
+        $tax_query[] = [
+            'taxonomy' => 'grant_prefecture',
+            'field' => 'slug',
+            'terms' => $prefectures,
+        ];
+    }
+    
+    if (!empty($municipalities)) {
+        $tax_query[] = [
+            'taxonomy' => 'grant_municipality',
+            'field' => 'slug',
+            'terms' => $municipalities,
+        ];
+    }
+    
+    if (count($tax_query) > 1) {
+        $args['tax_query'] = $tax_query;
+    }
+    
+    // Meta query
+    $meta_query = ['relation' => 'AND'];
+    
+    if (!empty($status)) {
+        $db_statuses = array_map(function($s) {
+            return $s === 'active' ? 'open' : ($s === 'upcoming' ? 'upcoming' : $s);
+        }, $status);
+        
+        $meta_query[] = [
+            'key' => 'application_status',
+            'value' => $db_statuses,
+            'compare' => 'IN',
+        ];
+    }
+    
+    if ($only_featured === '1') {
+        $meta_query[] = [
+            'key' => 'is_featured',
+            'value' => '1',
+            'compare' => '=',
+        ];
+    }
+    
+    if (count($meta_query) > 1) {
+        $args['meta_query'] = $meta_query;
+    }
+    
+    // Sorting
+    switch ($sort) {
+        case 'amount_desc':
+            $args['orderby'] = 'meta_value_num';
+            $args['meta_key'] = 'max_amount_numeric';
+            $args['order'] = 'DESC';
+            break;
+        case 'featured_first':
+            $args['orderby'] = ['meta_value_num' => 'DESC', 'date' => 'DESC'];
+            $args['meta_key'] = 'is_featured';
+            break;
+        case 'deadline_asc':
+            $args['orderby'] = 'meta_value';
+            $args['meta_key'] = 'application_deadline';
+            $args['order'] = 'ASC';
+            break;
+        default:
+            $args['orderby'] = 'date';
+            $args['order'] = 'DESC';
+    }
+    
+    // Execute query
+    $query = new WP_Query($args);
+    
+    // Get user favorites
+    $user_favorites = function_exists('gi_get_user_favorites') ? gi_get_user_favorites() : [];
+    
+    // Build grant HTML
+    $grants = [];
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            
+            // Set global variables for template
+            $GLOBALS['current_view'] = $view;
+            $GLOBALS['user_favorites'] = $user_favorites;
+            
+            // Capture template output
+            ob_start();
+            get_template_part('template-parts/grant-card-unified');
+            $html = ob_get_clean();
+            
+            $grants[] = [
+                'id' => get_the_ID(),
+                'html' => $html,
+            ];
+        }
+        wp_reset_postdata();
+    }
+    
+    // Stats
+    $stats = [
+        'total_found' => $query->found_posts,
+        'current_page' => $page,
+        'total_pages' => $query->max_num_pages,
+    ];
+    
+    wp_send_json_success([
+        'grants' => $grants,
+        'stats' => $stats,
+        'pagination' => [
+            'current' => $page,
+            'total' => $query->max_num_pages,
+        ],
+    ]);
+}
+add_action('wp_ajax_gi_load_grants', 'gi_load_grants');
+add_action('wp_ajax_nopriv_gi_load_grants', 'gi_load_grants');
