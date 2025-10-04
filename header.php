@@ -975,7 +975,7 @@
 <?php wp_body_open(); ?>
 
 <!-- Floating Announcement Bar -->
-<?php if (get_theme_mod('gi_show_announcement', true)): ?>
+<?php if (get_theme_mod('gi_show_announcement', false)): ?>
 <div id="gi-announcement" class="gi-announcement">
     <i class="fas fa-sparkles" style="margin-right: 0.5rem; color: var(--color-primary);"></i>
     <?php echo esc_html(get_theme_mod('gi_announcement_text', '🎯 最新助成金情報を随時更新中！あなたにぴったりの支援制度を見つけよう')); ?>
