@@ -754,7 +754,7 @@ class GoogleSheetsSync {
                 // 都道府県を設定（T列のデータから） ★完全連携
                 if (isset($row[19]) && !empty($row[19])) {
                     $prefectures = array_map('trim', explode(',', $row[19]));
-                    $prefecture_result = wp_set_post_terms($post_id, $prefectures, 'grant_prefecture');
+                    $prefecture_result = gi_set_terms_with_auto_create($post_id, $prefectures, 'grant_prefecture');
                     
                     gi_log_error('Prefecture sync result', array(
                         'post_id' => $post_id,
@@ -767,7 +767,7 @@ class GoogleSheetsSync {
                 // 市町村を設定（U列のデータから） ★完全連携
                 if (isset($row[20]) && !empty($row[20])) {
                     $municipalities = array_map('trim', explode(',', $row[20]));
-                    $municipality_result = wp_set_post_terms($post_id, $municipalities, 'grant_municipality');
+                    $municipality_result = gi_set_terms_with_auto_create($post_id, $municipalities, 'grant_municipality');
                     
                     gi_log_error('Municipality sync result', array(
                         'post_id' => $post_id,
@@ -777,10 +777,10 @@ class GoogleSheetsSync {
                     ));
                 }
                 
-                // カテゴリを設定（V列のデータから） ★完全連携
+                // カテゴリを設定（V列のデータから） ★完全連携 + 自動作成
                 if (isset($row[21]) && !empty($row[21])) {
                     $categories = array_map('trim', explode(',', $row[21]));
-                    $category_result = wp_set_post_terms($post_id, $categories, 'grant_category');
+                    $category_result = gi_set_terms_with_auto_create($post_id, $categories, 'grant_category');
                     
                     gi_log_error('Category sync result', array(
                         'post_id' => $post_id,
@@ -790,10 +790,10 @@ class GoogleSheetsSync {
                     ));
                 }
                 
-                // タグを設定（W列のデータから） ★完全連携
+                // タグを設定（W列のデータから） ★完全連携 + 自動作成
                 if (isset($row[22]) && !empty($row[22])) {
                     $tags = array_map('trim', explode(',', $row[22]));
-                    wp_set_post_terms($post_id, $tags, 'grant_tag');
+                    gi_set_terms_with_auto_create($post_id, $tags, 'grant_tag');
                 }
                 
                 // 新規ACFフィールドの同期 (X-AD列) ★31列対応（修正版）
@@ -1786,6 +1786,64 @@ class GoogleSheetsSync {
 }
 
 // Cronスケジュールは削除されました
+
+/**
+ * タクソノミータームを自動作成して設定するヘルパー関数
+ * 
+ * @param int $post_id 投稿ID
+ * @param array|string $terms タームの配列または文字列
+ * @param string $taxonomy タクソノミー名
+ * @return array|WP_Error 設定されたタームIDの配列、またはエラー
+ */
+function gi_set_terms_with_auto_create($post_id, $terms, $taxonomy) {
+    if (empty($terms)) {
+        return wp_set_post_terms($post_id, array(), $taxonomy);
+    }
+    
+    // 文字列の場合は配列に変換
+    if (!is_array($terms)) {
+        $terms = array($terms);
+    }
+    
+    $term_ids = array();
+    
+    foreach ($terms as $term_name) {
+        $term_name = trim($term_name);
+        if (empty($term_name)) {
+            continue;
+        }
+        
+        // タームが存在するか確認
+        $existing_term = term_exists($term_name, $taxonomy);
+        
+        if ($existing_term) {
+            // 既存のタームIDを使用
+            $term_ids[] = (int) $existing_term['term_id'];
+        } else {
+            // 新しいタームを作成
+            $new_term = wp_insert_term($term_name, $taxonomy);
+            
+            if (!is_wp_error($new_term)) {
+                $term_ids[] = (int) $new_term['term_id'];
+                
+                gi_log_error('New taxonomy term created', array(
+                    'taxonomy' => $taxonomy,
+                    'term_name' => $term_name,
+                    'term_id' => $new_term['term_id']
+                ));
+            } else {
+                gi_log_error('Failed to create taxonomy term', array(
+                    'taxonomy' => $taxonomy,
+                    'term_name' => $term_name,
+                    'error' => $new_term->get_error_message()
+                ));
+            }
+        }
+    }
+    
+    // タームIDの配列で投稿に設定
+    return wp_set_post_terms($post_id, $term_ids, $taxonomy);
+}
 
 // インスタンスを初期化
 function gi_init_google_sheets_sync() {

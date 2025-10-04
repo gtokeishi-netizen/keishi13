@@ -560,33 +560,33 @@ class SheetsWebhookHandler {
      * 完全なタクソノミー統合処理（31列対応）
      */
     private function update_taxonomies_complete($post_id, $row_data) {
-        // 都道府県タクソノミー（T列 = インデックス19）
+        // 都道府県タクソノミー（T列 = インデックス19） + 自動作成
         if (isset($row_data[19])) {
             $prefectures = array_filter(array_map('trim', explode(',', (string)$row_data[19])), 'strlen');
-            wp_set_post_terms($post_id, $prefectures, 'grant_prefecture');
+            gi_set_terms_with_auto_create($post_id, $prefectures, 'grant_prefecture');
             // 重複ACFフィールドを削除
             delete_field('target_prefecture', $post_id);
             delete_field('prefecture_name', $post_id);
         }
         
-        // 市町村タクソノミー（U列 = インデックス20）
+        // 市町村タクソノミー（U列 = インデックス20） + 自動作成
         if (isset($row_data[20])) {
             $municipalities = array_filter(array_map('trim', explode(',', (string)$row_data[20])), 'strlen');
-            wp_set_post_terms($post_id, $municipalities, 'grant_municipality');
+            gi_set_terms_with_auto_create($post_id, $municipalities, 'grant_municipality');
             // 重複ACFフィールドを削除
             delete_field('target_municipality', $post_id);
         }
         
-        // カテゴリ（V列 = インデックス21）
+        // カテゴリ（V列 = インデックス21） + 自動作成
         if (isset($row_data[21])) {
             $categories = array_filter(array_map('trim', explode(',', (string)$row_data[21])), 'strlen');
-            wp_set_post_terms($post_id, $categories, 'grant_category');
+            gi_set_terms_with_auto_create($post_id, $categories, 'grant_category');
         }
         
-        // タグ（W列 = インデックス22）
+        // タグ（W列 = インデックス22） + 自動作成
         if (isset($row_data[22])) {
             $tags = array_filter(array_map('trim', explode(',', (string)$row_data[22])), 'strlen');
-            wp_set_post_terms($post_id, $tags, 'grant_tag');
+            gi_set_terms_with_auto_create($post_id, $tags, 'grant_tag');
         }
         
         // タクソノミー統合ログ
