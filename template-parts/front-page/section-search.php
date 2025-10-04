@@ -898,14 +898,14 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 .message-bubble {
     max-width: 100%;
     width: 100%;
-    padding: 16px 20px;
+    padding: 20px 24px;
     background: #fff;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.8;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border: 1px solid #e0e0e0;
-    min-height: 60px;
+    min-height: 80px;
 }
 
 .message-user .message-bubble {
@@ -955,7 +955,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     background: #fff;
     border: 2px solid #000;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
     resize: none;
     outline: none;
     transition: all 0.2s;
@@ -980,7 +980,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     cursor: pointer;
     transition: all 0.2s;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .chat-send-btn:hover {

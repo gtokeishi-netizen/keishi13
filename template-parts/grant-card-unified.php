@@ -777,6 +777,54 @@ static $assets_loaded = false;
     transition: all 0.3s ease;
 }
 
+/* AIバッジモバイルコンテナ */
+.grant-ai-badges-mobile {
+    display: none;
+}
+
+/* スマホ対応: PC版を非表示、モバイル版を表示 */
+@media (max-width: 640px) {
+    .grant-match-score,
+    .grant-ai-difficulty,
+    .grant-urgency-alert {
+        display: none !important;
+    }
+    
+    .grant-ai-badges-mobile {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .grant-match-score-mobile,
+    .grant-ai-difficulty-mobile,
+    .grant-urgency-alert-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 1.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    
+    .grant-match-score-mobile {
+        background: #000;
+        color: #fff;
+    }
+    
+    .grant-ai-difficulty-mobile {
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+    }
+    
+    .grant-urgency-alert-mobile {
+        color: #fff;
+    }
+}
+
 .grant-match-score:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
@@ -858,6 +906,17 @@ static $assets_loaded = false;
     align-items: center;
     gap: 0.5rem;
     z-index: 10;
+}
+
+/* スマホ対応: アラートを下に配置 */
+@media (max-width: 640px) {
+    .grant-urgency-alert {
+        position: static;
+        display: inline-flex;
+        margin-bottom: 0.5rem;
+        font-size: 0.7rem;
+        padding: 0.4rem 0.7rem;
+    }
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     animation: urgency-pulse 2s ease-in-out infinite;
 }
@@ -2272,6 +2331,44 @@ document.head.appendChild(grantCardStyles);
     <!-- カードコンテンツ -->
     <div class="grant-card-content">
         <div class="grant-main-info">
+            <!-- AIバッジコンテナ（スマホ用） -->
+            <div class="grant-ai-badges-mobile">
+                <?php 
+                // スマホ表示用のAIバッジ（CSSで制御）
+                if (function_exists('gi_calculate_match_score')) {
+                    $match_score = gi_calculate_match_score($post_id);
+                    if ($match_score >= 70):
+                ?>
+                <div class="grant-match-score-mobile" aria-label="AI適合度スコア">
+                    <span>適合度 <?php echo $match_score; ?>%</span>
+                </div>
+                <?php 
+                    endif;
+                }
+                
+                if (function_exists('gi_calculate_difficulty_score')) {
+                    $ai_difficulty = gi_calculate_difficulty_score($post_id);
+                ?>
+                <div class="grant-ai-difficulty-mobile" data-level="<?php echo esc_attr($ai_difficulty['class']); ?>">
+                    <span><?php echo esc_html($ai_difficulty['stars']); ?></span>
+                    <span><?php echo esc_html($ai_difficulty['label']); ?></span>
+                </div>
+                <?php 
+                }
+                
+                if (function_exists('gi_get_deadline_urgency')) {
+                    $urgency = gi_get_deadline_urgency($post_id);
+                    if ($urgency && $urgency['level'] !== 'safe'):
+                ?>
+                <div class="grant-urgency-alert-mobile" style="background: <?php echo esc_attr($urgency['color']); ?>;">
+                    <span><?php echo esc_html($urgency['text']); ?></span>
+                </div>
+                <?php 
+                    endif;
+                }
+                ?>
+            </div>
+            
             <!-- タイトルセクション -->
             <div class="grant-title-section">
                 <?php if ($main_category): ?>
