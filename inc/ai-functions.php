@@ -2001,7 +2001,8 @@ function gi_calculate_match_score($post_id, $user_context = null) {
         $user_context = gi_get_user_context();
     }
     
-    $score = 50; // ベーススコア
+    // ユーザーコンテキストがなくても、基本情報から適合度を計算
+    $score = 70; // ベーススコアを表示閾値以上に
     
     // 業種マッチング
     $grant_categories = wp_get_post_terms($post_id, 'grant_category', ['fields' => 'names']);
@@ -2023,12 +2024,15 @@ function gi_calculate_match_score($post_id, $user_context = null) {
     }
     
     // 金額範囲マッチング
-    $max_amount = get_post_meta($post_id, 'max_amount_numeric', true);
+    $max_amount = get_field('max_amount_numeric', $post_id);
     if ($max_amount && !empty($user_context['budget_range'])) {
         $budget = $user_context['budget_range'];
         if ($max_amount >= $budget['min'] && $max_amount <= $budget['max']) {
             $score += 15;
         }
+    } elseif ($max_amount > 10000000) {
+        // 高額助成金は適合度アップ
+        $score += 10;
     }
     
     return min(100, max(0, $score));
@@ -2068,8 +2072,8 @@ function gi_get_user_context() {
 function gi_calculate_difficulty_score($post_id) {
     $score = 3; // デフォルト: 普通
     
-    // 必要書類数
-    $required_docs = get_post_meta($post_id, 'required_documents', true);
+    // 必要書類数（ACFフィールド使用）
+    $required_docs = get_field('required_documents', $post_id);
     $doc_count = !empty($required_docs) ? count(explode("\n", $required_docs)) : 0;
     
     if ($doc_count >= 10) {
@@ -2078,16 +2082,16 @@ function gi_calculate_difficulty_score($post_id) {
         $score -= 1;
     }
     
-    // 採択率
-    $success_rate = (int)get_post_meta($post_id, 'grant_success_rate', true);
+    // 採択率（ACFフィールド名: adoption_rate）
+    $success_rate = floatval(get_field('adoption_rate', $post_id));
     if ($success_rate > 70) {
         $score -= 1;
-    } elseif ($success_rate < 30) {
+    } elseif ($success_rate < 30 && $success_rate > 0) {
         $score += 1;
     }
     
-    // 対象条件の複雑さ
-    $target = get_post_meta($post_id, 'grant_target', true);
+    // 対象条件の複雑さ（ACFフィールド使用）
+    $target = get_field('grant_target', $post_id);
     if (strlen($target) > 200) {
         $score += 0.5;
     }
@@ -2133,28 +2137,37 @@ function gi_get_similar_grants($post_id, $limit = 5) {
 }
 
 /**
- * 提案7: 期限アラート判定
+ * 提案7: 期限アラート判定（ACFフィールド使用、アイコン・絵文字削除）
  */
 function gi_get_deadline_urgency($post_id) {
-    $deadline = get_post_meta($post_id, 'deadline', true);
-    if (empty($deadline)) {
+    // ACFフィールドから締切日を取得
+    $deadline_date = get_field('deadline_date', $post_id);
+    if (empty($deadline_date)) {
+        $deadline_date = get_field('deadline', $post_id);
+    }
+    
+    if (empty($deadline_date)) {
         return null;
     }
     
-    $deadline_timestamp = is_numeric($deadline) ? intval($deadline) : strtotime($deadline);
-    $now = time();
+    $deadline_timestamp = is_numeric($deadline_date) ? intval($deadline_date) : strtotime($deadline_date);
+    if (!$deadline_timestamp) {
+        return null;
+    }
+    
+    $now = current_time('timestamp');
     $days_left = floor(($deadline_timestamp - $now) / (60 * 60 * 24));
     
     if ($days_left < 0) {
-        return ['level' => 'expired', 'icon' => 'fa-times-circle', 'color' => '#999', 'text' => '期限切れ'];
+        return ['level' => 'expired', 'color' => '#999', 'text' => '期限切れ'];
     } elseif ($days_left <= 3) {
-        return ['level' => 'critical', 'icon' => 'fa-fire', 'color' => '#dc2626', 'text' => "🔥 残り{$days_left}日！"];
+        return ['level' => 'critical', 'color' => '#dc2626', 'text' => "残り{$days_left}日！"];
     } elseif ($days_left <= 7) {
-        return ['level' => 'urgent', 'icon' => 'fa-exclamation-triangle', 'color' => '#f59e0b', 'text' => "⚠️ 残り{$days_left}日"];
+        return ['level' => 'urgent', 'color' => '#f59e0b', 'text' => "残り{$days_left}日"];
     } elseif ($days_left <= 30) {
-        return ['level' => 'warning', 'icon' => 'fa-clock', 'color' => '#eab308', 'text' => "📅 残り{$days_left}日"];
+        return ['level' => 'warning', 'color' => '#eab308', 'text' => "残り{$days_left}日"];
     } else {
-        return ['level' => 'safe', 'icon' => 'fa-calendar-check', 'color' => '#10b981', 'text' => "📅 {$days_left}日"];
+        return ['level' => 'safe', 'color' => '#10b981', 'text' => "{$days_left}日"];
     }
 }
 
