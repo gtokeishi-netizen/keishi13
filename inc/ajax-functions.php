@@ -1154,33 +1154,6 @@ function gi_generate_simple_grant_response($question, $grant_details, $intent) {
 }
 
 /**
- * 検索履歴保存
- */
-function gi_save_search_history($query, $params, $results_count, $session_id) {
-    global $wpdb;
-    
-    $table = $wpdb->prefix . 'gi_search_history';
-    
-    // テーブルが存在するか確認
-    if ($wpdb->get_var("SHOW TABLES LIKE '{$table}'") != $table) {
-        return false;
-    }
-    
-    return $wpdb->insert(
-        $table,
-        [
-            'session_id' => $session_id,
-            'user_id' => get_current_user_id() ?: null,
-            'search_query' => $query,
-            'search_filter' => maybe_serialize($params),
-            'results_count' => $results_count,
-            'created_at' => current_time('mysql')
-        ],
-        ['%s', '%d', '%s', '%s', '%d', '%s']
-    );
-}
-
-/**
  * 人気検索キーワード取得
  */
 function gi_get_popular_search_terms($limit = 10) {
@@ -1860,38 +1833,9 @@ function gi_normalize_date($date_input) {
 
 /**
  * Get user favorites safely
- * Note: This function is already defined in inc/data-functions.php
- * Using existing function to avoid redeclaration
+ * Note: This function is defined in inc/data-processing.php
+ * No need to redefine here - using existing gi_get_user_favorites()
  */
-
-/**
- * Safe version of get user favorites (alias)
- * Note: Using existing gi_get_user_favorites() from inc/data-functions.php
- */
-function gi_get_user_favorites_safe() {
-    return gi_get_user_favorites();
-}
-
-/**
- * =============================================================================
- * Missing Helper Functions Continued
- * =============================================================================
- */
-
-/**
- * gi_get_user_favorites - Get user favorites
- */
-if (!function_exists('gi_get_user_favorites')) {
-    function gi_get_user_favorites() {
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            return [];
-        }
-        
-        $favorites = get_user_meta($user_id, 'gi_favorites', true);
-        return is_array($favorites) ? $favorites : [];
-    }
-}
 
 /**
  * =============================================================================

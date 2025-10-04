@@ -801,14 +801,6 @@ function gi_save_search_history($query, $filters = [], $results_count = 0, $sess
 /**
  * 検索履歴の取得
  */
-function gi_get_search_history($limit = 10) {
-    $user_id = get_current_user_id();
-    if (!$user_id) return [];
-    
-    $history = get_user_meta($user_id, 'gi_search_history', true) ?: [];
-    return array_slice($history, 0, $limit);
-}
-
 /**
  * OpenAI統合クラス
  */
@@ -949,17 +941,6 @@ function gi_set_openai_api_key($api_key) {
 
 function gi_get_openai_api_key() {
     return get_option('gi_openai_api_key', '');
-}
-
-function gi_check_ai_capabilities() {
-    $openai = GI_OpenAI_Integration::getInstance();
-    
-    return [
-        'openai_configured' => $openai->is_configured(),
-        'semantic_search_available' => true,
-        'voice_recognition_available' => $openai->is_configured(),
-        'chat_available' => true
-    ];
 }
 
 // Initialize the enhanced AI generator

@@ -170,15 +170,10 @@ if (is_search()) {
                 <div class="animate-fade-in-up" style="animation-delay: <?php echo ($post_count * 0.1); ?>s;">
                     <?php
                     /**
-                     * テンプレートパーツの優先順位:
-                     * 1. grant-card-v3 (助成金専用)
-                     * 2. post-card (一般投稿用)
-                     * 3. フォールバック表示
+                     * テンプレートパーツ: grant-card-unified を使用
                      */
-                    if (locate_template('template-parts/cards/grant-card-v3.php')) {
-                        get_template_part('template-parts/cards/grant-card-v3');
-                    } elseif (locate_template('template-parts/cards/post-card.php')) {
-                        get_template_part('template-parts/cards/post-card');
+                    if (locate_template('template-parts/grant-card-unified.php')) {
+                        get_template_part('template-parts/grant-card-unified');
                     } else {
                         // フォールバック: 基本的な投稿カード
                         ?>
