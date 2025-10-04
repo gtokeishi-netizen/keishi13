@@ -102,52 +102,58 @@ class SheetsInitializer {
      */
     private function setup_headers() {
         $headers = array(
-            'ID' => 'WordPress投稿ID（自動入力）',
+            'ID (自動入力)' => 'WordPress投稿ID（自動入力）',
             'タイトル' => '助成金名・タイトル',
-            '内容' => '助成金の詳細説明',
-            '抜粋' => '簡潔な概要',
-            'ステータス' => 'publish/draft/private/deleted',
-            '作成日' => '投稿作成日時（自動入力）',
-            '更新日' => '投稿更新日時（自動入力）',
-            '助成金額（表示用）' => '表示用の助成金額',
-            '助成金額（数値）' => '数値での助成金額（円）',
-            '申請期限（表示用）' => '表示用の申請期限',
-            '申請期限（日付）' => 'YYYY-MM-DD形式の期限',
-            '実施組織' => '助成金を実施する組織名',
-            '組織タイプ' => 'national/prefecture/city等',
+            '内容・詳細' => '助成金の詳細説明（HTML可）',
+            '抜粋・概要' => '一覧表示用の簡潔な概要',
+            'ステータス (draft/publish/private)' => '投稿ステータス（publish/draft/private/deleted）',
+            '作成日 (自動入力)' => '投稿作成日時（自動入力）',
+            '更新日 (自動入力)' => '投稿更新日時（自動入力）',
+            '助成金額 (例: 300万円)' => '表示用の助成金額',
+            '助成金額数値 (例: 3000000)' => '数値での助成金額（円）',
+            '申請期限 (例: 令和6年3月31日)' => '表示用の申請期限',
+            '申請期限日付 (YYYY-MM-DD)' => 'YYYY-MM-DD形式の締切日',
+            '実施組織名' => '助成金を実施する組織名',
+            '組織タイプ (national/prefecture/city/public_org/private_org/other)' => '組織のタイプ',
             '対象者・対象事業' => '助成対象の詳細',
-            '申請方法' => 'online/mail/visit等',
+            '申請方法 (online/mail/visit/mixed)' => '申請方法',
             '問い合わせ先' => '連絡先情報',
             '公式URL' => '公式サイトURL',
-            '都道府県コード' => 'tokyo/osaka等のコード',
-            '都道府県名' => '東京都/大阪府等の表示名',
-            '対象市町村' => '対象となる市町村名',
-            '地域制限' => 'nationwide/prefecture_only等',
-            '申請ステータス' => 'open/closed/upcoming等',
-            'カテゴリ' => 'カンマ区切りのカテゴリ名',
-            'タグ' => 'カンマ区切りのタグ名',
-            'シート更新日' => 'スプレッドシート更新日時（自動入力）'
+            '地域制限 (nationwide/prefecture_only/municipality_only/region_group/specific_area)' => '地域制限のタイプ',
+            '申請ステータス (open/upcoming/closed/suspended)' => '募集状況',
+            '都道府県 (例: 東京都)' => '対象となる都道府県名（複数可、カンマ区切り）',
+            '市町村 (例: 新宿区,渋谷区)' => '対象となる市区町村（カンマ区切り）',
+            'カテゴリ (例: ビジネス支援,IT関連)' => 'grant_categoryタクソノミー名（複数可）',
+            'タグ (例: スタートアップ,中小企業)' => 'grant_tagタクソノミー名（複数可）',
+            '外部リンク' => '関連する外部リンクURL',
+            '地域に関する備考' => '地域制限や対象地域に関する補足',
+            '必要書類' => '申請に必要な書類（複数はカンマ区切り）',
+            '採択率（%）' => '採択率（0-100）',
+            '申請難易度 (easy/normal/hard/very_hard)' => '申請難易度の目安',
+            '対象経費' => '助成対象となる経費の詳細',
+            '補助率 (例: 2/3, 50%)' => '補助率・補助割合の詳細',
+            'シート更新日 (自動入力)' => 'スプレッドシート最終更新日時（自動入力）'
         );
-        
+
         // ヘッダー行を書き込み
         $header_values = array_keys($headers);
         $sheet_name = $this->sheets_sync->get_sheet_name();
         $result = $this->sheets_sync->write_sheet_data(
-            $sheet_name . '!A1:Y1', 
+            $sheet_name . '!A1:AE1',
             array($header_values)
         );
-        
+
         if (!$result) {
             throw new Exception('ヘッダー行の設定に失敗しました');
         }
-        
+
         // 2行目に説明を追加
         $descriptions = array_values($headers);
         $this->sheets_sync->write_sheet_data(
-            $sheet_name . '!A2:Y2', 
+            $sheet_name . '!A2:AE2',
             array($descriptions)
         );
-        
+
         return true;
     }
     
@@ -155,66 +161,47 @@ class SheetsInitializer {
      * バリデーションルールの設定（Google Sheets API v4では制限あり）
      */
     private function setup_validation_rules() {
-        // ステータス列（E列）にドロップダウンを設定するリクエストを作成
-        // 注意: この機能はGoogle Sheets APIの範囲を超える場合があります
-        
-        // 代替案: サンプルデータでバリデーション値を示す
-        $validation_samples = array(
-            '', // ID（空欄）
-            'サンプル助成金タイトル',
-            'この助成金の詳細な説明をここに記載します。',
-            '短い概要説明',
-            'draft', // ステータス例
-            '', // 作成日（空欄）
-            '', // 更新日（空欄）
-            '最大100万円',
-            '2024-12-31',
-            '◯◯財団',
-            '法人格を有する非営利団体',
-            '地域活性化を目的とした助成金',
-            'Webサイトから申請書をダウンロード',
-            'info@example.org',
-            'https://example.org',
-            '地域振興, 社会貢献',
-            'NPO, 助成金',
-            '' // シート更新日（空欄）
-        );
-        
-        // サンプル行を3行目に追加（25列に対応）
-        $validation_samples = array(
-            '', // ID（空欄）
+        // Google Sheets APIでは高度なバリデーション設定が難しいため、サンプル行で想定値を提示
+        $sample_row = array(
+            '', // ID（自動入力）
             'サンプル助成金タイトル', // タイトル
             'この助成金の詳細な説明をここに記載します。', // 内容
             '短い概要説明', // 抜粋
-            'draft', // ステータス例
-            '', // 作成日（空欄）
-            '', // 更新日（空欄）
+            'draft', // ステータス
+            '', // 作成日（自動入力）
+            '', // 更新日（自動入力）
             '最大100万円', // 助成金額（表示用）
             '1000000', // 助成金額（数値）
             '2024年12月31日', // 申請期限（表示用）
             '2024-12-31', // 申請期限（日付）
             '◯◯財団', // 実施組織
-            'foundation', // 組織タイプ
+            'public_org', // 組織タイプ
             '中小企業向け地域振興事業', // 対象者・対象事業
             'online', // 申請方法
             'info@example.org', // 問い合わせ先
             'https://example.org', // 公式URL
-            'tokyo', // 都道府県コード
-            '東京都', // 都道府県名
-            '全域', // 対象市町村
-            'prefecture', // 地域制限
+            'prefecture_only', // 地域制限
             'open', // 申請ステータス
+            '東京都', // 都道府県
+            '新宿区, 渋谷区', // 市町村
             '地域振興, 社会貢献', // カテゴリ
             'NPO, 助成金', // タグ
-            '' // シート更新日（空欄）
+            'https://external.example.com', // 外部リンク
+            '東京都内の中小企業が対象', // 地域備考
+            '事業計画書, 決算書', // 必要書類
+            '85', // 採択率
+            '中級', // 申請難易度
+            '人件費, 設備費', // 対象経費
+            '1/2以内', // 補助率
+            '' // シート更新日（自動入力）
         );
-        
+
         $sheet_name = $this->sheets_sync->get_sheet_name();
         $this->sheets_sync->write_sheet_data(
-            $sheet_name . '!A3:Y3', 
-            array($validation_samples)
+            $sheet_name . '!A3:AE3',
+            array($sample_row)
         );
-        
+
         return true;
     }
     
@@ -248,7 +235,7 @@ class SheetsInitializer {
             // 一括で書き込み
             $end_row = $start_row + count($rows) - 1;
             $sheet_name = $this->sheets_sync->get_sheet_name();
-            $range = $sheet_name . "!A{$start_row}:Y{$end_row}";
+            $range = $sheet_name . "!A{$start_row}:AE{$end_row}";
             
             $result = $this->sheets_sync->write_sheet_data($range, $rows);
             
@@ -268,8 +255,37 @@ class SheetsInitializer {
         if (!$post || $post->post_type !== 'grant') {
             return false;
         }
-        
-        // 基本データ
+
+        $prefectures = wp_get_post_terms($post_id, 'grant_prefecture', array('fields' => 'names'));
+        $municipalities = wp_get_post_terms($post_id, 'grant_municipality', array('fields' => 'names'));
+        $categories = wp_get_post_terms($post_id, 'grant_category', array('fields' => 'names'));
+        $tags = wp_get_post_terms($post_id, 'grant_tag', array('fields' => 'names'));
+
+        $max_amount = get_field('max_amount', $post_id);
+        $max_amount_numeric = get_field('max_amount_numeric', $post_id);
+        $deadline_display = get_field('deadline', $post_id);
+        $deadline_date = get_field('deadline_date', $post_id);
+        $organization = get_field('organization', $post_id);
+        $organization_type = get_field('organization_type', $post_id) ?: 'national';
+        $grant_target = get_field('grant_target', $post_id);
+        $application_method = get_field('application_method', $post_id) ?: 'online';
+        $contact_info = get_field('contact_info', $post_id);
+        $official_url = get_field('official_url', $post_id);
+        $regional_limitation = get_field('regional_limitation', $post_id) ?: 'nationwide';
+        $application_status = get_field('application_status', $post_id) ?: 'open';
+        $external_link = get_field('external_link', $post_id);
+        $area_notes = get_field('area_notes', $post_id);
+        $required_documents = get_field('required_documents_detailed', $post_id);
+        $adoption_rate = get_field('adoption_rate', $post_id);
+        $difficulty_level = get_field('difficulty_level', $post_id) ?: '中級';
+        $eligible_expenses = get_field('eligible_expenses_detailed', $post_id);
+        $subsidy_rate = get_field('subsidy_rate_detailed', $post_id);
+
+        $prefecture_value = is_array($prefectures) && !is_wp_error($prefectures) ? implode(', ', $prefectures) : '';
+        $municipality_value = is_array($municipalities) && !is_wp_error($municipalities) ? implode(', ', $municipalities) : '';
+        $category_value = is_array($categories) && !is_wp_error($categories) ? implode(', ', $categories) : '';
+        $tag_value = is_array($tags) && !is_wp_error($tags) ? implode(', ', $tags) : '';
+
         $row = array(
             $post_id,
             $post->post_title,
@@ -278,59 +294,32 @@ class SheetsInitializer {
             $post->post_status,
             $post->post_date,
             $post->post_modified,
+            $max_amount ?: '',
+            ($max_amount_numeric !== null && $max_amount_numeric !== '') ? $max_amount_numeric : '',
+            $deadline_display ?: '',
+            $deadline_date ?: '',
+            $organization ?: '',
+            $organization_type,
+            $grant_target ?: '',
+            $application_method,
+            $contact_info ?: '',
+            $official_url ?: '',
+            $regional_limitation,
+            $application_status,
+            $prefecture_value,
+            $municipality_value,
+            $category_value,
+            $tag_value,
+            $external_link ?: '',
+            $area_notes ?: '',
+            $required_documents ?: '',
+            ($adoption_rate !== null && $adoption_rate !== '') ? $adoption_rate : '',
+            $difficulty_level,
+            $eligible_expenses ?: '',
+            $subsidy_rate ?: '',
+            current_time('mysql')
         );
-        
-        // ACFフィールドを追加
-        $acf_fields = array(
-            'max_amount',              // H列
-            'max_amount_numeric',      // I列
-            'deadline',                // J列
-            'deadline_date',           // K列
-            'organization',            // L列
-            'organization_type',       // M列
-            'grant_target',            // N列
-            'application_method',      // O列
-            'contact_info',            // P列
-            'official_url',            // Q列
-            'target_prefecture',       // R列
-            'prefecture_name',         // S列
-            'target_municipality',     // T列
-            'regional_limitation',     // U列
-            'application_status'       // V列
-        );
-        
-        foreach ($acf_fields as $field) {
-            $value = get_field($field, $post_id);
-            
-            // 都道府県名の自動生成
-            if ($field === 'prefecture_name' && empty($value)) {
-                $prefecture_code = get_field('target_prefecture', $post_id);
-                if ($prefecture_code) {
-                    $value = $this->get_prefecture_name_by_code($prefecture_code);
-                    // 値を更新して保存
-                    update_field('prefecture_name', $value, $post_id);
-                }
-            }
-            
-            // 配列の場合はJSON文字列に変換
-            if (is_array($value)) {
-                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
-            }
-            
-            $row[] = (string)$value;
-        }
-        
-        // カテゴリを追加（W列）
-        $categories = wp_get_post_terms($post_id, 'grant_category', array('fields' => 'names'));
-        $row[] = is_array($categories) && !is_wp_error($categories) ? implode(', ', $categories) : '';
-        
-        // タグを追加（X列）
-        $tags = wp_get_post_terms($post_id, 'grant_tag', array('fields' => 'names'));
-        $row[] = is_array($tags) && !is_wp_error($tags) ? implode(', ', $tags) : '';
-        
-        // スプレッドシート更新日（Y列）
-        $row[] = current_time('mysql');
-        
+
         return $row;
     }
     
@@ -444,63 +433,6 @@ class SheetsInitializer {
     }
     
     /**
-     * 都道府県コードから名前を取得
-     */
-    private function get_prefecture_name_by_code($code) {
-        $prefectures = array(
-            'hokkaido' => '北海道',
-            'aomori' => '青森県',
-            'iwate' => '岩手県',
-            'miyagi' => '宮城県',
-            'akita' => '秋田県',
-            'yamagata' => '山形県',
-            'fukushima' => '福島県',
-            'ibaraki' => '茨城県',
-            'tochigi' => '栃木県',
-            'gunma' => '群馬県',
-            'saitama' => '埼玉県',
-            'chiba' => '千葉県',
-            'tokyo' => '東京都',
-            'kanagawa' => '神奈川県',
-            'niigata' => '新潟県',
-            'toyama' => '富山県',
-            'ishikawa' => '石川県',
-            'fukui' => '福井県',
-            'yamanashi' => '山梨県',
-            'nagano' => '長野県',
-            'gifu' => '岐阜県',
-            'shizuoka' => '静岡県',
-            'aichi' => '愛知県',
-            'mie' => '三重県',
-            'shiga' => '滋賀県',
-            'kyoto' => '京都府',
-            'osaka' => '大阪府',
-            'hyogo' => '兵庫県',
-            'nara' => '奈良県',
-            'wakayama' => '和歌山県',
-            'tottori' => '鳥取県',
-            'shimane' => '島根県',
-            'okayama' => '岡山県',
-            'hiroshima' => '広島県',
-            'yamaguchi' => '山口県',
-            'tokushima' => '徳島県',
-            'kagawa' => '香川県',
-            'ehime' => '愛媛県',
-            'kochi' => '高知県',
-            'fukuoka' => '福岡県',
-            'saga' => '佐賀県',
-            'nagasaki' => '長崎県',
-            'kumamoto' => '熊本県',
-            'oita' => '大分県',
-            'miyazaki' => '宮崎県',
-            'kagoshima' => '鹿児島県',
-            'okinawa' => '沖縄県',
-        );
-        
-        return isset($prefectures[$code]) ? $prefectures[$code] : '';
-    }
-    
-    /**
      * AJAX: 全投稿エクスポート
      */
     public function ajax_export_all_posts() {
@@ -536,7 +468,7 @@ class SheetsInitializer {
             }
             
             // スプレッドシートのデータをクリア（ヘッダー行は残す）
-            $range = 'A2:Y1000'; // 25列、1000行までクリア
+            $range = 'A2:AE1000'; // 31列、1000行までクリア
             $clear_data = $this->sheets_sync->clear_sheet_range($range);
             
             if ($clear_data) {

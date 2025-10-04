@@ -561,38 +561,31 @@ class SheetsWebhookHandler {
      */
     private function update_taxonomies_complete($post_id, $row_data) {
         // 都道府県タクソノミー（T列 = インデックス19）
-        if (isset($row_data[19]) && !empty($row_data[19])) {
-            $prefecture_code = sanitize_text_field($row_data[19]);
-            // 都道府県名を取得
-            $prefecture_name = '';
-            if (function_exists('gi_get_prefecture_name_by_code')) {
-                $prefecture_name = gi_get_prefecture_name_by_code($prefecture_code);
-            }
-            if (!empty($prefecture_name)) {
-                wp_set_post_terms($post_id, array($prefecture_name), 'grant_prefecture');
-            }
+        if (isset($row_data[19])) {
+            $prefectures = array_filter(array_map('trim', explode(',', (string)$row_data[19])), 'strlen');
+            wp_set_post_terms($post_id, $prefectures, 'grant_prefecture');
             // 重複ACFフィールドを削除
             delete_field('target_prefecture', $post_id);
             delete_field('prefecture_name', $post_id);
         }
         
         // 市町村タクソノミー（U列 = インデックス20）
-        if (isset($row_data[20]) && !empty($row_data[20])) {
-            $municipalities = array_map('trim', explode(',', $row_data[20]));
+        if (isset($row_data[20])) {
+            $municipalities = array_filter(array_map('trim', explode(',', (string)$row_data[20])), 'strlen');
             wp_set_post_terms($post_id, $municipalities, 'grant_municipality');
             // 重複ACFフィールドを削除
             delete_field('target_municipality', $post_id);
         }
         
         // カテゴリ（V列 = インデックス21）
-        if (isset($row_data[21]) && !empty($row_data[21])) {
-            $categories = array_map('trim', explode(',', $row_data[21]));
+        if (isset($row_data[21])) {
+            $categories = array_filter(array_map('trim', explode(',', (string)$row_data[21])), 'strlen');
             wp_set_post_terms($post_id, $categories, 'grant_category');
         }
         
         // タグ（W列 = インデックス22）
-        if (isset($row_data[22]) && !empty($row_data[22])) {
-            $tags = array_map('trim', explode(',', $row_data[22]));
+        if (isset($row_data[22])) {
+            $tags = array_filter(array_map('trim', explode(',', (string)$row_data[22])), 'strlen');
             wp_set_post_terms($post_id, $tags, 'grant_tag');
         }
         
@@ -701,45 +694,69 @@ class SheetsWebhookHandler {
         if (!$post || $post->post_type !== 'grant') {
             return false;
         }
-        
-        // 都道府県名を取得
-        $prefecture_code = get_field('target_prefecture', $post_id);
-        $prefecture_name = '';
-        if ($prefecture_code && function_exists('gi_get_prefecture_name_by_code')) {
-            $prefecture_name = gi_get_prefecture_name_by_code($prefecture_code);
-        }
-        
-        // カテゴリとタグを取得
+
+        $prefectures = wp_get_post_terms($post_id, 'grant_prefecture', array('fields' => 'names'));
+        $municipalities = wp_get_post_terms($post_id, 'grant_municipality', array('fields' => 'names'));
         $categories = wp_get_post_terms($post_id, 'grant_category', array('fields' => 'names'));
         $tags = wp_get_post_terms($post_id, 'grant_tag', array('fields' => 'names'));
-        
-        // スプレッドシートの列順に合わせたデータ配列
+
+        $max_amount = get_field('max_amount', $post_id);
+        $max_amount_numeric = get_field('max_amount_numeric', $post_id);
+        $deadline_display = get_field('deadline', $post_id);
+        $deadline_date = get_field('deadline_date', $post_id);
+        $organization = get_field('organization', $post_id);
+        $organization_type = get_field('organization_type', $post_id) ?: 'national';
+        $grant_target = get_field('grant_target', $post_id);
+        $application_method = get_field('application_method', $post_id) ?: 'online';
+        $contact_info = get_field('contact_info', $post_id);
+        $official_url = get_field('official_url', $post_id);
+        $regional_limitation = get_field('regional_limitation', $post_id) ?: 'nationwide';
+        $application_status = get_field('application_status', $post_id) ?: 'open';
+        $external_link = get_field('external_link', $post_id);
+        $area_notes = get_field('area_notes', $post_id);
+        $required_documents = get_field('required_documents_detailed', $post_id);
+        $adoption_rate = get_field('adoption_rate', $post_id);
+        $difficulty_level = get_field('difficulty_level', $post_id) ?: '中級';
+        $eligible_expenses = get_field('eligible_expenses_detailed', $post_id);
+        $subsidy_rate = get_field('subsidy_rate_detailed', $post_id);
+
+        $prefecture_value = (is_array($prefectures) && !is_wp_error($prefectures)) ? implode(', ', $prefectures) : '';
+        $municipality_value = (is_array($municipalities) && !is_wp_error($municipalities)) ? implode(', ', $municipalities) : '';
+        $category_value = (is_array($categories) && !is_wp_error($categories)) ? implode(', ', $categories) : '';
+        $tag_value = (is_array($tags) && !is_wp_error($tags)) ? implode(', ', $tags) : '';
+
         return array(
             $post_id,                                                    // A: ID
             $post->post_title,                                           // B: タイトル
-            wp_strip_all_tags($post->post_content),                     // C: 内容
+            wp_strip_all_tags($post->post_content),                      // C: 内容（HTML除去）
             $post->post_excerpt,                                         // D: 抜粋
             $post->post_status,                                          // E: ステータス
             $post->post_date,                                            // F: 作成日
             $post->post_modified,                                        // G: 更新日
-            get_field('max_amount', $post_id) ?: '',                     // H: 助成金額（表示用）
-            get_field('max_amount_numeric', $post_id) ?: 0,              // I: 助成金額（数値）
-            get_field('deadline', $post_id) ?: '',                       // J: 申請期限（表示用）
-            get_field('deadline_date', $post_id) ?: '',                  // K: 申請期限（日付）
-            get_field('organization', $post_id) ?: '',                   // L: 実施組織
-            get_field('organization_type', $post_id) ?: 'national',      // M: 組織タイプ
-            get_field('grant_target', $post_id) ?: '',                   // N: 対象者・対象事業
-            get_field('application_method', $post_id) ?: 'online',       // O: 申請方法
-            get_field('contact_info', $post_id) ?: '',                   // P: 問い合わせ先
-            get_field('official_url', $post_id) ?: '',                   // Q: 公式URL
-            get_field('target_prefecture', $post_id) ?: '',              // R: 都道府県コード
-            $prefecture_name,                                            // S: 都道府県名
-            get_field('target_municipality', $post_id) ?: '',            // T: 対象市町村
-            get_field('regional_limitation', $post_id) ?: 'nationwide',   // U: 地域制限
-            get_field('application_status', $post_id) ?: 'open',         // V: 申請ステータス
-            is_array($categories) ? implode(', ', $categories) : '',     // W: カテゴリ
-            is_array($tags) ? implode(', ', $tags) : '',                 // X: タグ
-            current_time('mysql')                                        // Y: シート更新日
+            $max_amount ?: '',                                           // H: 助成金額（表示用）
+            ($max_amount_numeric !== null && $max_amount_numeric !== '') ? $max_amount_numeric : '', // I: 助成金額（数値）
+            $deadline_display ?: '',                                     // J: 申請期限（表示用）
+            $deadline_date ?: '',                                        // K: 申請期限（日付）
+            $organization ?: '',                                         // L: 実施組織
+            $organization_type,                                          // M: 組織タイプ
+            $grant_target ?: '',                                         // N: 対象者・対象事業
+            $application_method,                                         // O: 申請方法
+            $contact_info ?: '',                                         // P: 問い合わせ先
+            $official_url ?: '',                                         // Q: 公式URL
+            $regional_limitation,                                        // R: 地域制限
+            $application_status,                                         // S: 申請ステータス
+            $prefecture_value,                                           // T: 都道府県（タクソノミー）
+            $municipality_value,                                         // U: 市町村（タクソノミー）
+            $category_value,                                             // V: カテゴリ
+            $tag_value,                                                  // W: タグ
+            $external_link ?: '',                                        // X: 外部リンク
+            $area_notes ?: '',                                           // Y: 地域備考
+            $required_documents ?: '',                                   // Z: 必要書類
+            ($adoption_rate !== null && $adoption_rate !== '') ? $adoption_rate : '', // AA: 採択率
+            $difficulty_level,                                           // AB: 申請難易度
+            $eligible_expenses ?: '',                                    // AC: 対象経費
+            $subsidy_rate ?: '',                                         // AD: 補助率
+            current_time('mysql')                                        // AE: シート更新日
         );
     }
     
