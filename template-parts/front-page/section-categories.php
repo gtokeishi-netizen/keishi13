@@ -1967,16 +1967,45 @@ a.recent-grant-item:hover {
 <!-- JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 地域ごとの助成金数を更新
+    // PHPから都道府県カウントデータを取得
+    const prefectureCounts = <?php echo json_encode($prefecture_counts); ?>;
+    
+    // 地域と都道府県のマッピング
+    const regionToPrefectures = {
+        'hokkaido': ['hokkaido'],
+        'tohoku': ['aomori', 'iwate', 'miyagi', 'akita', 'yamagata', 'fukushima'],
+        'kanto': ['ibaraki', 'tochigi', 'gunma', 'saitama', 'chiba', 'tokyo', 'kanagawa'],
+        'chubu': ['niigata', 'toyama', 'ishikawa', 'fukui', 'yamanashi', 'nagano', 'gifu', 'shizuoka', 'aichi'],
+        'kinki': ['mie', 'shiga', 'kyoto', 'osaka', 'hyogo', 'nara', 'wakayama'],
+        'chugoku': ['tottori', 'shimane', 'okayama', 'hiroshima', 'yamaguchi'],
+        'shikoku': ['tokushima', 'kagawa', 'ehime', 'kochi'],
+        'kyushu': ['fukuoka', 'saga', 'nagasaki', 'kumamoto', 'oita', 'miyazaki', 'kagoshima', 'okinawa']
+    };
+    
+    // 地域ごとの助成金数を計算して更新
     function updateRegionCounts() {
-        document.querySelectorAll('.region-button').forEach(button => {
-            const region = button.getAttribute('data-region');
-            const count = button.getAttribute('data-count') || 0;
+        Object.keys(regionToPrefectures).forEach(region => {
+            let regionCount = 0;
+            
+            // その地域の都道府県の合計を計算
+            regionToPrefectures[region].forEach(prefSlug => {
+                regionCount += prefectureCounts[prefSlug] || 0;
+            });
             
             // SVG地図上の件数表示を更新
             const mapRegion = document.querySelector(`.region-group[data-region="${region}"] .region-count`);
             if (mapRegion) {
-                mapRegion.textContent = count + '件';
+                mapRegion.textContent = regionCount + '件';
+            }
+            
+            // 地域ボタンの件数も更新
+            const regionButton = document.querySelector(`.region-button[data-region="${region}"]`);
+            if (regionButton) {
+                const countSpan = regionButton.querySelector('.region-count');
+                if (countSpan) {
+                    countSpan.textContent = regionCount + '件';
+                }
+                regionButton.setAttribute('data-count', regionCount);
             }
         });
     }

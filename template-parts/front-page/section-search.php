@@ -1551,6 +1551,49 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     }
 }
 
+@media (max-width: 640px) {
+    .monochrome-ai-search {
+        padding: 60px 0;
+    }
+    
+    .section-header {
+        margin-bottom: 40px;
+    }
+    
+    .title-en {
+        font-size: 24px;
+    }
+    
+    .title-ja {
+        font-size: 18px;
+    }
+    
+    .quick-filters {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .filter-chip {
+        padding: 8px 12px;
+        font-size: 11px;
+        border-width: 1.5px;
+    }
+    
+    .ai-main-content {
+        gap: 20px;
+    }
+    
+    .ai-assistant-panel {
+        height: 350px;
+        min-height: 350px;
+    }
+    
+    .assistant-chat {
+        min-height: 200px;
+    }
+}
+
 @media (max-width: 768px) {
     .monochrome-ai-search {
         padding: 80px 0;
@@ -1565,15 +1608,19 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     }
     
     .quick-filters {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        padding: 0 20px;
-        margin: 0 -20px 40px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 40px;
+        padding: 0;
     }
     
     .filter-chip {
-        flex-shrink: 0;
+        padding: 10px 16px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .featured-grants,
@@ -1584,6 +1631,31 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     
     .section-container {
         padding: 0 20px;
+    }
+    
+    /* Search Bar - Mobile */
+    .ai-search-bar {
+        margin-bottom: 30px;
+    }
+    
+    .search-input-wrapper {
+        padding: 12px 16px;
+    }
+    
+    .search-input {
+        font-size: 14px;
+    }
+    
+    .search-btn {
+        padding: 10px 20px;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+    
+    .btn-icon {
+        margin: 0;
     }
 
     /* Grant Assistant Modal - Mobile */
@@ -1650,6 +1722,64 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     .card-link {
         text-align: center;
         justify-content: center;
+    }
+}
+
+/* Ultra-small mobile phones (375px and below) */
+@media (max-width: 375px) {
+    .monochrome-ai-search {
+        padding: 40px 0;
+    }
+    
+    .section-header {
+        margin-bottom: 30px;
+    }
+    
+    .title-en {
+        font-size: 20px;
+    }
+    
+    .title-ja {
+        font-size: 16px;
+    }
+    
+    .section-description {
+        font-size: 13px;
+    }
+    
+    .quick-filters {
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-chip {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    .search-input-wrapper {
+        padding: 10px 12px;
+    }
+    
+    .search-input {
+        font-size: 13px;
+    }
+    
+    .search-btn {
+        padding: 8px 16px;
+    }
+    
+    .ai-main-content {
+        gap: 15px;
+    }
+    
+    .ai-assistant-panel {
+        height: 300px;
+        min-height: 300px;
+    }
+    
+    .section-container {
+        padding: 0 16px;
     }
 }
 </style>
