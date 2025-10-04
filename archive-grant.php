@@ -1457,103 +1457,163 @@ $region_mapping = [
         }
     }
     
-    /* ===== カーセンサー風 カテゴリチップ ===== */
+    /* ===== Font Awesome カテゴリチップ（白黒スタイリッシュデザイン） ===== */
+    .category-filter-group {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+        border-radius: var(--radius-xl);
+        padding: var(--space-5);
+        margin-bottom: var(--space-6);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    
     .category-grid-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: var(--space-2);
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--space-3);
         margin-bottom: var(--space-3);
     }
     
-    .category-chip {
+    .category-chip-fa {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: var(--space-3);
+        padding: var(--space-4);
         background: var(--white);
         border: 2px solid var(--gray-200);
         border-radius: var(--radius-lg);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         text-align: center;
-        min-height: 80px;
+        min-height: 100px;
         position: relative;
         overflow: hidden;
     }
     
-    .category-chip::before {
+    /* ホバー時のグラデーションエフェクト */
+    .category-chip-fa::before {
         content: '';
         position: absolute;
         top: 0;
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.03), transparent);
-        transition: left 0.5s ease;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(0, 0, 0, 0.02), 
+            transparent
+        );
+        transition: left 0.6s ease;
     }
     
-    .category-chip:hover {
-        border-color: var(--gray-400);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-    
-    .category-chip:hover::before {
+    .category-chip-fa:hover::before {
         left: 100%;
     }
     
-    .category-chip.selected {
-        background: var(--primary);
-        border-color: var(--primary);
+    /* 通常状態のホバー */
+    .category-chip-fa:hover {
+        border-color: var(--gray-900);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-chip-fa:hover .category-icon-wrapper {
+        transform: scale(1.1);
+    }
+    
+    /* 選択状態 */
+    .category-chip-fa.selected {
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
+        border-color: var(--gray-900);
         color: var(--white);
-        transform: scale(1.02);
-        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
     
-    .category-icon {
-        font-size: 1.75rem;
-        margin-bottom: var(--space-2);
-        display: block;
+    .category-chip-fa.selected::before {
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.1), 
+            transparent
+        );
     }
     
-    .category-chip.selected .category-icon {
-        animation: bounce 0.5s ease;
+    /* アイコンラッパー */
+    .category-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 50%;
+        margin-bottom: var(--space-3);
+        transition: all 0.3s ease;
     }
     
-    @keyframes bounce {
+    .category-chip-fa.selected .category-icon-wrapper {
+        background: rgba(255, 255, 255, 0.15);
+        animation: pulse 0.6s ease;
+    }
+    
+    @keyframes pulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
+        50% { transform: scale(1.15); }
     }
     
-    .category-name {
-        font-size: 0.8125rem;
-        font-weight: 500;
+    /* Font Awesome アイコン */
+    .category-fa-icon {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        transition: all 0.3s ease;
+    }
+    
+    .category-chip-fa.selected .category-fa-icon {
+        color: var(--white);
+    }
+    
+    /* カテゴリ名 */
+    .category-chip-fa .category-name {
+        font-size: 0.875rem;
+        font-weight: 600;
         line-height: 1.3;
         margin-bottom: var(--space-1);
+        color: var(--gray-900);
+        transition: all 0.3s ease;
     }
     
-    .category-chip.selected .category-name {
+    .category-chip-fa.selected .category-name {
+        color: var(--white);
         font-weight: 700;
     }
     
-    .category-count {
+    /* カウントバッジ */
+    .category-count-badge {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        background: var(--primary);
+        top: 8px;
+        right: 8px;
+        background: var(--gray-900);
         color: var(--white);
-        font-size: 0.625rem;
+        font-size: 0.6875rem;
         font-weight: 700;
-        padding: 2px 6px;
-        border-radius: 10px;
-        min-width: 18px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        min-width: 24px;
         text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
     }
     
-    .category-chip.selected .category-count {
-        background: rgba(255, 255, 255, 0.3);
+    .category-chip-fa.selected .category-count-badge {
+        background: rgba(255, 255, 255, 0.25);
         color: var(--white);
+        backdrop-filter: blur(4px);
+    }
+    
+    /* フォーカス状態（アクセシビリティ） */
+    .category-chip-fa:focus-within {
+        outline: 3px solid var(--gray-900);
+        outline-offset: 2px;
     }
     
     /* AI検索ヒント */
@@ -1573,23 +1633,71 @@ $region_mapping = [
     }
     
     /* レスポンシブ: カテゴリグリッド */
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         .category-grid-container {
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: var(--space-2);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .category-filter-group {
+            padding: var(--space-4);
+        }
+        
+        .category-grid-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-2);
+        }
+        
+        .category-chip-fa {
+            min-height: 85px;
+            padding: var(--space-3);
+        }
+        
+        .category-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            margin-bottom: var(--space-2);
+        }
+        
+        .category-fa-icon {
+            font-size: 1.25rem;
+        }
+        
+        .category-chip-fa .category-name {
+            font-size: 0.8125rem;
+        }
+        
+        .category-count-badge {
+            top: 6px;
+            right: 6px;
+            font-size: 0.625rem;
+            padding: 2px 6px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .category-grid-container {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: var(--space-1);
         }
         
-        .category-chip {
-            min-height: 70px;
+        .category-chip-fa {
+            min-height: 75px;
             padding: var(--space-2);
         }
         
-        .category-icon {
-            font-size: 1.5rem;
-            margin-bottom: var(--space-1);
+        .category-icon-wrapper {
+            width: 36px;
+            height: 36px;
         }
         
-        .category-name {
+        .category-fa-icon {
+            font-size: 1.125rem;
+        }
+        
+        .category-chip-fa .category-name {
             font-size: 0.75rem;
         }
     }
@@ -1839,42 +1947,67 @@ $region_mapping = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Category Filters with Icons (カーセンサー風) -->
+                        <!-- Category Filters with Font Awesome Icons (統一デザイン) -->
                         <?php if (!empty($all_categories) && !is_wp_error($all_categories)): 
-                        // カテゴリーアイコンマッピング
+                        // Font Awesome アイコンマッピング（トップページと統一）
                         $category_icons = [
-                            'it' => '💻',
-                            'digital' => '📱',
-                            'dx' => '🚀',
-                            'manufacturing' => '🏭',
-                            'agriculture' => '🌱',
-                            'tourism' => '🗾',
-                            'startup' => '💡',
-                            'environment' => '♻️',
-                            'energy' => '⚡',
-                            'healthcare' => '🏥',
-                            'education' => '📚',
-                            'research' => '🔬',
-                            'export' => '🌏',
-                            'employment' => '👥',
-                            'women' => '👩',
-                            'senior' => '👴',
-                            'regional' => '🏘️',
-                            'disaster' => '🛡️',
+                            'it' => 'fas fa-laptop-code',
+                            'digital' => 'fas fa-laptop-code',
+                            'dx' => 'fas fa-laptop-code',
+                            'manufacturing' => 'fas fa-industry',
+                            'ものづくり' => 'fas fa-industry',
+                            '製造' => 'fas fa-industry',
+                            'startup' => 'fas fa-rocket',
+                            '創業' => 'fas fa-rocket',
+                            'スタートアップ' => 'fas fa-rocket',
+                            'store' => 'fas fa-store',
+                            '小規模' => 'fas fa-store',
+                            '商業' => 'fas fa-store',
+                            'environment' => 'fas fa-leaf',
+                            '環境' => 'fas fa-leaf',
+                            '省エネ' => 'fas fa-leaf',
+                            'sdgs' => 'fas fa-leaf',
+                            'employment' => 'fas fa-users',
+                            '人材' => 'fas fa-users',
+                            '雇用' => 'fas fa-users',
+                            'agriculture' => 'fas fa-seedling',
+                            '農業' => 'fas fa-seedling',
+                            'tourism' => 'fas fa-plane',
+                            '観光' => 'fas fa-plane',
+                            'healthcare' => 'fas fa-heartbeat',
+                            '医療' => 'fas fa-heartbeat',
+                            'education' => 'fas fa-graduation-cap',
+                            '教育' => 'fas fa-graduation-cap',
+                            'research' => 'fas fa-flask',
+                            '研究' => 'fas fa-flask',
+                            'export' => 'fas fa-globe',
+                            '輸出' => 'fas fa-globe',
+                            'women' => 'fas fa-female',
+                            '女性' => 'fas fa-female',
+                            'regional' => 'fas fa-map-marked-alt',
+                            '地域' => 'fas fa-map-marked-alt',
+                            'disaster' => 'fas fa-shield-alt',
+                            '防災' => 'fas fa-shield-alt',
                         ];
                         
-                        // アイコン取得関数
-                        function get_category_icon($slug, $name, $icon_map) {
-                            foreach ($icon_map as $key => $icon) {
-                                if (stripos($slug, $key) !== false || stripos($name, $key) !== false) {
-                                    return $icon;
+                        // Font Awesomeアイコン取得関数
+                        function get_category_fa_icon($slug, $name, $icon_map) {
+                            // スラッグと名前の両方をチェック
+                            $search_strings = [$slug, $name];
+                            foreach ($search_strings as $search) {
+                                foreach ($icon_map as $key => $icon) {
+                                    if (stripos($search, $key) !== false) {
+                                        return $icon;
+                                    }
                                 }
                             }
-                            return '📂'; // デフォルトアイコン
+                            return 'fas fa-folder'; // デフォルトアイコン
                         }
                         ?>
-                        <div class="clean-filter-group">
-                            <h4 class="clean-filter-group-title">📂 カテゴリ</h4>
+                        <div class="clean-filter-group category-filter-group">
+                            <h4 class="clean-filter-group-title">
+                                <i class="fas fa-folder-open"></i> カテゴリ
+                            </h4>
                             <div class="category-grid-container">
                                 <?php 
                                 $category_limit = 12;
@@ -1887,19 +2020,21 @@ $region_mapping = [
                                 foreach ($all_categories as $index => $category): 
                                     $is_selected_cat = in_array($category->slug, $selected_categories);
                                     $is_hidden = !$show_all_cat_initially && $index >= $category_limit;
-                                    $category_icon = get_category_icon($category->slug, $category->name, $category_icons);
+                                    $category_fa_icon = get_category_fa_icon($category->slug, $category->name, $category_icons);
                                 ?>
-                                <label class="category-chip <?php echo $is_selected_cat ? 'selected' : ''; ?> <?php echo $is_hidden ? 'clean-filter-more-item hidden' : ''; ?>">
+                                <label class="category-chip-fa <?php echo $is_selected_cat ? 'selected' : ''; ?> <?php echo $is_hidden ? 'clean-filter-more-item hidden' : ''; ?>" title="<?php echo esc_attr($category->name); ?>">
                                     <input type="checkbox" 
                                            name="categories[]" 
                                            value="<?php echo esc_attr($category->slug); ?>" 
                                            class="clean-filter-checkbox category-checkbox"
                                            <?php checked($is_selected_cat); ?>
                                            style="display: none;">
-                                    <span class="category-icon"><?php echo $category_icon; ?></span>
+                                    <div class="category-icon-wrapper">
+                                        <i class="<?php echo esc_attr($category_fa_icon); ?> category-fa-icon"></i>
+                                    </div>
                                     <span class="category-name"><?php echo esc_html($category->name); ?></span>
                                     <?php if ($category->count > 0): ?>
-                                    <span class="category-count"><?php echo esc_html($category->count); ?></span>
+                                    <span class="category-count-badge"><?php echo esc_html($category->count); ?></span>
                                     <?php endif; ?>
                                 </label>
                                 <?php endforeach; ?>
