@@ -96,6 +96,23 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                             <h3 class="assistant-name">補助金AIアシスタント</h3>
                             <span class="assistant-status">オンライン</span>
                         </div>
+                        <button class="ai-history-btn" onclick="toggleChatHistory()" title="会話履歴">
+                            <i class="fas fa-history"></i>
+                            <span class="history-count">0</span>
+                        </button>
+                    </div>
+                    
+                    <!-- AI会話履歴パネル -->
+                    <div class="ai-history-panel" id="ai-history-panel" style="display:none;">
+                        <div class="ai-history-header">
+                            <h4><i class="fas fa-history"></i> 会話履歴</h4>
+                            <button onclick="clearChatHistory()" class="ai-history-clear">
+                                <i class="fas fa-trash"></i> クリア
+                            </button>
+                        </div>
+                        <div class="ai-history-list" id="ai-history-list">
+                            <p class="ai-history-empty">履歴がありません</p>
+                        </div>
                     </div>
                     
                     <div class="chat-messages" id="chat-messages">
@@ -663,6 +680,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
 }
 
 .assistant-avatar {
@@ -706,6 +724,171 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 .assistant-status {
     font-size: 11px;
     color: #10b981;
+}
+
+/* AI History Button */
+.ai-history-btn {
+    margin-left: auto;
+    background: #fff;
+    border: 2px solid #000;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.ai-history-btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+.ai-history-btn .fa-history {
+    font-size: 1rem;
+}
+
+.history-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #fbbf24;
+    color: #000;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    font-size: 0.625rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+}
+
+/* AI History Panel */
+.ai-history-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 100%;
+    max-height: 300px;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.ai-history-header {
+    padding: 1rem;
+    border-bottom: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafafa;
+}
+
+.ai-history-header h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ai-history-clear {
+    background: #fff;
+    border: 2px solid #000;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.ai-history-clear:hover {
+    background: #000;
+    color: #fff;
+}
+
+.ai-history-list {
+    padding: 1rem;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.ai-history-empty {
+    text-align: center;
+    color: #999;
+    font-size: 0.875rem;
+    padding: 2rem 1rem;
+    margin: 0;
+}
+
+.ai-history-item {
+    padding: 0.75rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ai-history-item:hover {
+    border-color: #000;
+    background: #fafafa;
+    transform: translateX(4px);
+}
+
+.ai-history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-date {
+    font-size: 0.625rem;
+    color: #999;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.history-date::before {
+    content: '📅';
+    font-size: 0.75rem;
+}
+
+.history-question {
+    font-size: 0.8125rem;
+    color: #333;
+    font-weight: 500;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 /* Chat Messages */
@@ -2556,6 +2739,11 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                     // Type AI response
                     this.typeMessage(data.data.response);
                     
+                    // 💾 Save chat history (提案4)
+                    if (typeof window.saveChatHistory === 'function') {
+                        window.saveChatHistory(message, data.data.response);
+                    }
+                    
                     // Update search results if needed
                     if (data.data.related_grants) {
                         this.displayResults(data.data.related_grants);
@@ -3426,6 +3614,192 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             console.log('Emergency fix applied - buttons should work now');
         }, 500);
     });
+
+    // ============================================
+    // AI Chat History Management (提案4)
+    // ============================================
+    
+    /**
+     * チャット履歴をトグル表示
+     */
+    window.toggleChatHistory = function() {
+        const panel = document.getElementById('ai-history-panel');
+        if (!panel) return;
+        
+        if (panel.style.display === 'none' || !panel.style.display) {
+            loadChatHistory();
+            panel.style.display = 'block';
+        } else {
+            panel.style.display = 'none';
+        }
+    };
+    
+    /**
+     * チャット履歴を保存
+     */
+    window.saveChatHistory = function(question, answer) {
+        try {
+            let history = JSON.parse(localStorage.getItem('gi_chat_history') || '[]');
+            
+            // 新しい会話を先頭に追加
+            history.unshift({
+                id: Date.now(),
+                question: question,
+                answer: answer,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            });
+            
+            // 最新20件のみ保持
+            history = history.slice(0, 20);
+            localStorage.setItem('gi_chat_history', JSON.stringify(history));
+            
+            // バッジの数を更新
+            updateHistoryCount();
+            
+            console.log('Chat history saved:', history.length);
+        } catch (error) {
+            console.error('Error saving chat history:', error);
+        }
+    };
+    
+    /**
+     * チャット履歴を読み込んで表示
+     */
+    window.loadChatHistory = function() {
+        try {
+            const history = JSON.parse(localStorage.getItem('gi_chat_history') || '[]');
+            const listContainer = document.getElementById('ai-history-list');
+            
+            if (!listContainer) return;
+            
+            if (history.length === 0) {
+                listContainer.innerHTML = '<p class="ai-history-empty">履歴がありません</p>';
+                return;
+            }
+            
+            // 履歴アイテムを生成
+            listContainer.innerHTML = history.map((item, index) => `
+                <div class="ai-history-item" onclick="restoreConversation(${item.id})" data-index="${index}">
+                    <div class="history-date">${item.date}</div>
+                    <div class="history-question">${escapeHtml(item.question.substring(0, 80))}${item.question.length > 80 ? '...' : ''}</div>
+                </div>
+            `).join('');
+            
+            console.log('Chat history loaded:', history.length);
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+        }
+    };
+    
+    /**
+     * チャット履歴をクリア
+     */
+    window.clearChatHistory = function() {
+        if (confirm('会話履歴を削除しますか？この操作は取り消せません。')) {
+            try {
+                localStorage.removeItem('gi_chat_history');
+                updateHistoryCount();
+                
+                const listContainer = document.getElementById('ai-history-list');
+                if (listContainer) {
+                    listContainer.innerHTML = '<p class="ai-history-empty">履歴がありません</p>';
+                }
+                
+                console.log('Chat history cleared');
+            } catch (error) {
+                console.error('Error clearing chat history:', error);
+            }
+        }
+    };
+    
+    /**
+     * 過去の会話を復元
+     */
+    window.restoreConversation = function(id) {
+        try {
+            const history = JSON.parse(localStorage.getItem('gi_chat_history') || '[]');
+            const conversation = history.find(item => item.id == id);
+            
+            if (!conversation) {
+                console.error('Conversation not found:', id);
+                return;
+            }
+            
+            const chatMessages = document.getElementById('chat-messages');
+            if (!chatMessages) return;
+            
+            // チャットメッセージをクリアして復元
+            chatMessages.innerHTML = `
+                <div class="message message-user" style="animation: messageIn 0.3s ease-out;">
+                    <div class="message-bubble">${escapeHtml(conversation.question)}</div>
+                </div>
+                <div class="message message-ai" style="animation: messageIn 0.3s ease-out;">
+                    <div class="message-bubble">${escapeHtml(conversation.answer)}</div>
+                </div>
+            `;
+            
+            // 最新のメッセージにスクロール
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // モーダルを開く（存在する場合）
+            const modal = document.getElementById('grant-assistant-modal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+            
+            // 履歴パネルを閉じる
+            const panel = document.getElementById('ai-history-panel');
+            if (panel) {
+                panel.style.display = 'none';
+            }
+            
+            console.log('Conversation restored:', id);
+        } catch (error) {
+            console.error('Error restoring conversation:', error);
+        }
+    };
+    
+    /**
+     * 履歴カウントバッジを更新
+     */
+    function updateHistoryCount() {
+        try {
+            const history = JSON.parse(localStorage.getItem('gi_chat_history') || '[]');
+            const countBadge = document.querySelector('.history-count');
+            
+            if (countBadge) {
+                countBadge.textContent = history.length;
+                countBadge.style.display = history.length > 0 ? 'flex' : 'none';
+            }
+        } catch (error) {
+            console.error('Error updating history count:', error);
+        }
+    }
+    
+    /**
+     * HTML特殊文字をエスケープ
+     */
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // ページ読み込み時に履歴カウントを初期化
+    document.addEventListener('DOMContentLoaded', function() {
+        updateHistoryCount();
+        console.log('Chat history initialized');
+    });
+    
+    // チャットメッセージ送信後に履歴を保存（既存のsendChatMessage関数と連携）
+    // Note: AISearchController.sendChatMessage内でsaveChatHistory()を呼び出す必要があります
 
 })();
 </script>
