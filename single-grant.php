@@ -1358,6 +1358,135 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <?php endif; ?>
         </aside>
     </div>
+    
+    <?php
+    // ============================================
+    // 提案3: AI類似助成金レコメンド
+    // ============================================
+    if (function_exists('gi_get_similar_grants')) {
+        $similar_grants = gi_get_similar_grants($post_id, 4);
+        
+        if (!empty($similar_grants)) :
+    ?>
+    <!-- Similar Grants Recommendation Section -->
+    <section class="similar-grants-section" style="margin-top: var(--space-16); padding-top: var(--space-12); border-top: 2px solid var(--mono-pale-gray);">
+        <header style="text-align: center; margin-bottom: var(--space-10);">
+            <div style="display: inline-flex; align-items: center; gap: var(--space-3); background: var(--mono-black); color: var(--mono-white); padding: var(--space-3) var(--space-6); border-radius: var(--radius-2xl); margin-bottom: var(--space-4);">
+                <span style="font-size: 1.5rem;">🤖</span>
+                <span style="font-weight: 700; letter-spacing: 0.05em;">AI RECOMMENDATION</span>
+            </div>
+            <h2 style="font-size: var(--text-3xl); font-weight: 800; color: var(--mono-black); margin: 0 0 var(--space-3); letter-spacing: -0.02em;">
+                類似する助成金
+            </h2>
+            <p style="color: var(--mono-mid-gray); font-size: var(--text-base); max-width: 600px; margin: 0 auto;">
+                AIがあなたに最適な類似助成金を分析・推薦しています
+            </p>
+        </header>
+        
+        <div class="similar-grants-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);">
+            <?php foreach ($similar_grants as $similar_post) : 
+                $similar_id = $similar_post->ID;
+                $similar_amount = get_field('max_amount', $similar_id);
+                $similar_deadline = get_field('deadline_date', $similar_id);
+                $similar_categories = wp_get_post_terms($similar_id, 'grant_category', ['fields' => 'names']);
+                $similar_prefecture = wp_get_post_terms($similar_id, 'grant_prefecture', ['fields' => 'names', 'number' => 1]);
+                
+                // Calculate match score
+                $match_score = 0;
+                if (function_exists('gi_calculate_match_score')) {
+                    $match_score = gi_calculate_match_score($similar_id);
+                }
+                
+                // Format deadline
+                $deadline_text = '';
+                $deadline_class_similar = '';
+                if ($similar_deadline) {
+                    $deadline_ts = strtotime($similar_deadline);
+                    $days_left = ceil(($deadline_ts - current_time('timestamp')) / 86400);
+                    if ($days_left > 0) {
+                        $deadline_text = '残り' . $days_left . '日';
+                        if ($days_left <= 7) $deadline_class_similar = 'urgent';
+                        elseif ($days_left <= 30) $deadline_class_similar = 'warning';
+                    }
+                }
+            ?>
+            <article class="similar-grant-card" style="background: var(--mono-white); border: 2px solid var(--mono-pale-gray); border-radius: var(--radius-lg); padding: var(--space-6); transition: all var(--transition-base); position: relative; overflow: hidden;">
+                <!-- AI Match Score Badge -->
+                <?php if ($match_score >= 70) : ?>
+                <div style="position: absolute; top: var(--space-4); right: var(--space-4); background: var(--mono-black); color: var(--mono-white); padding: var(--space-2) var(--space-3); border-radius: var(--radius-2xl); font-size: var(--text-xs); font-weight: 700; display: flex; align-items: center; gap: var(--space-2); z-index: 10;">
+                    <i class="fas fa-brain" style="font-size: 0.875rem;"></i>
+                    <span><?php echo $match_score; ?>%</span>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Category Badge -->
+                <?php if (!empty($similar_categories)) : ?>
+                <div style="margin-bottom: var(--space-4);">
+                    <span style="display: inline-block; background: var(--mono-off-white); color: var(--mono-dark-gray); padding: var(--space-1) var(--space-3); border-radius: var(--radius-base); font-size: var(--text-xs); font-weight: 600; border: 1px solid var(--mono-pale-gray);">
+                        🏷️ <?php echo esc_html($similar_categories[0]); ?>
+                    </span>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Title -->
+                <h3 style="font-size: var(--text-lg); font-weight: 700; color: var(--mono-black); margin: 0 0 var(--space-4); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    <?php echo esc_html($similar_post->post_title); ?>
+                </h3>
+                
+                <!-- Details Grid -->
+                <div style="display: grid; gap: var(--space-3); margin-bottom: var(--space-5);">
+                    <?php if ($similar_amount) : ?>
+                    <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--mono-charcoal);">
+                        <div style="width: 24px; height: 24px; background: var(--mono-off-white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); flex-shrink: 0;">💰</div>
+                        <span style="font-weight: 600;"><?php echo esc_html($similar_amount); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($deadline_text) : ?>
+                    <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: <?php echo $deadline_class_similar === 'urgent' ? 'var(--accent-danger)' : 'var(--mono-charcoal)'; ?>;">
+                        <div style="width: 24px; height: 24px; background: var(--mono-off-white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); flex-shrink: 0;">⏰</div>
+                        <span style="font-weight: 600;"><?php echo esc_html($deadline_text); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($similar_prefecture)) : ?>
+                    <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--mono-charcoal);">
+                        <div style="width: 24px; height: 24px; background: var(--mono-off-white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); flex-shrink: 0;">📍</div>
+                        <span><?php echo esc_html($similar_prefecture[0]); ?></span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- View Button -->
+                <a href="<?php echo get_permalink($similar_id); ?>" class="btn btn-secondary" style="width: 100%; text-decoration: none; margin: 0;">
+                    詳細を見る
+                    <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
+                </a>
+                
+                <!-- Hover Effect -->
+                <style>
+                .similar-grant-card:hover {
+                    border-color: var(--mono-black);
+                    transform: translateY(-4px);
+                    box-shadow: var(--shadow-medium);
+                }
+                </style>
+            </article>
+            <?php endforeach; ?>
+        </div>
+        
+        <!-- View More Button -->
+        <div style="text-align: center; margin-top: var(--space-10);">
+            <a href="<?php echo get_post_type_archive_link('grant'); ?>" class="btn btn-primary" style="display: inline-flex; text-decoration: none;">
+                <i class="fas fa-search" style="font-size: 1rem;"></i>
+                他の助成金を探す
+            </a>
+        </div>
+    </section>
+    <?php 
+        endif;
+    }
+    ?>
 </main>
 
 <script>
