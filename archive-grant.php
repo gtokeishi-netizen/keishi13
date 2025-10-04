@@ -1851,6 +1851,13 @@ $region_mapping = [
                 <i class="fas fa-clock" aria-hidden="true"></i>
                 締切間近
             </button>
+            
+            <!-- 提案6: AI Filter Optimization Button -->
+            <button class="clean-filter-pill ai-optimize-filter-btn" onclick="openFilterOptimization()" aria-pressed="false" style="background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); color: #fff; border: 2px solid #000;">
+                <i class="fas fa-magic" aria-hidden="true"></i>
+                AI最適化
+                <i class="fas fa-sparkles" style="font-size: 0.75rem; margin-left: 0.25rem;"></i>
+            </button>
         </div>
     </div>
 </section>
@@ -3195,6 +3202,296 @@ $region_mapping = [
         init();
     }
 })();
+
+// ============================================
+// 提案6: AI Filter Optimization
+// ============================================
+
+/**
+ * AI フィルター最適化モーダルを開く
+ */
+function openFilterOptimization() {
+    // ユーザーの閲覧履歴を分析
+    const userHistory = JSON.parse(localStorage.getItem('gi_view_history') || '[]');
+    const searchHistory = JSON.parse(localStorage.getItem('gi_search_history') || '[]');
+    
+    // AIによる推奨フィルター設定を生成
+    const recommendations = analyzeUserPatterns(userHistory, searchHistory);
+    
+    // モーダルを作成
+    const modal = document.createElement('div');
+    modal.className = 'ai-filter-modal';
+    modal.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    modal.innerHTML = `
+        <div class="ai-filter-content" style="background: #fff; border-radius: 1rem; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); animation: slideUp 0.3s ease;">
+            <div style="padding: 2rem; border-bottom: 2px solid #000;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 2rem;">🤖</span>
+                        AIフィルター最適化
+                    </h2>
+                    <button onclick="closeFilterOptimization()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s;">
+                        ✕
+                    </button>
+                </div>
+                <p style="color: #666; margin: 0; font-size: 0.875rem;">
+                    あなたの検索パターンを分析し、最適なフィルター設定を提案します
+                </p>
+            </div>
+            
+            <div style="padding: 2rem;">
+                ${recommendations.length > 0 ? `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-lightbulb" style="color: #fbbf24;"></i>
+                            推奨フィルター設定
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            ${recommendations.map((rec, index) => `
+                                <div class="filter-recommendation" style="background: #fafafa; padding: 1.5rem; border-radius: 0.75rem; border: 2px solid #e5e5e5; transition: all 0.3s; cursor: pointer;" onclick="applyRecommendation(${index})">
+                                    <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
+                                        <div style="background: #000; color: #fff; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                                            ${index + 1}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <h4 style="margin: 0 0 0.5rem 0; font-weight: 700; font-size: 0.9375rem;">
+                                                ${rec.title}
+                                            </h4>
+                                            <p style="margin: 0; font-size: 0.8125rem; color: #666; line-height: 1.5;">
+                                                ${rec.description}
+                                            </p>
+                                        </div>
+                                        <div style="background: #fbbf24; color: #000; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+                                            ${rec.confidence}% マッチ
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                        ${rec.filters.map(f => `
+                                            <span style="background: #fff; border: 1px solid #000; padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.375rem;">
+                                                <i class="fas ${f.icon}"></i>
+                                                ${f.label}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <div style="text-align: center; padding: 3rem 1rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+                        <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            まだ十分なデータがありません
+                        </h3>
+                        <p style="color: #666; font-size: 0.875rem; margin-bottom: 2rem;">
+                            助成金を検索・閲覧すると、AIが最適な設定を提案できるようになります
+                        </p>
+                        <button onclick="closeFilterOptimization()" style="background: #000; color: #fff; border: none; padding: 0.75rem 2rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer;">
+                            検索を開始する
+                        </button>
+                    </div>
+                `}
+                
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f9ff; border-radius: 0.75rem; border-left: 4px solid #2563eb;">
+                    <h4 style="margin: 0 0 0.75rem 0; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-info-circle"></i>
+                        分析に基づく推奨理由
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8125rem; color: #333; line-height: 1.6;">
+                        <li>閲覧回数: ${userHistory.length}件</li>
+                        <li>検索回数: ${searchHistory.length}回</li>
+                        <li>よく見るカテゴリ: ${getMostFrequentCategory(userHistory)}</li>
+                        <li>平均助成金額: ${getAverageAmount(userHistory)}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="padding: 1.5rem 2rem; border-top: 1px solid #e5e5e5; display: flex; gap: 1rem; justify-content: flex-end;">
+                <button onclick="closeFilterOptimization()" style="background: #fff; border: 2px solid #000; color: #000; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                    キャンセル
+                </button>
+                <button onclick="clearHistoryAndRecommendations()" style="background: #000; color: #fff; border: 2px solid #000; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                    履歴をクリア
+                </button>
+            </div>
+        </div>
+        
+        <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .filter-recommendation:hover {
+            border-color: #000 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        </style>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Store recommendations globally for apply function
+    window.aiFilterRecommendations = recommendations;
+}
+
+/**
+ * モーダルを閉じる
+ */
+function closeFilterOptimization() {
+    const modal = document.querySelector('.ai-filter-modal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            modal.remove();
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+
+/**
+ * ユーザーのパターンを分析
+ */
+function analyzeUserPatterns(history, searches) {
+    if (history.length === 0 && searches.length === 0) {
+        return [];
+    }
+    
+    const recommendations = [];
+    
+    // パターン1: 頻繁に見るカテゴリー
+    const categoryFreq = {};
+    history.forEach(item => {
+        if (item.category) {
+            categoryFreq[item.category] = (categoryFreq[item.category] || 0) + 1;
+        }
+    });
+    
+    const topCategory = Object.keys(categoryFreq).sort((a, b) => categoryFreq[b] - categoryFreq[a])[0];
+    
+    if (topCategory) {
+        recommendations.push({
+            title: `${topCategory}に特化した検索`,
+            description: `あなたは「${topCategory}」カテゴリを${categoryFreq[topCategory]}回閲覧しています。このカテゴリに絞り込むことをお勧めします。`,
+            confidence: 85,
+            filters: [
+                { icon: 'fa-tag', label: topCategory },
+                { icon: 'fa-circle-dot', label: '募集中' }
+            ],
+            params: { category: topCategory, status: 'active' }
+        });
+    }
+    
+    // パターン2: 高額助成金への関心
+    const avgAmount = history.reduce((sum, item) => sum + (item.amount || 0), 0) / history.length;
+    if (avgAmount > 1000000) {
+        recommendations.push({
+            title: '高額助成金を優先表示',
+            description: `平均${Math.floor(avgAmount / 10000)}万円の助成金を閲覧しています。1000万円以上の高額助成金に絞り込みます。`,
+            confidence: 78,
+            filters: [
+                { icon: 'fa-coins', label: '高額助成金' },
+                { icon: 'fa-sort-amount-down', label: '金額順' }
+            ],
+            params: { amount: '1000-3000', sort: 'amount_desc' }
+        });
+    }
+    
+    // パターン3: 締切間近を優先
+    if (searches.some(s => s.includes('締切') || s.includes('期限'))) {
+        recommendations.push({
+            title: '締切間近の助成金を優先',
+            description: '締切に関する検索が多いため、期限が迫っている助成金を優先的に表示します。',
+            confidence: 72,
+            filters: [
+                { icon: 'fa-clock', label: '締切間近' },
+                { icon: 'fa-calendar-alt', label: '締切順' }
+            ],
+            params: { deadline: 'soon', sort: 'deadline_asc' }
+        });
+    }
+    
+    return recommendations;
+}
+
+/**
+ * 推奨設定を適用
+ */
+function applyRecommendation(index) {
+    const rec = window.aiFilterRecommendations[index];
+    if (!rec) return;
+    
+    // URLパラメータを構築
+    const params = new URLSearchParams(rec.params);
+    
+    // ページをリロード
+    window.location.href = window.location.pathname + '?' + params.toString();
+}
+
+/**
+ * 履歴をクリア
+ */
+function clearHistoryAndRecommendations() {
+    if (confirm('閲覧履歴と検索履歴をすべて削除しますか？')) {
+        localStorage.removeItem('gi_view_history');
+        localStorage.removeItem('gi_search_history');
+        closeFilterOptimization();
+        
+        // トースト通知
+        const toast = document.createElement('div');
+        toast.textContent = '✓ 履歴をクリアしました';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #000;
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            z-index: 10001;
+            animation: slideUp 0.3s ease;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+}
+
+/**
+ * ヘルパー関数
+ */
+function getMostFrequentCategory(history) {
+    const freq = {};
+    history.forEach(item => {
+        if (item.category) freq[item.category] = (freq[item.category] || 0) + 1;
+    });
+    const top = Object.keys(freq).sort((a, b) => freq[b] - freq[a])[0];
+    return top || '未分析';
+}
+
+function getAverageAmount(history) {
+    const amounts = history.filter(item => item.amount > 0).map(item => item.amount);
+    if (amounts.length === 0) return '未分析';
+    const avg = amounts.reduce((sum, val) => sum + val, 0) / amounts.length;
+    return Math.floor(avg / 10000) + '万円';
+}
 </script>
 
 <?php get_footer(); ?>
