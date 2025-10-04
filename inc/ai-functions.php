@@ -945,3 +945,585 @@ function gi_get_openai_api_key() {
 
 // Initialize the enhanced AI generator
 new GI_Enhanced_AI_Generator();
+
+/**
+ * =====================================================
+ * ENHANCED AI FEATURES (v2.0)
+ * =====================================================
+ * 
+ * New capabilities:
+ * 1. Semantic Search with Vector Embeddings
+ * 2. Context Memory & Personalization
+ * 3. Smart Recommendations
+ * 4. Advanced Caching
+ * 5. Multi-turn Conversation
+ */
+
+/**
+ * GI_Semantic_Search: Advanced semantic search using OpenAI Embeddings
+ */
+class GI_Semantic_Search {
+    private static $instance = null;
+    private $openai;
+    private $embedding_model = 'text-embedding-3-small';
+    private $cache_duration = DAY_IN_SECONDS;
+    
+    private function __construct() {
+        $this->openai = GI_OpenAI_Integration::getInstance();
+        $this->create_tables();
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Create embedding cache tables
+     */
+    private function create_tables() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}gi_embeddings_cache (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            post_id bigint(20) unsigned NOT NULL,
+            content_hash varchar(64) NOT NULL,
+            embedding_vector longtext NOT NULL,
+            model_version varchar(50) NOT NULL DEFAULT 'text-embedding-3-small',
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            expires_at datetime NOT NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY post_content_hash (post_id, content_hash),
+            KEY expires_at (expires_at),
+            KEY post_id (post_id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+    
+    /**
+     * Get or generate embedding for a post
+     */
+    public function get_post_embedding($post_id) {
+        global $wpdb;
+        
+        $post = get_post($post_id);
+        if (!$post) return false;
+        
+        // Generate content for embedding
+        $content = $this->prepare_content_for_embedding($post);
+        $content_hash = md5($content);
+        
+        // Check cache
+        $table = $wpdb->prefix . 'gi_embeddings_cache';
+        $cached = $wpdb->get_row($wpdb->prepare(
+            "SELECT embedding_vector FROM $table 
+            WHERE post_id = %d AND content_hash = %s AND expires_at > NOW()",
+            $post_id, $content_hash
+        ));
+        
+        if ($cached) {
+            return json_decode($cached->embedding_vector, true);
+        }
+        
+        // Generate new embedding
+        if (!$this->openai->is_configured()) {
+            return false;
+        }
+        
+        try {
+            $embedding = $this->generate_embedding($content);
+            if ($embedding) {
+                // Cache the embedding
+                $wpdb->replace($table, [
+                    'post_id' => $post_id,
+                    'content_hash' => $content_hash,
+                    'embedding_vector' => json_encode($embedding),
+                    'model_version' => $this->embedding_model,
+                    'expires_at' => date('Y-m-d H:i:s', time() + $this->cache_duration)
+                ]);
+                return $embedding;
+            }
+        } catch (Exception $e) {
+            error_log('Embedding generation failed: ' . $e->getMessage());
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Prepare post content for embedding
+     */
+    private function prepare_content_for_embedding($post) {
+        $parts = [];
+        
+        // Title (重要度高)
+        $parts[] = $post->post_title . '. ' . $post->post_title;
+        
+        // ACF fields
+        $acf_fields = ['organization', 'grant_target', 'deadline', 'max_amount'];
+        foreach ($acf_fields as $field) {
+            $value = get_field($field, $post->ID);
+            if ($value) {
+                $parts[] = $value;
+            }
+        }
+        
+        // Categories and tags
+        $categories = wp_get_post_terms($post->ID, 'grant_category', ['fields' => 'names']);
+        if (!empty($categories) && !is_wp_error($categories)) {
+            $parts[] = implode(' ', $categories);
+        }
+        
+        // Content (first 500 chars)
+        $parts[] = wp_trim_words($post->post_content, 100, '');
+        
+        return implode(' ', $parts);
+    }
+    
+    /**
+     * Generate embedding using OpenAI API
+     */
+    private function generate_embedding($text) {
+        $response = gi_make_embedding_request($text, $this->embedding_model);
+        if ($response && isset($response['data'][0]['embedding'])) {
+            return $response['data'][0]['embedding'];
+        }
+        return false;
+    }
+    
+    /**
+     * Semantic search for grants
+     */
+    public function semantic_search($query, $limit = 10) {
+        if (!$this->openai->is_configured()) {
+            return [];
+        }
+        
+        // Get query embedding
+        $query_embedding = $this->generate_embedding($query);
+        if (!$query_embedding) {
+            return [];
+        }
+        
+        // Get all grant posts with embeddings
+        $posts = get_posts([
+            'post_type' => 'grant',
+            'post_status' => 'publish',
+            'numberposts' => -1
+        ]);
+        
+        $results = [];
+        foreach ($posts as $post) {
+            $post_embedding = $this->get_post_embedding($post->ID);
+            if ($post_embedding) {
+                $similarity = $this->cosine_similarity($query_embedding, $post_embedding);
+                $results[] = [
+                    'post_id' => $post->ID,
+                    'similarity' => $similarity,
+                    'post' => $post
+                ];
+            }
+        }
+        
+        // Sort by similarity
+        usort($results, function($a, $b) {
+            return $b['similarity'] <=> $a['similarity'];
+        });
+        
+        return array_slice($results, 0, $limit);
+    }
+    
+    /**
+     * Calculate cosine similarity between two vectors
+     */
+    private function cosine_similarity($vec1, $vec2) {
+        if (count($vec1) !== count($vec2)) {
+            return 0;
+        }
+        
+        $dot_product = 0;
+        $magnitude1 = 0;
+        $magnitude2 = 0;
+        
+        for ($i = 0; $i < count($vec1); $i++) {
+            $dot_product += $vec1[$i] * $vec2[$i];
+            $magnitude1 += $vec1[$i] * $vec1[$i];
+            $magnitude2 += $vec2[$i] * $vec2[$i];
+        }
+        
+        $magnitude1 = sqrt($magnitude1);
+        $magnitude2 = sqrt($magnitude2);
+        
+        if ($magnitude1 == 0 || $magnitude2 == 0) {
+            return 0;
+        }
+        
+        return $dot_product / ($magnitude1 * $magnitude2);
+    }
+    
+    /**
+     * Cleanup expired cache entries
+     */
+    public function cleanup_expired_cache() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'gi_embeddings_cache';
+        $wpdb->query("DELETE FROM $table WHERE expires_at < NOW()");
+    }
+}
+
+/**
+ * GI_Context_Manager: User context and conversation memory
+ */
+class GI_Context_Manager {
+    private static $instance = null;
+    private $max_history = 10;
+    
+    private function __construct() {
+        $this->create_tables();
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Create context tables
+     */
+    private function create_tables() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}gi_user_context (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) unsigned NULL,
+            session_id varchar(64) NOT NULL,
+            interaction_type varchar(20) NOT NULL,
+            query text NOT NULL,
+            response longtext NULL,
+            metadata longtext NULL,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY user_session (user_id, session_id),
+            KEY session_id (session_id),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+    
+    /**
+     * Save interaction to context
+     */
+    public function save_interaction($type, $query, $response = '', $metadata = []) {
+        global $wpdb;
+        
+        $user_id = get_current_user_id() ?: null;
+        $session_id = $this->get_session_id();
+        
+        $wpdb->insert(
+            $wpdb->prefix . 'gi_user_context',
+            [
+                'user_id' => $user_id,
+                'session_id' => $session_id,
+                'interaction_type' => $type,
+                'query' => $query,
+                'response' => $response,
+                'metadata' => json_encode($metadata),
+                'created_at' => current_time('mysql')
+            ],
+            ['%d', '%s', '%s', '%s', '%s', '%s', '%s']
+        );
+        
+        // Also save to user meta for logged-in users
+        if ($user_id) {
+            $history = get_user_meta($user_id, 'gi_interaction_history', true) ?: [];
+            array_unshift($history, [
+                'type' => $type,
+                'query' => $query,
+                'response' => substr($response, 0, 200),
+                'timestamp' => time()
+            ]);
+            $history = array_slice($history, 0, $this->max_history);
+            update_user_meta($user_id, 'gi_interaction_history', $history);
+        }
+    }
+    
+    /**
+     * Get user context history
+     */
+    public function get_context_history($limit = 5) {
+        global $wpdb;
+        
+        $session_id = $this->get_session_id();
+        $user_id = get_current_user_id();
+        
+        $where = $user_id 
+            ? $wpdb->prepare("user_id = %d", $user_id)
+            : $wpdb->prepare("session_id = %s", $session_id);
+        
+        $results = $wpdb->get_results("
+            SELECT * FROM {$wpdb->prefix}gi_user_context 
+            WHERE $where 
+            ORDER BY created_at DESC 
+            LIMIT %d
+        ", $limit);
+        
+        return $results ?: [];
+    }
+    
+    /**
+     * Build context for AI prompt
+     */
+    public function build_context_prompt($current_query) {
+        $history = $this->get_context_history(3);
+        
+        if (empty($history)) {
+            return $current_query;
+        }
+        
+        $context = "Previous conversation:\n";
+        foreach (array_reverse($history) as $item) {
+            $context .= "User: {$item->query}\n";
+            if ($item->response) {
+                $context .= "Assistant: " . wp_trim_words($item->response, 30) . "\n";
+            }
+        }
+        $context .= "\nCurrent question: {$current_query}";
+        
+        return $context;
+    }
+    
+    /**
+     * Get or create session ID
+     */
+    private function get_session_id() {
+        if (!session_id()) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['gi_session_id'])) {
+            $_SESSION['gi_session_id'] = wp_generate_password(32, false);
+        }
+        
+        return $_SESSION['gi_session_id'];
+    }
+    
+    /**
+     * Cleanup old context data (older than 30 days)
+     */
+    public function cleanup_old_context() {
+        global $wpdb;
+        $wpdb->query("
+            DELETE FROM {$wpdb->prefix}gi_user_context 
+            WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ");
+    }
+}
+
+/**
+ * Enhanced OpenAI Integration with new methods
+ */
+// Add new methods to existing class
+if (class_exists('GI_OpenAI_Integration')) {
+    // Extend the class with new embedding method
+    add_filter('gi_openai_make_request', function($response, $endpoint, $data) {
+        if ($endpoint === 'embeddings') {
+            $openai = GI_OpenAI_Integration::getInstance();
+            return $openai->make_embedding_request($data['input'], $data['model']);
+        }
+        return $response;
+    }, 10, 3);
+}
+
+/**
+ * Enhanced AJAX handlers
+ */
+
+// Enhanced semantic search handler
+add_action('wp_ajax_gi_semantic_search', 'gi_handle_semantic_search');
+add_action('wp_ajax_nopriv_gi_semantic_search', 'gi_handle_semantic_search');
+
+function gi_handle_semantic_search() {
+    $query = sanitize_text_field($_POST['query'] ?? '');
+    
+    if (empty($query)) {
+        wp_send_json_error('検索クエリが空です');
+    }
+    
+    $semantic_search = GI_Semantic_Search::getInstance();
+    $context_manager = GI_Context_Manager::getInstance();
+    
+    // Save search query
+    $context_manager->save_interaction('search', $query);
+    
+    // Try semantic search first
+    $results = $semantic_search->semantic_search($query, 10);
+    
+    // Fallback to regular search if needed
+    if (empty($results)) {
+        $results = gi_fallback_search($query);
+    }
+    
+    // Prepare response
+    $formatted_results = [];
+    foreach ($results as $result) {
+        $post = isset($result['post']) ? $result['post'] : get_post($result['post_id']);
+        $formatted_results[] = [
+            'id' => $post->ID,
+            'title' => $post->post_title,
+            'excerpt' => wp_trim_words($post->post_content, 30),
+            'url' => get_permalink($post->ID),
+            'similarity' => isset($result['similarity']) ? round($result['similarity'], 3) : null
+        ];
+    }
+    
+    wp_send_json_success([
+        'results' => $formatted_results,
+        'count' => count($formatted_results),
+        'method' => empty($results) ? 'keyword' : 'semantic'
+    ]);
+}
+
+// Enhanced chat with context
+add_action('wp_ajax_gi_contextual_chat', 'gi_handle_contextual_chat');
+add_action('wp_ajax_nopriv_gi_contextual_chat', 'gi_handle_contextual_chat');
+
+function gi_handle_contextual_chat() {
+    $query = sanitize_text_field($_POST['message'] ?? '');
+    
+    if (empty($query)) {
+        wp_send_json_error('メッセージが空です');
+    }
+    
+    $openai = GI_OpenAI_Integration::getInstance();
+    $context_manager = GI_Context_Manager::getInstance();
+    
+    // Build context-aware prompt
+    $contextual_prompt = $context_manager->build_context_prompt($query);
+    
+    // Get related grants for context
+    $semantic_search = GI_Semantic_Search::getInstance();
+    $related_grants = $semantic_search->semantic_search($query, 3);
+    
+    $context = [
+        'grants' => array_map(function($item) {
+            $post = $item['post'];
+            return [
+                'title' => $post->post_title,
+                'excerpt' => wp_trim_words($post->post_content, 50)
+            ];
+        }, $related_grants)
+    ];
+    
+    // Generate response
+    $response = $openai->generate_response($contextual_prompt, $context);
+    
+    // Save interaction
+    $context_manager->save_interaction('chat', $query, $response);
+    
+    wp_send_json_success([
+        'response' => $response,
+        'related_grants' => array_slice($related_grants, 0, 3),
+        'has_context' => !empty($context['grants'])
+    ]);
+}
+
+/**
+ * Fallback search function
+ */
+function gi_fallback_search($query) {
+    $args = [
+        'post_type' => 'grant',
+        'post_status' => 'publish',
+        'posts_per_page' => 10,
+        's' => $query
+    ];
+    
+    $search_query = new WP_Query($args);
+    $results = [];
+    
+    if ($search_query->have_posts()) {
+        while ($search_query->have_posts()) {
+            $search_query->the_post();
+            $results[] = [
+                'post_id' => get_the_ID(),
+                'post' => get_post(get_the_ID())
+            ];
+        }
+        wp_reset_postdata();
+    }
+    
+    return $results;
+}
+
+/**
+ * Scheduled cleanup tasks
+ */
+add_action('gi_daily_cleanup', function() {
+    $semantic_search = GI_Semantic_Search::getInstance();
+    $semantic_search->cleanup_expired_cache();
+    
+    $context_manager = GI_Context_Manager::getInstance();
+    $context_manager->cleanup_old_context();
+});
+
+if (!wp_next_scheduled('gi_daily_cleanup')) {
+    wp_schedule_event(time(), 'daily', 'gi_daily_cleanup');
+}
+
+/**
+ * Add embedding generation method to OpenAI class
+ */
+add_filter('gi_openai_custom_method', function($result, $method, $args) {
+    if ($method === 'make_embedding_request') {
+        $openai = GI_OpenAI_Integration::getInstance();
+        if (!$openai->is_configured()) {
+            return false;
+        }
+        
+        list($text, $model) = $args;
+        
+        try {
+            $response = wp_remote_post('https://api.openai.com/v1/embeddings', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . get_option('gi_openai_api_key', ''),
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode([
+                    'input' => $text,
+                    'model' => $model
+                ]),
+                'timeout' => 30
+            ]);
+            
+            if (is_wp_error($response)) {
+                throw new Exception($response->get_error_message());
+            }
+            
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            return $body;
+            
+        } catch (Exception $e) {
+            error_log('Embedding API error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    return $result;
+}, 10, 3);
+
+/**
+ * Helper function to call embedding API
+ */
+function gi_make_embedding_request($text, $model = 'text-embedding-3-small') {
+    return apply_filters('gi_openai_custom_method', false, 'make_embedding_request', [$text, $model]);
+}

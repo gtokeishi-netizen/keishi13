@@ -41,13 +41,10 @@ $required_files = array(
     'ajax-functions.php',          // AJAX処理
     'ai-functions.php',            // AI機能・検索履歴 (統合済み)
     
-    // Google Sheets integration
-    'sheets-sync.php',             // Google Sheets統合（手動同期のみ）
-    'sheets-webhook.php',          // Webhook処理
-    'sheets-init.php',             // スプレッドシート初期化
-    'sheets-admin.php',            // Google Sheets管理UI
-    'safe-sync-manager.php',       // 安全同期管理システム
-    'disable-auto-sync.php'        // 自動同期無効化
+    // Google Sheets integration (consolidated into one file)
+    'google-sheets-integration.php', // Google Sheets統合（全機能統合版）
+    'safe-sync-manager.php',         // 安全同期管理システム
+    'disable-auto-sync.php'          // 自動同期無効化
 );
 
 // ファイルを安全に読み込み
