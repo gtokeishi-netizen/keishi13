@@ -444,40 +444,6 @@ img {
 }
 
 /* ===============================================
-   ボトムナビゲーション
-   =============================================== */
-.gi-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid var(--neutral-200);
-    padding: var(--spacing-sm) 0;
-    z-index: 999;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.gi-bottom-nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs);
-    min-width: var(--touch-target-min);
-    text-decoration: none;
-    color: var(--neutral-600);
-    transition: color var(--duration-fast) ease;
-}
-
-.gi-bottom-nav-item.active,
-.gi-bottom-nav-item:hover {
-    color: var(--primary-blue);
-}
-
-/* ===============================================
    タッチフィードバック・アニメーション
    =============================================== */
 .gi-ripple {
@@ -641,8 +607,7 @@ img {
 }
 
 @media (min-width: 1024px) {
-    .gi-mobile-header,
-    .gi-bottom-nav {
+    .gi-mobile-header {
         display: none;
     }
 }
@@ -707,8 +672,7 @@ img {
 /* Focus states for keyboard navigation */
 .gi-search-input:focus,
 .gi-filter-chip:focus,
-.btn:focus,
-.gi-bottom-nav-item:focus {
+.btn:focus {
     outline: 2px solid var(--primary-blue);
     outline-offset: 2px;
 }
@@ -744,8 +708,7 @@ img {
         border-bottom-color: #4b5563;
     }
     
-    .gi-grant-card-enhanced,
-    .gi-bottom-nav {
+    .gi-grant-card-enhanced {
         background: #374151;
     }
 }
