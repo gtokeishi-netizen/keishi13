@@ -101,12 +101,6 @@ html {
     transition: width 0.1s ease;
     width: 0%;
 }
-
-/* ナビゲーション非表示 */
-.gi-bottom-nav,
-.floating-nav {
-    display: none !important;
-}
 </style>
 
 <script>
