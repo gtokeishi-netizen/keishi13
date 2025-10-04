@@ -197,6 +197,28 @@ $all_municipalities = get_terms([
     'order' => 'ASC'
 ]);
 
+// 市町村と都道府県の紐付けマップを作成
+$municipality_prefecture_map = [];
+if (!empty($all_municipalities) && !is_wp_error($all_municipalities)) {
+    foreach ($all_municipalities as $municipality) {
+        // 市町村名から都道府県を推測
+        $muni_name = $municipality->name;
+        $pref_slug = '';
+        
+        // 都道府県名が市町村名に含まれているか確認
+        foreach ($all_prefectures as $pref) {
+            // 都道府県名から「県」「府」「都」を除いた部分で検索
+            $pref_name_short = str_replace(['県', '府', '都', '道'], '', $pref->name);
+            if (strpos($muni_name, $pref_name_short) !== false || strpos($muni_name, $pref->name) !== false) {
+                $pref_slug = $pref->slug;
+                break;
+            }
+        }
+        
+        $municipality_prefecture_map[$municipality->slug] = $pref_slug;
+    }
+}
+
 // 地方区分マッピング（カーセンサー風の階層構造用）
 $region_mapping = [
     '北海道・東北' => ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県'],
@@ -1383,6 +1405,25 @@ $region_mapping = [
         gap: var(--space-2);
     }
     
+    .filter-hint {
+        font-size: 0.625rem;
+        font-weight: 400;
+        color: var(--gray-500);
+        text-transform: none;
+        letter-spacing: normal;
+        margin-left: auto;
+    }
+    
+    .no-municipality-message {
+        padding: var(--space-3);
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 0.75rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-md);
+        margin-top: var(--space-2);
+    }
+    
     .filter-sub-title::before {
         content: '';
         width: 3px;
@@ -1949,16 +1990,21 @@ $region_mapping = [
                             <!-- 市町村選択（選択した都道府県に応じて表示） -->
                             <?php if (!empty($all_municipalities) && !is_wp_error($all_municipalities)): ?>
                             <div class="municipality-selection-container" style="<?php echo empty($selected_prefectures) ? 'display:none;' : ''; ?>">
-                                <h5 class="filter-sub-title">市町村</h5>
+                                <h5 class="filter-sub-title">
+                                    市町村
+                                    <span class="filter-hint">（都道府県を選択してください）</span>
+                                </h5>
                                 <div class="clean-filter-list-container municipality-list">
                                     <?php 
                                     $selected_municipalities = array_filter(explode(',', $search_params['municipality']));
                                     foreach ($all_municipalities as $municipality): 
                                         $is_selected = in_array($municipality->slug, $selected_municipalities);
-                                        // 市町村がどの都道府県に属するか（名前から推測）
-                                        // 実際のデータ構造に応じて調整が必要
+                                        $pref_slug = $municipality_prefecture_map[$municipality->slug] ?? '';
                                     ?>
-                                    <label class="clean-filter-option municipality-option" data-municipality-slug="<?php echo esc_attr($municipality->slug); ?>">
+                                    <label class="clean-filter-option municipality-option" 
+                                           data-municipality-slug="<?php echo esc_attr($municipality->slug); ?>"
+                                           data-prefecture="<?php echo esc_attr($pref_slug); ?>"
+                                           style="display:none;">
                                         <input type="checkbox" 
                                                name="municipalities[]" 
                                                value="<?php echo esc_attr($municipality->slug); ?>" 
@@ -1971,6 +2017,7 @@ $region_mapping = [
                                     </label>
                                     <?php endforeach; ?>
                                 </div>
+                                <p class="no-municipality-message" style="display:none;">選択した都道府県に市町村データがありません</p>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -2757,18 +2804,41 @@ $region_mapping = [
             document.querySelectorAll('.prefecture-checkbox:checked')
         ).map(cb => cb.dataset.prefectureName);
         
-        // 市町村コンテナの表示/非表示
+        // 市町村コンテナの表示/非表示と絞り込み
         const municipalityContainer = document.querySelector('.municipality-selection-container');
+        const noMunicipalityMessage = municipalityContainer?.querySelector('.no-municipality-message');
+        
         if (municipalityContainer) {
             if (selectedPrefectures.length > 0) {
                 municipalityContainer.style.display = '';
                 
-                // TODO: 選択された都道府県に属する市町村のみを表示
-                // 現在はすべての市町村を表示（データ構造に応じて調整が必要）
+                // 選択された都道府県のslugを取得
+                const selectedPrefSlugs = Array.from(
+                    document.querySelectorAll('.prefecture-checkbox:checked')
+                ).map(cb => cb.value);
+                
+                // 市町村を絞り込んで表示
                 const municipalityOptions = document.querySelectorAll('.municipality-option');
+                let visibleCount = 0;
+                
                 municipalityOptions.forEach(option => {
-                    option.style.display = '';
+                    const prefSlug = option.dataset.prefecture;
+                    if (selectedPrefSlugs.includes(prefSlug)) {
+                        option.style.display = '';
+                        visibleCount++;
+                    } else {
+                        option.style.display = 'none';
+                    }
                 });
+                
+                // 市町村が1つも見つからない場合のメッセージ
+                if (noMunicipalityMessage) {
+                    if (visibleCount === 0) {
+                        noMunicipalityMessage.style.display = 'block';
+                    } else {
+                        noMunicipalityMessage.style.display = 'none';
+                    }
+                }
             } else {
                 municipalityContainer.style.display = 'none';
             }
