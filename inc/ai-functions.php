@@ -1987,3 +1987,239 @@ function gi_handle_contextual_suggestions() {
     
     wp_send_json_success($suggestions);
 }
+
+// ============================================================================
+// 新AI機能群（モノクロームデザイン対応）
+// ============================================================================
+
+/**
+ * 提案1: AI適合度スコア計算
+ * ユーザーコンテキストと助成金情報から適合度を算出（0-100%）
+ */
+function gi_calculate_match_score($post_id, $user_context = null) {
+    if (!$user_context) {
+        $user_context = gi_get_user_context();
+    }
+    
+    $score = 50; // ベーススコア
+    
+    // 業種マッチング
+    $grant_categories = wp_get_post_terms($post_id, 'grant_category', ['fields' => 'names']);
+    if (!empty($grant_categories) && !empty($user_context['industry'])) {
+        foreach ($grant_categories as $cat) {
+            if (stripos($cat, $user_context['industry']) !== false) {
+                $score += 20;
+                break;
+            }
+        }
+    }
+    
+    // 地域マッチング
+    $grant_prefecture = wp_get_post_terms($post_id, 'grant_prefecture', ['fields' => 'names']);
+    if (!empty($grant_prefecture) && !empty($user_context['prefecture'])) {
+        if (in_array($user_context['prefecture'], $grant_prefecture)) {
+            $score += 15;
+        }
+    }
+    
+    // 金額範囲マッチング
+    $max_amount = get_post_meta($post_id, 'max_amount_numeric', true);
+    if ($max_amount && !empty($user_context['budget_range'])) {
+        $budget = $user_context['budget_range'];
+        if ($max_amount >= $budget['min'] && $max_amount <= $budget['max']) {
+            $score += 15;
+        }
+    }
+    
+    return min(100, max(0, $score));
+}
+
+/**
+ * ユーザーコンテキスト取得（検索履歴・プロフィールから）
+ */
+function gi_get_user_context() {
+    $context = [
+        'industry' => '',
+        'prefecture' => '',
+        'budget_range' => ['min' => 0, 'max' => PHP_INT_MAX],
+        'search_history' => []
+    ];
+    
+    // Cookie/SessionからContextを取得
+    if (isset($_COOKIE['gi_user_industry'])) {
+        $context['industry'] = sanitize_text_field($_COOKIE['gi_user_industry']);
+    }
+    if (isset($_COOKIE['gi_user_prefecture'])) {
+        $context['prefecture'] = sanitize_text_field($_COOKIE['gi_user_prefecture']);
+    }
+    
+    // 検索履歴から推測
+    $search_history = get_transient('gi_user_search_' . session_id());
+    if ($search_history) {
+        $context['search_history'] = $search_history;
+    }
+    
+    return $context;
+}
+
+/**
+ * 提案2: AI申請難易度分析（1-5段階）
+ */
+function gi_calculate_difficulty_score($post_id) {
+    $score = 3; // デフォルト: 普通
+    
+    // 必要書類数
+    $required_docs = get_post_meta($post_id, 'required_documents', true);
+    $doc_count = !empty($required_docs) ? count(explode("\n", $required_docs)) : 0;
+    
+    if ($doc_count >= 10) {
+        $score += 1;
+    } elseif ($doc_count <= 3) {
+        $score -= 1;
+    }
+    
+    // 採択率
+    $success_rate = (int)get_post_meta($post_id, 'grant_success_rate', true);
+    if ($success_rate > 70) {
+        $score -= 1;
+    } elseif ($success_rate < 30) {
+        $score += 1;
+    }
+    
+    // 対象条件の複雑さ
+    $target = get_post_meta($post_id, 'grant_target', true);
+    if (strlen($target) > 200) {
+        $score += 0.5;
+    }
+    
+    $score = max(1, min(5, $score));
+    
+    $labels = [
+        1 => ['label' => '非常に易しい', 'stars' => '★☆☆☆☆', 'class' => 'very-easy'],
+        2 => ['label' => 'やや易しい', 'stars' => '★★☆☆☆', 'class' => 'easy'],
+        3 => ['label' => '普通', 'stars' => '★★★☆☆', 'class' => 'normal'],
+        4 => ['label' => 'やや難しい', 'stars' => '★★★★☆', 'class' => 'hard'],
+        5 => ['label' => '非常に難しい', 'stars' => '★★★★★', 'class' => 'very-hard']
+    ];
+    
+    $difficulty = round($score);
+    return array_merge(['score' => $difficulty], $labels[$difficulty]);
+}
+
+/**
+ * 提案3: 類似助成金レコメンド（上位5件）
+ */
+function gi_get_similar_grants($post_id, $limit = 5) {
+    $categories = wp_get_post_terms($post_id, 'grant_category', ['fields' => 'ids']);
+    $prefecture = wp_get_post_terms($post_id, 'grant_prefecture', ['fields' => 'ids']);
+    
+    $args = [
+        'post_type' => 'grant',
+        'posts_per_page' => $limit + 1,
+        'post__not_in' => [$post_id],
+        'tax_query' => []
+    ];
+    
+    if (!empty($categories)) {
+        $args['tax_query'][] = [
+            'taxonomy' => 'grant_category',
+            'field' => 'term_id',
+            'terms' => $categories
+        ];
+    }
+    
+    $query = new WP_Query($args);
+    return $query->posts;
+}
+
+/**
+ * 提案7: 期限アラート判定
+ */
+function gi_get_deadline_urgency($post_id) {
+    $deadline = get_post_meta($post_id, 'deadline', true);
+    if (empty($deadline)) {
+        return null;
+    }
+    
+    $deadline_timestamp = is_numeric($deadline) ? intval($deadline) : strtotime($deadline);
+    $now = time();
+    $days_left = floor(($deadline_timestamp - $now) / (60 * 60 * 24));
+    
+    if ($days_left < 0) {
+        return ['level' => 'expired', 'icon' => 'fa-times-circle', 'color' => '#999', 'text' => '期限切れ'];
+    } elseif ($days_left <= 3) {
+        return ['level' => 'critical', 'icon' => 'fa-fire', 'color' => '#dc2626', 'text' => "🔥 残り{$days_left}日！"];
+    } elseif ($days_left <= 7) {
+        return ['level' => 'urgent', 'icon' => 'fa-exclamation-triangle', 'color' => '#f59e0b', 'text' => "⚠️ 残り{$days_left}日"];
+    } elseif ($days_left <= 30) {
+        return ['level' => 'warning', 'icon' => 'fa-clock', 'color' => '#eab308', 'text' => "📅 残り{$days_left}日"];
+    } else {
+        return ['level' => 'safe', 'icon' => 'fa-calendar-check', 'color' => '#10b981', 'text' => "📅 {$days_left}日"];
+    }
+}
+
+/**
+ * AJAX: チェックリスト生成
+ */
+add_action('wp_ajax_gi_generate_checklist', 'gi_handle_generate_checklist');
+add_action('wp_ajax_nopriv_gi_generate_checklist', 'gi_handle_generate_checklist');
+
+function gi_handle_generate_checklist() {
+    check_ajax_referer('gi_ai_search_nonce', 'nonce');
+    
+    $post_id = intval($_POST['post_id']);
+    $grant_title = get_the_title($post_id);
+    
+    // 基本的なチェックリスト項目
+    $checklist = [
+        ['id' => 1, 'text' => '事業計画書の作成', 'checked' => false, 'priority' => 'high'],
+        ['id' => 2, 'text' => '見積書の取得（3社以上）', 'checked' => false, 'priority' => 'high'],
+        ['id' => 3, 'text' => '登記簿謄本の準備', 'checked' => false, 'priority' => 'medium'],
+        ['id' => 4, 'text' => '決算書（直近2期分）', 'checked' => false, 'priority' => 'medium'],
+        ['id' => 5, 'text' => '納税証明書の取得', 'checked' => false, 'priority' => 'medium'],
+        ['id' => 6, 'text' => '事業概要説明資料', 'checked' => false, 'priority' => 'low'],
+        ['id' => 7, 'text' => '申請書類のレビュー', 'checked' => false, 'priority' => 'high']
+    ];
+    
+    wp_send_json_success([
+        'checklist' => $checklist,
+        'title' => $grant_title
+    ]);
+}
+
+/**
+ * AJAX: AI比較分析
+ */
+add_action('wp_ajax_gi_compare_grants', 'gi_handle_compare_grants');
+add_action('wp_ajax_nopriv_gi_compare_grants', 'gi_handle_compare_grants');
+
+function gi_handle_compare_grants() {
+    check_ajax_referer('gi_ai_search_nonce', 'nonce');
+    
+    $grant_ids = array_map('intval', $_POST['grant_ids']);
+    $comparison = [];
+    
+    foreach ($grant_ids as $id) {
+        $comparison[] = [
+            'id' => $id,
+            'title' => get_the_title($id),
+            'amount' => get_post_meta($id, 'max_amount', true),
+            'rate' => get_post_meta($id, 'grant_success_rate', true),
+            'deadline' => get_post_meta($id, 'deadline', true),
+            'match_score' => gi_calculate_match_score($id),
+            'difficulty' => gi_calculate_difficulty_score($id)
+        ];
+    }
+    
+    // 最適な助成金を判定
+    usort($comparison, function($a, $b) {
+        return $b['match_score'] - $a['match_score'];
+    });
+    
+    $recommendation = $comparison[0];
+    
+    wp_send_json_success([
+        'comparison' => $comparison,
+        'recommendation' => $recommendation
+    ]);
+}
