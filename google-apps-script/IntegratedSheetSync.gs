@@ -867,45 +867,43 @@ function getRowData(sheet, rowNumber) {
  * WordPress側との完全な整合性を保つ
  */
 const FIELD_MAPPING = {
-  // 基本情報（A-G列）
-  'A': 'id',                          // A列: ID
-  'B': 'subsidy_name',                // B列: 助成金名（タイトル）
-  'C': 'organization',                // C列: 実施機関
-  'D': 'content',                     // D列: 内容・概要
-  'E': 'excerpt',                     // E列: 抜粋
-  'F': 'status',                      // F列: ステータス
-  'G': 'created_date',                // G列: 作成日
+  // 基本情報（A-G列）- WordPress post fields
+  'A': 'id',                          // A列: ID (post_id)
+  'B': 'post_title',                  // B列: タイトル
+  'C': 'post_content',                // C列: 内容
+  'D': 'post_excerpt',                // D列: 抜粋
+  'E': 'post_status',                 // E列: ステータス
+  'F': 'post_date',                   // F列: 作成日
+  'G': 'post_modified',               // G列: 更新日
   
-  // 助成金詳細情報（H-N列）
-  'H': 'updated_date',                // H列: 更新日
-  'I': 'amount_display',              // I列: 助成金額（表示用）
-  'J': 'amount_numeric',              // J列: 助成金額（数値）
-  'K': 'deadline_display',            // K列: 申請期限（表示用）
-  'L': 'deadline_date',               // L列: 申請期限（日付）
-  'M': 'organization_type',            // M列: 組織タイプ
-  'N': 'target_description',          // N列: 対象者・対象事業
-  
-  // 申請・連絡情報（O-S列）
+  // ACFフィールド（H-S列）
+  'H': 'max_amount',                  // H列: 助成金額（表示用）
+  'I': 'max_amount_numeric',          // I列: 助成金額（数値）
+  'J': 'deadline',                    // J列: 申請期限（表示用）
+  'K': 'deadline_date',               // K列: 申請期限（日付）
+  'L': 'organization',                // L列: 実施機関
+  'M': 'organization_type',           // M列: 組織タイプ
+  'N': 'grant_target',                // N列: 対象者・対象事業
   'O': 'application_method',          // O列: 申請方法
   'P': 'contact_info',                // P列: 問い合わせ先
   'Q': 'official_url',                // Q列: 公式URL
-  'R': 'area_restriction',            // R列: 地域制限
+  'R': 'regional_limitation',         // R列: 地域制限
   'S': 'application_status',          // S列: 申請ステータス
   
   // タクソノミー情報（T-W列）
   'T': 'prefecture',                  // T列: 都道府県
   'U': 'municipality',                // U列: 市町村
-  'V': 'category',                    // V列: カテゴリ
+  'V': 'category',                    // V列: カテゴリ ★重要
   'W': 'tags',                        // W列: タグ
   
-  // 新規追加フィールド（X-AD列）
-  'X': 'external_links',              // X列: 外部リンク
+  // 新規ACFフィールド（X-AD列）
+  'X': 'external_link',               // X列: 外部リンク
   'Y': 'area_notes',                  // Y列: 地域に関する備考
-  'Z': 'required_documents',          // Z列: 必要書類
+  'Z': 'required_documents_detailed', // Z列: 必要書類
   'AA': 'adoption_rate',              // AA列: 採択率（%）
   'AB': 'difficulty_level',           // AB列: 申請難易度
-  'AC': 'eligible_expenses',          // AC列: 対象経費
-  'AD': 'subsidy_rate',               // AD列: 補助率
+  'AC': 'eligible_expenses_detailed', // AC列: 対象経費
+  'AD': 'subsidy_rate_detailed',      // AD列: 補助率
   
   // システム情報
   'AE': 'sheet_updated'               // AE列: シート更新日

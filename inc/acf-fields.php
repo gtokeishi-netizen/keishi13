@@ -290,8 +290,6 @@ function gi_register_acf_field_groups() {
             ),
             
             // ========== 地域情報 ==========
-            // 注意: 完全連携により都道府県・市町村はタクソノミーで管理されるようになりました
-            // 以下のACFフィールドは後方互換性のため残していますが、新規作成時はタクソノミーを使用してください
             
             array(
                 'key' => 'field_regional_limitation',
@@ -318,10 +316,8 @@ function gi_register_acf_field_groups() {
                 'label' => '地域に関する備考（旧）',
                 'name' => 'regional_note',
                 'type' => 'textarea',
-                'instructions' => '※このフィールドは「地域に関する備考（area_notes）」に移行されました。新規作成時はarea_notesをご使用ください。',
                 'required' => 0,
                 'rows' => 2,
-                'placeholder' => '※area_notesフィールドをご使用ください',
                 'wrapper' => array(
                     'width' => '25',
                 ),
