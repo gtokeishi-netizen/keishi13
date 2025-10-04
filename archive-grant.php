@@ -160,26 +160,33 @@ $all_prefectures_terms = get_terms([
     'hide_empty' => false
 ]);
 
-// タームをslugでマップ化
-$prefecture_term_map = [];
-if (!empty($all_prefectures_terms) && !is_wp_error($all_prefectures_terms)) {
+// まずタームが取得できているか確認
+if (empty($all_prefectures_terms) || is_wp_error($all_prefectures_terms)) {
+    $all_prefectures = [];
+} else {
+    // タームをslugでマップ化
+    $prefecture_term_map = [];
     foreach ($all_prefectures_terms as $term) {
         $prefecture_term_map[$term->slug] = $term;
     }
-}
 
-// 固定順序でタームオブジェクトを並べ替え
-$all_prefectures = [];
-if (function_exists('gi_get_all_prefectures')) {
-    $prefecture_order = gi_get_all_prefectures();
-    foreach ($prefecture_order as $pref_data) {
-        if (isset($prefecture_term_map[$pref_data['slug']])) {
-            $all_prefectures[] = $prefecture_term_map[$pref_data['slug']];
+    // 固定順序でタームオブジェクトを並べ替え
+    $all_prefectures = [];
+    if (function_exists('gi_get_all_prefectures')) {
+        $prefecture_order = gi_get_all_prefectures();
+        foreach ($prefecture_order as $pref_data) {
+            if (isset($prefecture_term_map[$pref_data['slug']])) {
+                $all_prefectures[] = $prefecture_term_map[$pref_data['slug']];
+            }
         }
+        // 固定順序に含まれない都道府県も追加
+        if (empty($all_prefectures)) {
+            $all_prefectures = $all_prefectures_terms;
+        }
+    } else {
+        // フォールバック: 関数がない場合は取得したタームをそのまま使用
+        $all_prefectures = $all_prefectures_terms;
     }
-} else {
-    // フォールバック: 関数がない場合は取得したタームをそのまま使用
-    $all_prefectures = $all_prefectures_terms;
 }
 
 // 市町村タクソノミー取得
