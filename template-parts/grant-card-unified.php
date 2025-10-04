@@ -25,123 +25,168 @@ if (!$post_id) return;
 $display_mode = $display_mode ?? (isset($_GET['view']) ? sanitize_text_field($_GET['view']) : 'card');
 $view_class = 'grant-view-' . $display_mode;
 
-// 既存のヘルパー関数を最大限活用
-$grant_data = function_exists('gi_get_complete_grant_data') 
-    ? gi_get_complete_grant_data($post_id)
-    : gi_get_all_grant_meta($post_id);
-
 // 基本データ取得
 $title = get_the_title($post_id);
 $permalink = get_permalink($post_id);
 $excerpt = get_the_excerpt($post_id);
 
-// ACFフィールド（安全に取得）
-$ai_summary = gi_get_acf_field_safely($post_id, 'ai_summary', '');
-$max_amount = gi_get_acf_field_safely($post_id, 'max_amount', '');
-$max_amount_numeric = gi_get_acf_field_safely($post_id, 'max_amount_numeric', 0);
-$application_status = gi_get_acf_field_safely($post_id, 'application_status', 'open');
-$organization = gi_get_acf_field_safely($post_id, 'organization', '');
-$grant_target = gi_get_acf_field_safely($post_id, 'grant_target', '');
-$subsidy_rate = gi_get_acf_field_safely($post_id, 'subsidy_rate', '');
-$grant_difficulty = gi_get_acf_field_safely($post_id, 'grant_difficulty', 'normal');
-$grant_success_rate = gi_get_acf_field_safely($post_id, 'grant_success_rate', 0);
-$official_url = gi_get_acf_field_safely($post_id, 'official_url', '');
-$eligible_expenses = gi_get_acf_field_safely($post_id, 'eligible_expenses', '');
-$application_method = gi_get_acf_field_safely($post_id, 'application_method', '');
-$required_documents = gi_get_acf_field_safely($post_id, 'required_documents', '');
-$contact_info = gi_get_acf_field_safely($post_id, 'contact_info', '');
-$is_featured = gi_get_acf_field_safely($post_id, 'is_featured', false);
-$priority_order = gi_get_acf_field_safely($post_id, 'priority_order', 100);
-$application_period = gi_get_acf_field_safely($post_id, 'application_period', '');
+// 📋 完全31列対応 ACFフィールド取得（single-grant.phpと統一）
+$grant_data = array(
+    // 基本情報 (A-G列)
+    'organization' => get_field('organization', $post_id) ?: '',
+    'organization_type' => get_field('organization_type', $post_id) ?: '',
+    
+    // 金額情報 (H-I列)
+    'max_amount' => get_field('max_amount', $post_id) ?: '',
+    'max_amount_numeric' => intval(get_field('max_amount_numeric', $post_id)),
+    'min_amount' => intval(get_field('min_amount', $post_id)),
+    'amount_note' => get_field('amount_note', $post_id) ?: '',
+    
+    // 期間・締切情報 (J-K列)
+    'deadline' => get_field('deadline', $post_id) ?: '',
+    'deadline_date' => get_field('deadline_date', $post_id) ?: '',
+    'application_period' => get_field('application_period', $post_id) ?: '',
+    'deadline_note' => get_field('deadline_note', $post_id) ?: '',
+    
+    // 申請・組織情報 (L-Q列)
+    'grant_target' => get_field('grant_target', $post_id) ?: '',
+    'application_method' => get_field('application_method', $post_id) ?: '',
+    'contact_info' => get_field('contact_info', $post_id) ?: '',
+    'official_url' => get_field('official_url', $post_id) ?: '',
+    
+    // 地域・ステータス情報 (R-S列)
+    'regional_limitation' => get_field('regional_limitation', $post_id) ?: '',
+    'application_status' => get_field('application_status', $post_id) ?: 'open',
+    
+    // ★ 新規拡張フィールド (X-AD列) - 31列対応
+    'external_link' => get_field('external_link', $post_id) ?: '',
+    'region_notes' => get_field('region_notes', $post_id) ?: '',
+    'required_documents' => get_field('required_documents', $post_id) ?: '',
+    'adoption_rate' => floatval(get_field('adoption_rate', $post_id)),
+    'application_difficulty' => get_field('application_difficulty', $post_id) ?: 'normal',
+    'target_expenses' => get_field('target_expenses', $post_id) ?: '',
+    'subsidy_rate' => get_field('subsidy_rate', $post_id) ?: '',
+    
+    // 管理・統計情報
+    'is_featured' => get_field('is_featured', $post_id) ?: false,
+    'views_count' => intval(get_field('views_count', $post_id)),
+    'priority_order' => intval(get_field('priority_order', $post_id)) ?: 100,
+    
+    // AI関連
+    'ai_summary' => get_field('ai_summary', $post_id) ?: get_post_meta($post_id, 'ai_summary', true),
+);
 
-// 締切日の処理
-$deadline_raw = gi_get_acf_field_safely($post_id, 'deadline', '');
+// 個別変数に展開（後方互換性のため）
+$ai_summary = $grant_data['ai_summary'];
+$max_amount = $grant_data['max_amount'];
+$max_amount_numeric = $grant_data['max_amount_numeric'];
+$application_status = $grant_data['application_status'];
+$organization = $grant_data['organization'];
+$grant_target = $grant_data['grant_target'];
+$subsidy_rate = $grant_data['subsidy_rate'];
+$grant_difficulty = $grant_data['application_difficulty'];
+$grant_success_rate = $grant_data['adoption_rate'];
+$official_url = $grant_data['official_url'];
+$eligible_expenses = $grant_data['target_expenses'];
+$application_method = $grant_data['application_method'];
+$required_documents = $grant_data['required_documents'];
+$contact_info = $grant_data['contact_info'];
+$is_featured = $grant_data['is_featured'];
+$priority_order = $grant_data['priority_order'];
+$application_period = $grant_data['application_period'];
+
+// 締切日の計算（single-grant.phpと完全統一）
+$deadline_info_text = '';
+$deadline_class = '';
+$days_remaining = 0;
 $deadline_timestamp = 0;
 $deadline_formatted = '';
 
-if (!empty($deadline_raw)) {
-    // Ymd形式（例：20241231）の場合
-    if (is_numeric($deadline_raw) && strlen($deadline_raw) == 8) {
-        $year = substr($deadline_raw, 0, 4);
-        $month = substr($deadline_raw, 4, 2);
-        $day = substr($deadline_raw, 6, 2);
-        $deadline_timestamp = mktime(0, 0, 0, $month, $day, $year);
-        $deadline_formatted = sprintf('%s年%d月%d日', $year, intval($month), intval($day));
-    }
-    // UNIXタイムスタンプの場合
-    elseif (is_numeric($deadline_raw) && $deadline_raw > 946684800) {
-        $deadline_timestamp = intval($deadline_raw);
+if ($grant_data['deadline_date']) {
+    $deadline_timestamp = strtotime($grant_data['deadline_date']);
+    if ($deadline_timestamp && $deadline_timestamp > 0) {
         $deadline_formatted = date('Y年n月j日', $deadline_timestamp);
+        $current_time = current_time('timestamp');
+        $days_remaining = ceil(($deadline_timestamp - $current_time) / (60 * 60 * 24));
     }
-    // 文字列形式の日付
-    else {
-        $deadline_timestamp = strtotime($deadline_raw);
-        if ($deadline_timestamp !== false) {
-            $deadline_formatted = date('Y年n月j日', $deadline_timestamp);
-        }
-    }
-} else {
-    // deadline_dateフィールドをフォールバック
-    $deadline_date_numeric = gi_get_acf_field_safely($post_id, 'deadline_date', 0);
-    if ($deadline_date_numeric > 0) {
-        $deadline_timestamp = intval($deadline_date_numeric);
-        $deadline_formatted = date('Y年n月j日', $deadline_timestamp);
+} elseif ($grant_data['deadline']) {
+    $deadline_formatted = $grant_data['deadline'];
+    $deadline_timestamp = strtotime($grant_data['deadline']);
+    if ($deadline_timestamp && $deadline_timestamp > 0) {
+        $current_time = current_time('timestamp');
+        $days_remaining = ceil(($deadline_timestamp - $current_time) / (60 * 60 * 24));
     }
 }
 
-// 締切日がない場合のデフォルト
-if (empty($deadline_formatted)) {
-    $deadline_formatted = function_exists('gi_get_formatted_deadline') 
-        ? gi_get_formatted_deadline($post_id) : '未定';
+// タクソノミーデータ（single-grant.phpと統一）
+$taxonomies = array(
+    'categories' => get_the_terms($post_id, 'grant_category'),
+    'prefectures' => get_the_terms($post_id, 'grant_prefecture'),
+    'municipalities' => get_the_terms($post_id, 'grant_municipality'),
+    'tags' => get_the_tags($post_id),
+);
+
+$main_category = ($taxonomies['categories'] && !is_wp_error($taxonomies['categories'])) ? $taxonomies['categories'][0]->name : '';
+$main_prefecture = ($taxonomies['prefectures'] && !is_wp_error($taxonomies['prefectures'])) ? $taxonomies['prefectures'][0] : null;
+$prefecture = $main_prefecture ? $main_prefecture->name : '全国';
+$main_industry = '';
+
+// 金額フォーマット（single-grant.phpと完全同一）
+$formatted_amount = '';
+$max_amount_yen = $grant_data['max_amount_numeric'];
+if ($max_amount_yen > 0) {
+    if ($max_amount_yen >= 100000000) {
+        $formatted_amount = number_format($max_amount_yen / 100000000, 1) . '億円';
+    } elseif ($max_amount_yen >= 10000) {
+        $formatted_amount = number_format($max_amount_yen / 10000) . '万円';
+    } else {
+        $formatted_amount = number_format($max_amount_yen) . '円';
+    }
+} elseif ($grant_data['max_amount']) {
+    $formatted_amount = $grant_data['max_amount'];
 }
-
-// タクソノミーデータ
-$categories = gi_get_post_categories($post_id, 'grant_category');
-$main_category = !empty($categories) ? $categories[0]['name'] : '';
-
-$prefectures = gi_get_post_categories($post_id, 'grant_prefecture');
-$prefecture = !empty($prefectures) ? $prefectures[0]['name'] : '全国';
-
-$industries = gi_get_post_categories($post_id, 'grant_industry');
-$main_industry = !empty($industries) ? $industries[0]['name'] : '';
-
-// 既存のフォーマッター関数を使用
-$amount_display = function_exists('gi_format_amount_unified') 
-    ? gi_format_amount_unified($max_amount_numeric, $max_amount)
-    : gi_get_grant_amount_display($post_id);
+$amount_display = $formatted_amount;
 
 // ステータス表示
-$status_display = function_exists('gi_map_application_status_ui') 
-    ? gi_map_application_status_ui($application_status)
-    : gi_get_status_name($application_status);
+$status_labels = array(
+    'open' => '募集中',
+    'closed' => '募集終了',
+    'planned' => '募集予定',
+    'suspended' => '一時停止'
+);
+$status_display = $status_labels[$application_status] ?? '募集中';
 
-// 締切日情報の処理
+// 締切日情報の処理（single-grant.phpと完全統一）
 $deadline_info = array();
-if ($deadline_timestamp > 0) {
-    $current_timestamp = current_time('timestamp');
-    $days_remaining = ceil(($deadline_timestamp - $current_timestamp) / (60 * 60 * 24));
-    
+if ($deadline_timestamp > 0 && $days_remaining > 0) {
     if ($days_remaining <= 0) {
-        $deadline_info = array('class' => 'expired', 'text' => '募集終了', 'icon' => 'fa-times-circle');
-    } elseif ($days_remaining <= 3) {
-        $deadline_info = array('class' => 'critical', 'text' => '残り'.$days_remaining.'日', 'icon' => 'fa-exclamation-triangle');
+        $deadline_class = 'expired';
+        $deadline_info_text = '募集終了';
+        $deadline_info = array('class' => 'expired', 'text' => '募集終了');
     } elseif ($days_remaining <= 7) {
-        $deadline_info = array('class' => 'urgent', 'text' => '残り'.$days_remaining.'日', 'icon' => 'fa-clock');
+        $deadline_class = 'urgent';
+        $deadline_info_text = 'あと' . $days_remaining . '日';
+        $deadline_info = array('class' => 'urgent', 'text' => '残り'.$days_remaining.'日');
     } elseif ($days_remaining <= 30) {
-        $deadline_info = array('class' => 'warning', 'text' => '残り'.$days_remaining.'日', 'icon' => 'fa-calendar-alt');
+        $deadline_class = 'warning';
+        $deadline_info_text = 'あと' . $days_remaining . '日';
+        $deadline_info = array('class' => 'warning', 'text' => '残り'.$days_remaining.'日');
     } else {
-        $deadline_info = array('class' => 'normal', 'text' => $deadline_formatted, 'icon' => 'fa-calendar');
+        $deadline_info = array('class' => 'normal', 'text' => $deadline_formatted);
     }
+} elseif ($deadline_formatted) {
+    $deadline_info = array('class' => 'normal', 'text' => $deadline_formatted);
 }
 
-// 難易度表示の設定
-$difficulty_config = array(
-    'easy' => array('label' => '易しい', 'color' => '#16a34a', 'icon' => 'fa-smile'),
-    'normal' => array('label' => '普通', 'color' => '#525252', 'icon' => 'fa-meh'),
-    'hard' => array('label' => '難しい', 'color' => '#d97706', 'icon' => 'fa-frown'),
-    'expert' => array('label' => '専門的', 'color' => '#dc2626', 'icon' => 'fa-dizzy')
+// 難易度設定（single-grant.phpと完全統一、アイコン削除）
+$difficulty_configs = array(
+    'easy' => array('label' => '簡単', 'dots' => 1, 'color' => '#16a34a'),
+    'normal' => array('label' => '普通', 'dots' => 2, 'color' => '#525252'),
+    'hard' => array('label' => '難しい', 'dots' => 3, 'color' => '#d97706'),
+    'very_hard' => array('label' => '非常に困難', 'dots' => 4, 'color' => '#dc2626')
 );
-$difficulty_data = $difficulty_config[$grant_difficulty] ?? $difficulty_config['normal'];
+$difficulty = $grant_data['application_difficulty'];
+$difficulty_data = $difficulty_configs[$difficulty] ?? $difficulty_configs['normal'];
 
 // CSS・JSの重複防止
 static $assets_loaded = false;
@@ -1945,20 +1990,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="grant-ai-modal-container">
                     <div class="grant-ai-modal-header">
                         <div class="grant-ai-modal-title">
-                            <i class="fas fa-robot"></i>
                             <span>AI質問チャット</span>
                         </div>
                         <div class="grant-ai-modal-subtitle">${grantTitle}</div>
                         <button class="grant-ai-modal-close" onclick="closeAIChatModal()">
-                            <i class="fas fa-times"></i>
+                            閉じる
                         </button>
                     </div>
                     <div class="grant-ai-modal-body">
                         <div class="grant-ai-chat-messages" id="ai-chat-messages-${postId}">
                             <div class="grant-ai-message grant-ai-message--assistant">
-                                <div class="grant-ai-message-avatar">
-                                    <i class="fas fa-robot"></i>
-                                </div>
                                 <div class="grant-ai-message-content">
                                     こんにちは！この助成金について何でもお聞きください。申請方法、対象要件、必要書類など、詳しくお答えします。
                                 </div>
@@ -1975,7 +2016,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     class="grant-ai-chat-send" 
                                     id="ai-chat-send-${postId}"
                                     onclick="sendAIQuestion('${postId}')">
-                                    <i class="fas fa-paper-plane"></i>
+                                    送信
                                 </button>
                             </div>
                             <div class="grant-ai-chat-suggestions">
@@ -2057,7 +2098,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 送信ボタンを無効化
         if (sendBtn) {
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            sendBtn.innerHTML = '送信中...';
         }
         
         // ユーザーメッセージを追加
@@ -2065,9 +2106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         userMessage.className = 'grant-ai-message grant-ai-message--user';
         userMessage.innerHTML = `
             <div class="grant-ai-message-content">${escapeHtml(question)}</div>
-            <div class="grant-ai-message-avatar">
-                <i class="fas fa-user"></i>
-            </div>
         `;
         messagesContainer.appendChild(userMessage);
         
@@ -2094,9 +2132,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const loadingMessage = document.createElement('div');
             loadingMessage.className = 'grant-ai-message grant-ai-message--assistant grant-ai-loading';
             loadingMessage.innerHTML = `
-                <div class="grant-ai-message-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
                 <div class="grant-ai-message-content">
                     <div class="grant-ai-typing">
                         <span></span><span></span><span></span>
@@ -2114,9 +2149,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     const assistantMessage = document.createElement('div');
                     assistantMessage.className = 'grant-ai-message grant-ai-message--assistant';
                     assistantMessage.innerHTML = `
-                        <div class="grant-ai-message-avatar">
-                            <i class="fas fa-robot"></i>
-                        </div>
                         <div class="grant-ai-message-content">${escapeHtml(data.data.response)}</div>
                     `;
                     messagesContainer.appendChild(assistantMessage);
@@ -2124,10 +2156,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'grant-ai-message grant-ai-message--error';
                     errorMessage.innerHTML = `
-                        <div class="grant-ai-message-avatar">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="grant-ai-message-content">申し訳ございません。エラーが発生しました。しばらく時間をおいて再度お試しください。</div>
+                        <div class="grant-ai-message-content">エラー: 申し訳ございません。エラーが発生しました。しばらく時間をおいて再度お試しください。</div>
                     `;
                     messagesContainer.appendChild(errorMessage);
                 }
@@ -2142,10 +2171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const errorMessage = document.createElement('div');
             errorMessage.className = 'grant-ai-message grant-ai-message--error';
             errorMessage.innerHTML = `
-                <div class="grant-ai-message-avatar">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="grant-ai-message-content">通信エラーが発生しました。インターネット接続を確認して再度お試しください。</div>
+                <div class="grant-ai-message-content">エラー: 通信エラーが発生しました。インターネット接続を確認して再度お試しください。</div>
             `;
             messagesContainer.appendChild(errorMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -2154,7 +2180,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 送信ボタンを復活
             if (sendBtn) {
                 sendBtn.disabled = false;
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                sendBtn.innerHTML = '送信';
             }
             input.focus();
         });
@@ -2219,12 +2245,10 @@ document.head.appendChild(grantCardStyles);
     <!-- ステータスヘッダー -->
     <header class="grant-status-header <?php echo $application_status === 'closed' ? 'status--closed' : ''; ?> <?php echo !empty($deadline_info) && $deadline_info['class'] === 'critical' ? 'status--urgent' : ''; ?>">
         <div class="grant-status-badge">
-            <i class="fas fa-circle-check" aria-hidden="true"></i>
             <span><?php echo esc_html($status_display); ?></span>
         </div>
         <?php if (!empty($deadline_info)): ?>
         <div class="grant-deadline-indicator">
-            <i class="fas <?php echo esc_attr($deadline_info['icon']); ?>" aria-hidden="true"></i>
             <span><?php echo esc_html($deadline_info['text']); ?></span>
         </div>
         <?php endif; ?>
@@ -2242,7 +2266,6 @@ document.head.appendChild(grantCardStyles);
     <!-- 難易度バッジ -->
     <?php if ($grant_difficulty && $grant_difficulty !== 'normal'): ?>
     <div class="grant-difficulty-badge" style="color: <?php echo esc_attr($difficulty_data['color']); ?>">
-        <i class="fas <?php echo esc_attr($difficulty_data['icon']); ?>" aria-hidden="true"></i>
         <span><?php echo esc_html($difficulty_data['label']); ?></span>
     </div>
     <?php endif; ?>
@@ -2254,8 +2277,7 @@ document.head.appendChild(grantCardStyles);
         if ($match_score >= 70):
     ?>
     <div class="grant-match-score" aria-label="AI適合度スコア">
-        <i class="fas fa-brain" aria-hidden="true"></i>
-        <span><?php echo $match_score; ?>%</span>
+        <span>適合度 <?php echo $match_score; ?>%</span>
     </div>
     <?php 
         endif;
@@ -2280,8 +2302,7 @@ document.head.appendChild(grantCardStyles);
         if ($urgency && $urgency['level'] !== 'safe'):
     ?>
     <div class="grant-urgency-alert" data-level="<?php echo esc_attr($urgency['level']); ?>" style="background: <?php echo esc_attr($urgency['color']); ?>;">
-        <i class="fas <?php echo esc_attr($urgency['icon']); ?>" aria-hidden="true"></i>
-        <span><?php echo esc_html($urgency['text']); ?></span>
+        <span><?php echo esc_html(str_replace(['🔥', '⚠️', '📅'], '', $urgency['text'])); ?></span>
     </div>
     <?php 
         endif;
@@ -2295,7 +2316,6 @@ document.head.appendChild(grantCardStyles);
             <div class="grant-title-section">
                 <?php if ($main_category): ?>
                 <div class="grant-category-tag">
-                    <i class="fas fa-tag" aria-hidden="true"></i>
                     <span><?php echo esc_html($main_category); ?></span>
                 </div>
                 <?php endif; ?>
@@ -2310,7 +2330,6 @@ document.head.appendChild(grantCardStyles);
             <?php if ($ai_summary || $excerpt): ?>
             <div class="grant-ai-summary">
                 <div class="grant-ai-summary-label">
-                    <i class="fas fa-robot" aria-hidden="true"></i>
                     <span>AI要約</span>
                 </div>
                 <p class="grant-ai-summary-text">
@@ -2324,9 +2343,6 @@ document.head.appendChild(grantCardStyles);
                 <!-- 助成金額 -->
                 <?php if ($amount_display): ?>
                 <div class="grant-info-item grant-info-item--amount">
-                    <div class="grant-info-icon" aria-hidden="true">
-                        <i class="fas fa-yen-sign"></i>
-                    </div>
                     <div class="grant-info-content">
                         <span class="grant-info-label">助成額</span>
                         <span class="grant-info-value"><?php echo esc_html($amount_display); ?></span>
@@ -2337,9 +2353,6 @@ document.head.appendChild(grantCardStyles);
                 <!-- 対象者 -->
                 <?php if ($grant_target): ?>
                 <div class="grant-info-item grant-info-item--target">
-                    <div class="grant-info-icon" aria-hidden="true">
-                        <i class="fas fa-users"></i>
-                    </div>
                     <div class="grant-info-content">
                         <span class="grant-info-label">対象</span>
                         <span class="grant-info-value"><?php echo esc_html($grant_target); ?></span>
@@ -2349,9 +2362,6 @@ document.head.appendChild(grantCardStyles);
                 
                 <!-- 地域 -->
                 <div class="grant-info-item grant-info-item--location">
-                    <div class="grant-info-icon" aria-hidden="true">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
                     <div class="grant-info-content">
                         <span class="grant-info-label">地域</span>
                         <span class="grant-info-value"><?php echo esc_html($prefecture); ?></span>
@@ -2361,9 +2371,6 @@ document.head.appendChild(grantCardStyles);
                 <!-- 補助率 -->
                 <?php if ($subsidy_rate): ?>
                 <div class="grant-info-item grant-info-item--rate">
-                    <div class="grant-info-icon" aria-hidden="true">
-                        <i class="fas fa-percentage"></i>
-                    </div>
                     <div class="grant-info-content">
                         <span class="grant-info-label">補助率</span>
                         <span class="grant-info-value"><?php echo esc_html($subsidy_rate); ?></span>
@@ -2377,13 +2384,11 @@ document.head.appendChild(grantCardStyles);
             <div class="grant-tags">
                 <?php if ($main_industry): ?>
                 <span class="grant-tag">
-                    <i class="fas fa-industry" aria-hidden="true"></i>
                     <?php echo esc_html($main_industry); ?>
                 </span>
                 <?php endif; ?>
                 <?php if ($application_period): ?>
                 <span class="grant-tag">
-                    <i class="fas fa-calendar-check" aria-hidden="true"></i>
                     <?php echo esc_html($application_period); ?>
                 </span>
                 <?php endif; ?>
@@ -2409,7 +2414,6 @@ document.head.appendChild(grantCardStyles);
     <footer class="grant-card-footer">
         <div class="grant-actions">
             <a href="<?php echo esc_url($permalink); ?>" class="grant-btn grant-btn--primary" role="button">
-                <i class="fas fa-info-circle" aria-hidden="true"></i>
                 <span>詳細を見る</span>
             </a>
             <button class="grant-btn grant-btn--ai" 
@@ -2417,12 +2421,10 @@ document.head.appendChild(grantCardStyles);
                     data-grant-title="<?php echo esc_attr($title); ?>"
                     onclick="openGrantAIChat(this)" 
                     role="button">
-                <i class="fas fa-robot" aria-hidden="true"></i>
                 <span>AIに質問</span>
             </button>
             <?php if ($official_url): ?>
             <a href="<?php echo esc_url($official_url); ?>" class="grant-btn grant-btn--secondary" target="_blank" rel="noopener noreferrer" role="button">
-                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                 <span>公式サイト</span>
             </a>
             <?php endif; ?>
@@ -2434,7 +2436,6 @@ document.head.appendChild(grantCardStyles);
                     onclick="openGrantChecklist(this)" 
                     title="AI申請チェックリスト"
                     role="button">
-                <i class="fas fa-tasks" aria-hidden="true"></i>
                 <span>チェックリスト</span>
             </button>
             
@@ -2444,7 +2445,6 @@ document.head.appendChild(grantCardStyles);
                     onclick="addToCompare(this)" 
                     title="AI比較機能に追加"
                     role="button">
-                <i class="fas fa-balance-scale" aria-hidden="true"></i>
                 <span>比較</span>
             </button>
         </div>
@@ -2456,7 +2456,7 @@ document.head.appendChild(grantCardStyles);
             <div class="grant-hover-header">
                 <h3 class="grant-hover-title"><?php echo esc_html($title); ?></h3>
                 <button class="grant-hover-close" aria-label="詳細を閉じる">
-                    <i class="fas fa-times" aria-hidden="true"></i>
+                    閉じる
                 </button>
             </div>
             
@@ -2480,7 +2480,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($ai_summary): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-robot" aria-hidden="true"></i>
                         <span>AI要約（完全版）</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2492,7 +2491,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($application_period): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                         <span>申請期間</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2504,7 +2502,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($eligible_expenses): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-list-check" aria-hidden="true"></i>
                         <span>対象経費</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2516,7 +2513,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($required_documents): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                         <span>必要書類</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2528,7 +2524,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($application_method): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
                         <span>申請方法</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2540,7 +2535,6 @@ document.head.appendChild(grantCardStyles);
                 <?php if ($contact_info): ?>
                 <div class="grant-detail-section">
                     <div class="grant-detail-label">
-                        <i class="fas fa-phone" aria-hidden="true"></i>
                         <span>お問い合わせ</span>
                     </div>
                     <div class="grant-detail-value">
@@ -2581,15 +2575,15 @@ function openGrantChecklist(button) {
         <div class="ai-modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="ai-modal-content">
             <div class="ai-modal-header">
-                <h3><i class="fas fa-tasks"></i> AI申請チェックリスト</h3>
+                <h3>AI申請チェックリスト</h3>
                 <button class="ai-modal-close" onclick="this.closest('.ai-checklist-modal').remove()">
-                    <i class="fas fa-times"></i>
+                    閉じる
                 </button>
             </div>
             <div class="ai-modal-body">
                 <p class="ai-grant-title">${grantTitle}</p>
                 <div class="ai-checklist-loading">
-                    <i class="fas fa-spinner fa-spin"></i> チェックリスト生成中...
+                    チェックリスト生成中...
                 </div>
                 <div class="ai-checklist-items" style="display:none;"></div>
             </div>
@@ -2671,7 +2665,6 @@ function updateCompareButton() {
             document.body.appendChild(compareBtn);
         }
         compareBtn.innerHTML = `
-            <i class="fas fa-balance-scale"></i>
             <span>${window.compareList.length}件を比較</span>
         `;
         compareBtn.style.display = 'flex';
@@ -2695,14 +2688,14 @@ function showCompareModal() {
         <div class="ai-modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="ai-modal-content ai-modal-large">
             <div class="ai-modal-header">
-                <h3><i class="fas fa-balance-scale"></i> AI比較分析</h3>
+                <h3>AI比較分析</h3>
                 <button class="ai-modal-close" onclick="this.closest('.ai-compare-modal').remove()">
-                    <i class="fas fa-times"></i>
+                    閉じる
                 </button>
             </div>
             <div class="ai-modal-body">
                 <div class="ai-compare-loading">
-                    <i class="fas fa-spinner fa-spin"></i> 分析中...
+                    分析中...
                 </div>
                 <div class="ai-compare-result" style="display:none;"></div>
             </div>
@@ -2729,7 +2722,6 @@ function showCompareModal() {
             
             const tableHtml = `
                 <div class="ai-recommend-box">
-                    <i class="fas fa-lightbulb"></i>
                     <strong>AIのおすすめ:</strong> ${recommendation.title}
                     <span class="recommend-score">適合度 ${recommendation.match_score}%</span>
                 </div>
@@ -2775,7 +2767,6 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `ai-toast ai-toast-${type}`;
     toast.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
         <span>${message}</span>
     `;
     

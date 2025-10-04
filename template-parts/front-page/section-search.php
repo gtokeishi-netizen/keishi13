@@ -60,11 +60,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         autocomplete="off">
                     <div class="search-actions">
                         <button class="voice-btn" aria-label="音声入力">
-                            <i class="fas fa-microphone"></i>
+                            音声
                         </button>
                         <button id="ai-search-btn" class="search-btn">
                             <span class="btn-text">検索</span>
-                            <i class="fas fa-search btn-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -97,7 +96,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                             <span class="assistant-status">オンライン</span>
                         </div>
                         <button class="ai-history-btn" onclick="toggleChatHistory()" title="会話履歴">
-                            <i class="fas fa-history"></i>
+                            履歴
                             <span class="history-count">0</span>
                         </button>
                     </div>
@@ -105,10 +104,8 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                     <!-- AI会話履歴パネル -->
                     <div class="ai-history-panel" id="ai-history-panel" style="display:none;">
                         <div class="ai-history-header">
-                            <h4><i class="fas fa-history"></i> 会話履歴</h4>
-                            <button onclick="clearChatHistory()" class="ai-history-clear">
-                                <i class="fas fa-trash"></i> クリア
-                            </button>
+                            <h4>会話履歴</h4>
+                            <button onclick="clearChatHistory()" class="ai-history-clear">クリア</button>
                         </div>
                         <div class="ai-history-list" id="ai-history-list">
                             <p class="ai-history-empty">履歴がありません</p>
@@ -131,30 +128,17 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         <textarea 
                             id="chat-input" 
                             class="chat-input"
-                            placeholder="質問を入力... または🎤で音声入力"
+                            placeholder="質問を入力してください"
                             rows="1"></textarea>
-                        <!-- 提案10: Voice Input Button -->
-                        <button id="voice-input-btn" class="voice-input-btn" onclick="toggleVoiceInput()" title="音声入力">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button id="chat-send" class="chat-send-btn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                        <button id="chat-send" class="chat-send-btn">送信</button>
                     </div>
 
-                    <!-- Quick Questions (提案8: AI動的サジェスト) -->
+                    <!-- Quick Questions -->
                     <div class="quick-questions" id="quick-questions">
-                        <!-- AI generated questions will be inserted here -->
                         <button class="quick-q" data-q="申請の流れを教えて">申請の流れ</button>
                         <button class="quick-q" data-q="必要書類は？">必要書類</button>
                         <button class="quick-q" data-q="締切はいつ？">締切確認</button>
                         <button class="quick-q" data-q="採択率は？">採択率</button>
-                    </div>
-                    
-                    <!-- AI Suggestion Indicator -->
-                    <div style="text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: #999; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                        <i class="fas fa-magic" style="color: #fbbf24; animation: pulse-brain 2s ease-in-out infinite;"></i>
-                        <span id="ai-suggestion-status">AIが質問を提案しています...</span>
                     </div>
                 </div>
 
@@ -166,10 +150,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         </h3>
                         <div class="view-controls">
                             <button class="view-btn active" data-view="grid">
-                                <i class="fas fa-th"></i>
+                                グリッド
                             </button>
                             <button class="view-btn" data-view="list">
-                                <i class="fas fa-list"></i>
+                                リスト
                             </button>
                         </div>
                     </div>
@@ -221,12 +205,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                             data-grant-id="<?php echo $grant->ID; ?>" 
                                             data-post-id="<?php echo $grant->ID; ?>"
                                             data-grant-title="<?php echo esc_attr($grant->post_title); ?>">
-                                        <i class="fas fa-robot"></i>
                                         AI質問
                                     </button>
                                     <a href="<?php echo get_permalink($grant->ID); ?>" class="card-link">
                                         詳細を見る
-                                        <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
                             </div>
@@ -742,15 +724,15 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     margin-left: auto;
     background: #fff;
     border: 2px solid #000;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.5rem;
     cursor: pointer;
-    position: relative;
     transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.875rem;
 }
 
 .ai-history-btn:hover {
@@ -758,25 +740,18 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     color: #fff;
 }
 
-.ai-history-btn .fa-history {
-    font-size: 1rem;
+.history-count {
+    background: #000;
+    color: #fff;
+    padding: 0.125rem 0.5rem;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
-.history-count {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: #fbbf24;
+.ai-history-btn:hover .history-count {
+    background: #fff;
     color: #000;
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 50%;
-    font-size: 0.625rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #fff;
 }
 
 /* AI History Panel */
@@ -881,14 +856,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     font-size: 0.625rem;
     color: #999;
     margin-bottom: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.history-date::before {
-    content: '📅';
-    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .history-question {
@@ -928,18 +896,22 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 }
 
 .message-bubble {
-    max-width: 80%;
-    padding: 12px 16px;
+    max-width: 100%;
+    width: 100%;
+    padding: 16px 20px;
     background: #fff;
-    border-radius: 16px;
-    font-size: 13px;
-    line-height: 1.6;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.8;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #e0e0e0;
+    min-height: 60px;
 }
 
 .message-user .message-bubble {
     background: #000;
     color: #fff;
+    border-color: #000;
 }
 
 /* Chat Input */
@@ -978,81 +950,46 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 }
 
 .chat-input {
-    width: 100%;
-    padding: 12px 96px 12px 16px;
+    width: calc(100% - 80px);
+    padding: 12px 16px;
     background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 24px;
-    font-size: 13px;
+    border: 2px solid #000;
+    border-radius: 4px;
+    font-size: 14px;
     resize: none;
     outline: none;
     transition: all 0.2s;
+    min-height: 44px;
 }
 
 .chat-input:focus {
     border-color: #000;
-}
-
-/* Voice Input Button (提案10) */
-.voice-input-btn {
-    position: absolute;
-    right: 64px;
-    bottom: 24px;
-    width: 32px;
-    height: 32px;
-    background: #fff;
-    color: #000;
-    border: 2px solid #000;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 14px;
-}
-
-.voice-input-btn:hover {
-    background: #000;
-    color: #fff;
-    transform: scale(1.1);
-}
-
-.voice-input-btn.recording {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: #fff;
-    animation: pulse-record 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-record {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-    50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .chat-send-btn {
     position: absolute;
-    right: 24px;
-    bottom: 24px;
-    width: 32px;
-    height: 32px;
+    right: 16px;
+    bottom: 16px;
+    height: 44px;
+    padding: 0 24px;
     background: #000;
     color: #fff;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid #000;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .chat-send-btn:hover {
-    transform: scale(1.1);
+    background: #fff;
+    color: #000;
 }
 
 .chat-send-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
 }
 
 /* Quick Questions */
@@ -2705,12 +2642,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                 data-grant-id="${grant.id}" 
                                 data-post-id="${grant.id}"
                                 data-grant-title="${grant.title}">
-                            <i class="fas fa-robot"></i>
                             AI質問
                         </button>
                         <a href="${grant.permalink}" class="card-link">
                             詳細を見る
-                            <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -3055,7 +2990,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                 <div class="smart-no-results">
                     <div class="no-results-header">
                         <div class="icon-circle">
-                            <i class="fas fa-search"></i>
+                            <span style="font-size: 1.5rem; font-weight: 600;">×</span>
                         </div>
                         <h3>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</h3>
                         <p>以下の方法をお試しください</p>
@@ -3066,7 +3001,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.alternative_queries && suggestions.alternative_queries.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><i class="fas fa-lightbulb"></i> こちらのキーワードで検索してみませんか？</h4>
+                        <h4>こちらのキーワードで検索してみませんか？</h4>
                         <div class="suggestion-chips">
                 `;
                 
@@ -3089,7 +3024,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.search_tips && suggestions.search_tips.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><i class="fas fa-wand-magic-sparkles"></i> 検索のヒント</h4>
+                        <h4>検索のヒント</h4>
                         <div class="tips-grid">
                 `;
                 
@@ -3116,7 +3051,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.related_categories && suggestions.related_categories.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><i class="fas fa-folder"></i> 関連するカテゴリから探す</h4>
+                        <h4>関連するカテゴリから探す</h4>
                         <div class="category-chips">
                 `;
                 
@@ -3139,7 +3074,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.popular_grants && suggestions.popular_grants.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><i class="fas fa-fire"></i> 人気の助成金</h4>
+                        <h4>人気の助成金</h4>
                         <div class="popular-grants">
                 `;
                 
@@ -3148,7 +3083,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         <a href="${grant.url}" class="popular-grant-card">
                             <h5>${this.escapeHtml(grant.title)}</h5>
                             <p>${this.escapeHtml(grant.excerpt)}</p>
-                            ${grant.view_count ? `<span class="view-count"><i class="fas fa-eye"></i> ${grant.view_count}回閲覧</span>` : ''}
+                            ${grant.view_count ? `<span class="view-count">${grant.view_count}回閲覧</span>` : ''}
                         </a>
                     `;
                 });
@@ -3366,7 +3301,6 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                     <p>こんにちは！「<strong>${grantTitle}</strong>」について、どのようなことをお聞きしたいですか？</p>
                                     <div class="grant-intro-actions">
                                         <a href="<?php echo home_url('/grant/'); ?>${grantId}/" class="detail-link" target="_blank">
-                                            <i class="fas fa-external-link-alt"></i>
                                             詳細ページはこちら
                                         </a>
                                     </div>
@@ -3385,7 +3319,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                 placeholder="質問を入力してください..."
                                 rows="2"></textarea>
                             <button class="send-btn" data-grant-id="${grantId}">
-                                <i class="fas fa-paper-plane"></i>
+                                送信
                             </button>
                         </div>
                     </div>
@@ -3535,7 +3469,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                 messageContent += `
                     <div class="message-action-links">
                         <a href="<?php echo home_url('/grant/'); ?>${grantId}/" class="message-detail-link" target="_blank">
-                            <i class="fas fa-external-link-alt"></i> 詳細ページで確認する
+                            詳細ページで確認する
                         </a>
                     </div>
                 `;
@@ -3874,9 +3808,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             // AIが生成した質問で置き換え
             container.innerHTML = questions.map(q => `
                 <button class="quick-q ai-generated" data-q="${q.question}" title="${q.reason}">
-                    <i class="fas ${q.icon}" style="margin-right: 0.375rem; font-size: 0.75rem;"></i>
                     ${q.label}
-                    <i class="fas fa-sparkles" style="margin-left: 0.375rem; font-size: 0.625rem; color: #fbbf24;"></i>
                 </button>
             `).join('');
             
@@ -3894,7 +3826,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             });
             
             if (statusElement) {
-                statusElement.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i> AIが最適な質問を生成しました';
+                statusElement.innerHTML = 'AIが最適な質問を生成しました';
             }
         } else {
             if (statusElement) {
@@ -4107,8 +4039,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             recognition.onstart = function() {
                 isRecording = true;
                 btn.classList.add('recording');
-                btn.innerHTML = '<i class="fas fa-stop"></i>';
-                input.placeholder = '🎤 音声を認識中...';
+                btn.innerHTML = '停止';
+                btn.style.fontSize = '14px';
+                btn.style.fontWeight = '600';
+                input.placeholder = '音声を認識中...';
                 console.log('Voice recognition started');
             };
             
@@ -4169,10 +4103,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
         
         if (btn) {
             btn.classList.remove('recording');
-            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            btn.innerHTML = '音声';
         }
         if (input) {
-            input.placeholder = '質問を入力... または🎤で音声入力';
+            input.placeholder = '質問を入力してください';
         }
     }
     
@@ -4193,7 +4127,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
         if (!speakerBtn) {
             speakerBtn = document.createElement('button');
             speakerBtn.className = 'tts-speaker-btn';
-            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.innerHTML = '再生';
             speakerBtn.style.cssText = `
                 background: #fff;
                 border: 2px solid #000;
@@ -4212,7 +4146,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                 e.stopPropagation();
                 if (SpeechSynthesis.speaking) {
                     SpeechSynthesis.cancel();
-                    speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    speakerBtn.innerHTML = '再生';
                     speakerBtn.style.background = '#fff';
                 } else {
                     speakText(text, messageElement);
@@ -4228,19 +4162,19 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
         utterance.volume = 1.0;
         
         // Visual feedback
-        speakerBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        speakerBtn.innerHTML = '停止';
         speakerBtn.style.background = '#fbbf24';
         speakerBtn.style.borderColor = '#fbbf24';
         
         utterance.onend = function() {
-            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.innerHTML = '再生';
             speakerBtn.style.background = '#fff';
             speakerBtn.style.borderColor = '#000';
         };
         
         utterance.onerror = function(event) {
             console.error('Speech synthesis error:', event);
-            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.innerHTML = '再生';
             speakerBtn.style.background = '#fff';
         };
         
@@ -4262,7 +4196,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                             // Add speaker button
                             const speakerBtn = document.createElement('button');
                             speakerBtn.className = 'tts-speaker-btn';
-                            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                            speakerBtn.innerHTML = '再生';
                             speakerBtn.title = '読み上げる';
                             speakerBtn.style.cssText = `
                                 background: #fff;
