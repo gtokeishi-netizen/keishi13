@@ -138,12 +138,19 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         </button>
                     </div>
 
-                    <!-- Quick Questions -->
-                    <div class="quick-questions">
+                    <!-- Quick Questions (提案8: AI動的サジェスト) -->
+                    <div class="quick-questions" id="quick-questions">
+                        <!-- AI generated questions will be inserted here -->
                         <button class="quick-q" data-q="申請の流れを教えて">申請の流れ</button>
                         <button class="quick-q" data-q="必要書類は？">必要書類</button>
                         <button class="quick-q" data-q="締切はいつ？">締切確認</button>
                         <button class="quick-q" data-q="採択率は？">採択率</button>
+                    </div>
+                    
+                    <!-- AI Suggestion Indicator -->
+                    <div style="text-align: center; margin-top: 0.75rem; font-size: 0.75rem; color: #999; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-magic" style="color: #fbbf24; animation: pulse-brain 2s ease-in-out infinite;"></i>
+                        <span id="ai-suggestion-status">AIが質問を提案しています...</span>
                     </div>
                 </div>
 
@@ -3800,6 +3807,219 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     
     // チャットメッセージ送信後に履歴を保存（既存のsendChatMessage関数と連携）
     // Note: AISearchController.sendChatMessage内でsaveChatHistory()を呼び出す必要があります
+
+    // ============================================
+    // 提案8: AI質問サジェスト機能強化
+    // ============================================
+    
+    /**
+     * AI動的質問サジェスト生成
+     */
+    function generateDynamicQuestions() {
+        const container = document.getElementById('quick-questions');
+        const statusElement = document.getElementById('ai-suggestion-status');
+        
+        if (!container) return;
+        
+        // ユーザーの行動履歴を分析
+        const chatHistory = JSON.parse(localStorage.getItem('gi_chat_history') || '[]');
+        const viewHistory = JSON.parse(localStorage.getItem('gi_view_history') || '[]');
+        const searchHistory = JSON.parse(localStorage.getItem('gi_search_history') || '[]');
+        
+        // コンテキストに基づいて質問を生成
+        const questions = analyzeAndGenerateQuestions(chatHistory, viewHistory, searchHistory);
+        
+        if (questions.length > 0) {
+            // AIが生成した質問で置き換え
+            container.innerHTML = questions.map(q => `
+                <button class="quick-q ai-generated" data-q="${q.question}" title="${q.reason}">
+                    <i class="fas ${q.icon}" style="margin-right: 0.375rem; font-size: 0.75rem;"></i>
+                    ${q.label}
+                    <i class="fas fa-sparkles" style="margin-left: 0.375rem; font-size: 0.625rem; color: #fbbf24;"></i>
+                </button>
+            `).join('');
+            
+            // イベントリスナーを再設定
+            document.querySelectorAll('.quick-q').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const question = this.dataset.q;
+                    const chatInput = document.getElementById('chat-input');
+                    if (chatInput) {
+                        chatInput.value = question;
+                        const event = new Event('input', { bubbles: true });
+                        chatInput.dispatchEvent(event);
+                    }
+                });
+            });
+            
+            if (statusElement) {
+                statusElement.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i> AIが最適な質問を生成しました';
+            }
+        } else {
+            if (statusElement) {
+                statusElement.textContent = 'AI学習中...';
+            }
+        }
+    }
+    
+    /**
+     * コンテキストに基づいて質問を分析・生成
+     */
+    function analyzeAndGenerateQuestions(chatHistory, viewHistory, searchHistory) {
+        const questions = [];
+        
+        // デフォルトの基本質問
+        const defaultQuestions = [
+            { question: '申請の流れを教えて', label: '申請の流れ', icon: 'fa-route', reason: '基本的な申請プロセス' },
+            { question: '必要書類は？', label: '必要書類', icon: 'fa-file-alt', reason: '必要な提出書類' },
+            { question: '締切はいつ？', label: '締切確認', icon: 'fa-clock', reason: '申請期限の確認' },
+            { question: '採択率は？', label: '採択率', icon: 'fa-chart-line', reason: '採択される確率' }
+        ];
+        
+        // 履歴がある場合、コンテキストベースの質問を生成
+        if (chatHistory.length > 0 || viewHistory.length > 0 || searchHistory.length > 0) {
+            // 最近の会話から関連質問を生成
+            const recentChat = chatHistory.slice(0, 3);
+            
+            // パターン1: 特定カテゴリーに興味がある
+            const categories = extractCategories(viewHistory);
+            if (categories.length > 0) {
+                const topCategory = categories[0];
+                questions.push({
+                    question: `${topCategory}の補助金で人気なのは？`,
+                    label: `${topCategory}の人気`,
+                    icon: 'fa-fire',
+                    reason: `${topCategory}への関心が高い`
+                });
+            }
+            
+            // パターン2: 金額に関心がある
+            if (searchHistory.some(s => s.includes('金額') || s.includes('万円') || s.includes('億円'))) {
+                questions.push({
+                    question: '最大助成額が大きい補助金を教えて',
+                    label: '高額助成金',
+                    icon: 'fa-coins',
+                    reason: '高額助成金への関心'
+                });
+            }
+            
+            // パターン3: 締切を気にしている
+            if (recentChat.some(c => c.question.includes('締切') || c.question.includes('期限'))) {
+                questions.push({
+                    question: '今すぐ申請できる補助金は？',
+                    label: '今すぐ申請可能',
+                    icon: 'fa-bolt',
+                    reason: '緊急性が高い'
+                });
+            }
+            
+            // パターン4: 地域に興味がある
+            const prefectures = extractPrefectures(viewHistory);
+            if (prefectures.length > 0) {
+                const topPref = prefectures[0];
+                questions.push({
+                    question: `${topPref}の補助金で申請しやすいのは？`,
+                    label: `${topPref}で申請しやすい`,
+                    icon: 'fa-map-marker-alt',
+                    reason: `${topPref}への地域的関心`
+                });
+            }
+            
+            // パターン5: 難易度を気にしている
+            if (recentChat.some(c => c.question.includes('難易度') || c.question.includes('簡単'))) {
+                questions.push({
+                    question: '初心者でも申請しやすい補助金は？',
+                    label: '初心者向け',
+                    icon: 'fa-graduation-cap',
+                    reason: '申請難易度への関心'
+                });
+            }
+            
+            // パターン6: 成功率を気にしている
+            if (recentChat.some(c => c.question.includes('採択') || c.question.includes('成功'))) {
+                questions.push({
+                    question: '採択率が高い補助金を教えて',
+                    label: '高採択率',
+                    icon: 'fa-trophy',
+                    reason: '採択率への関心'
+                });
+            }
+            
+            // パターン7: 複数回質問している
+            if (chatHistory.length >= 5) {
+                questions.push({
+                    question: '私に最適な補助金をAIで提案して',
+                    label: 'AIで最適化',
+                    icon: 'fa-brain',
+                    reason: 'パーソナライズされた提案'
+                });
+            }
+        }
+        
+        // 質問が4件未満の場合、デフォルトで補完
+        while (questions.length < 4) {
+            const remaining = defaultQuestions.filter(dq => 
+                !questions.some(q => q.question === dq.question)
+            );
+            if (remaining.length > 0) {
+                questions.push(remaining[0]);
+            } else {
+                break;
+            }
+        }
+        
+        // 最大4件に制限
+        return questions.slice(0, 4);
+    }
+    
+    /**
+     * 履歴からカテゴリーを抽出
+     */
+    function extractCategories(history) {
+        const freq = {};
+        history.forEach(item => {
+            if (item.category) {
+                freq[item.category] = (freq[item.category] || 0) + 1;
+            }
+        });
+        return Object.keys(freq).sort((a, b) => freq[b] - freq[a]);
+    }
+    
+    /**
+     * 履歴から都道府県を抽出
+     */
+    function extractPrefectures(history) {
+        const freq = {};
+        history.forEach(item => {
+            if (item.prefecture) {
+                freq[item.prefecture] = (freq[item.prefecture] || 0) + 1;
+            }
+        });
+        return Object.keys(freq).sort((a, b) => freq[b] - freq[a]);
+    }
+    
+    // ページ読み込み時とユーザー操作後に質問を更新
+    let questionUpdateTimeout;
+    function scheduleQuestionUpdate() {
+        clearTimeout(questionUpdateTimeout);
+        questionUpdateTimeout = setTimeout(() => {
+            generateDynamicQuestions();
+        }, 2000); // 2秒後に更新
+    }
+    
+    // 初回読み込み時
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(generateDynamicQuestions, 1500);
+    });
+    
+    // チャット送信後に質問を更新
+    const originalSendChat = window.AISearchController?.prototype?.sendChatMessage;
+    if (originalSendChat) {
+        // Hook into send chat to update suggestions
+        document.addEventListener('chatMessageSent', function() {
+            scheduleQuestionUpdate();
+        });
+    }
 
 })();
 </script>
