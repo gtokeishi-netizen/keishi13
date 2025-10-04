@@ -1981,7 +1981,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (!container || !grants) return;
 
             if (grants.length === 0) {
-                container.innerHTML = '<div class="no-results">該当する補助金が見つかりませんでした</div>';
+                this.showSmartNoResultsSuggestions(this.state.currentQuery);
                 return;
             }
 
@@ -2328,6 +2328,232 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (container) {
                 container.innerHTML = `<div class="error-message">${message}</div>`;
             }
+        }
+
+        // Smart No Results Suggestions
+        async showSmartNoResultsSuggestions(query) {
+            const container = this.elements.resultsContainer;
+            if (!container) return;
+
+            // Show loading state
+            container.innerHTML = '<div class="no-results-loading">💡 より良い結果を探しています...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'gi_no_results_suggestions');
+                formData.append('query', query);
+
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.renderNoResultsSuggestions(query, data.data);
+                } else {
+                    // Fallback to basic no results message
+                    container.innerHTML = this.getBasicNoResults(query);
+                }
+            } catch (error) {
+                console.error('Suggestions error:', error);
+                container.innerHTML = this.getBasicNoResults(query);
+            }
+        }
+
+        renderNoResultsSuggestions(query, suggestions) {
+            const container = this.elements.resultsContainer;
+            
+            let html = `
+                <div class="smart-no-results">
+                    <div class="no-results-header">
+                        <div class="icon">🔍</div>
+                        <h3>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</h3>
+                        <p>以下の方法をお試しください</p>
+                    </div>
+            `;
+
+            // Alternative queries
+            if (suggestions.alternative_queries && suggestions.alternative_queries.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <h4><span class="icon">💡</span> こちらのキーワードで検索してみませんか？</h4>
+                        <div class="suggestion-chips">
+                `;
+                
+                suggestions.alternative_queries.forEach(alt => {
+                    html += `
+                        <button class="suggestion-chip" data-query="${this.escapeHtml(alt.query)}" title="${this.escapeHtml(alt.reason)}">
+                            <span class="chip-text">${this.escapeHtml(alt.query)}</span>
+                            <span class="chip-icon">→</span>
+                        </button>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Search tips
+            if (suggestions.search_tips && suggestions.search_tips.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <h4><span class="icon">✨</span> 検索のヒント</h4>
+                        <div class="tips-grid">
+                `;
+                
+                suggestions.search_tips.forEach(tip => {
+                    html += `
+                        <div class="tip-card">
+                            <div class="tip-icon">${tip.icon}</div>
+                            <div class="tip-content">
+                                <h5>${this.escapeHtml(tip.title)}</h5>
+                                <p>${this.escapeHtml(tip.description)}</p>
+                                ${tip.example ? `<span class="tip-example">${this.escapeHtml(tip.example)}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Related categories
+            if (suggestions.related_categories && suggestions.related_categories.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <h4><span class="icon">📁</span> 関連するカテゴリから探す</h4>
+                        <div class="category-chips">
+                `;
+                
+                suggestions.related_categories.forEach(cat => {
+                    html += `
+                        <a href="${cat.link}" class="category-chip">
+                            <span class="chip-text">${this.escapeHtml(cat.category)}</span>
+                            <span class="chip-count">${cat.count}件</span>
+                        </a>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Popular grants
+            if (suggestions.popular_grants && suggestions.popular_grants.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <h4><span class="icon">🔥</span> 人気の助成金</h4>
+                        <div class="popular-grants">
+                `;
+                
+                suggestions.popular_grants.forEach(grant => {
+                    html += `
+                        <a href="${grant.url}" class="popular-grant-card">
+                            <h5>${this.escapeHtml(grant.title)}</h5>
+                            <p>${this.escapeHtml(grant.excerpt)}</p>
+                            ${grant.view_count ? `<span class="view-count">👁 ${grant.view_count}回閲覧</span>` : ''}
+                        </a>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Example queries
+            if (suggestions.example_queries && suggestions.example_queries.length > 0) {
+                html += `
+                    <div class="suggestions-section">
+                        <h4><span class="icon">📝</span> 検索例</h4>
+                        <div class="example-queries">
+                `;
+                
+                suggestions.example_queries.forEach(example => {
+                    html += `
+                        <button class="example-query" data-query="${this.escapeHtml(example.query)}">
+                            <span class="example-text">${this.escapeHtml(example.query)}</span>
+                            <span class="example-desc">${this.escapeHtml(example.description)}</span>
+                        </button>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // AI Chat suggestion
+            html += `
+                <div class="suggestions-section ai-chat-cta">
+                    <div class="cta-content">
+                        <div class="cta-icon">🤖</div>
+                        <div class="cta-text">
+                            <h4>AIアシスタントに相談する</h4>
+                            <p>具体的な状況を教えていただければ、最適な助成金をご提案します</p>
+                        </div>
+                        <button class="cta-button" onclick="document.querySelector('.ai-chat-toggle')?.click()">
+                            チャットを開く
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Bind click events
+            this.bindSuggestionEvents();
+        }
+
+        bindSuggestionEvents() {
+            // Suggestion chips
+            const chips = document.querySelectorAll('.suggestion-chip, .example-query');
+            chips.forEach(chip => {
+                chip.addEventListener('click', (e) => {
+                    const query = e.currentTarget.dataset.query;
+                    if (query && this.elements.searchInput) {
+                        this.elements.searchInput.value = query;
+                        this.performSearch();
+                    }
+                });
+            });
+        }
+
+        getBasicNoResults(query) {
+            return `
+                <div class="basic-no-results">
+                    <div class="icon">🔍</div>
+                    <h3>該当する補助金が見つかりませんでした</h3>
+                    <p>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</p>
+                    <div class="basic-tips">
+                        <p>• キーワードを変更してみてください</p>
+                        <p>• 業種や地域を追加してみてください</p>
+                        <p>• カテゴリから探してみてください</p>
+                    </div>
+                    <button class="retry-button" onclick="document.querySelector('.ai-search-input')?.focus()">
+                        再検索する
+                    </button>
+                </div>
+            `;
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Animation Methods
