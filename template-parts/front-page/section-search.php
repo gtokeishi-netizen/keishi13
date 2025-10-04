@@ -131,8 +131,12 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         <textarea 
                             id="chat-input" 
                             class="chat-input"
-                            placeholder="質問を入力..."
+                            placeholder="質問を入力... または🎤で音声入力"
                             rows="1"></textarea>
+                        <!-- 提案10: Voice Input Button -->
+                        <button id="voice-input-btn" class="voice-input-btn" onclick="toggleVoiceInput()" title="音声入力">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                         <button id="chat-send" class="chat-send-btn">
                             <i class="fas fa-paper-plane"></i>
                         </button>
@@ -975,7 +979,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 
 .chat-input {
     width: 100%;
-    padding: 12px 48px 12px 16px;
+    padding: 12px 96px 12px 16px;
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 24px;
@@ -987,6 +991,43 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 
 .chat-input:focus {
     border-color: #000;
+}
+
+/* Voice Input Button (提案10) */
+.voice-input-btn {
+    position: absolute;
+    right: 64px;
+    bottom: 24px;
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.voice-input-btn:hover {
+    background: #000;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.voice-input-btn.recording {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+    animation: pulse-record 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-record {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
 }
 
 .chat-send-btn {
@@ -4020,6 +4061,314 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             scheduleQuestionUpdate();
         });
     }
+
+    // ============================================
+    // 提案10: AI音声入力・読み上げ
+    // ============================================
+    
+    // Web Speech API support check
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechSynthesis = window.speechSynthesis;
+    
+    let recognition = null;
+    let isRecording = false;
+    
+    /**
+     * 音声入力のトグル
+     */
+    window.toggleVoiceInput = function() {
+        if (!SpeechRecognition) {
+            showToast('お使いのブラウザは音声入力に対応していません。Chrome、Edge、Safariをお試しください。', 'error');
+            return;
+        }
+        
+        const btn = document.getElementById('voice-input-btn');
+        const input = document.getElementById('chat-input');
+        
+        if (isRecording) {
+            // Stop recording
+            stopVoiceRecognition();
+        } else {
+            // Start recording
+            startVoiceRecognition(btn, input);
+        }
+    };
+    
+    /**
+     * 音声認識を開始
+     */
+    function startVoiceRecognition(btn, input) {
+        if (!recognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            
+            recognition.onstart = function() {
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.innerHTML = '<i class="fas fa-stop"></i>';
+                input.placeholder = '🎤 音声を認識中...';
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    } else {
+                        // Show interim results
+                        input.value = event.results[i][0].transcript;
+                    }
+                }
+                
+                if (transcript) {
+                    input.value = transcript;
+                    console.log('Recognized:', transcript);
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopVoiceRecognition();
+                
+                let errorMsg = '音声認識エラーが発生しました。';
+                if (event.error === 'no-speech') {
+                    errorMsg = '音声が検出されませんでした。もう一度お試しください。';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = 'マイクへのアクセスが拒否されました。ブラウザの設定を確認してください。';
+                }
+                showToast(errorMsg, 'error');
+            };
+            
+            recognition.onend = function() {
+                stopVoiceRecognition();
+            };
+        }
+        
+        try {
+            recognition.start();
+        } catch (error) {
+            console.error('Failed to start recognition:', error);
+            showToast('音声認識の開始に失敗しました。', 'error');
+        }
+    }
+    
+    /**
+     * 音声認識を停止
+     */
+    function stopVoiceRecognition() {
+        if (recognition && isRecording) {
+            recognition.stop();
+        }
+        
+        isRecording = false;
+        const btn = document.getElementById('voice-input-btn');
+        const input = document.getElementById('chat-input');
+        
+        if (btn) {
+            btn.classList.remove('recording');
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+        }
+        if (input) {
+            input.placeholder = '質問を入力... または🎤で音声入力';
+        }
+    }
+    
+    /**
+     * テキスト読み上げ（AI応答用）
+     */
+    window.speakText = function(text, messageElement) {
+        if (!SpeechSynthesis) {
+            console.warn('Text-to-speech not supported');
+            return;
+        }
+        
+        // Cancel any ongoing speech
+        SpeechSynthesis.cancel();
+        
+        // Create speaker button if not exists
+        let speakerBtn = messageElement.querySelector('.tts-speaker-btn');
+        if (!speakerBtn) {
+            speakerBtn = document.createElement('button');
+            speakerBtn.className = 'tts-speaker-btn';
+            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.style.cssText = `
+                background: #fff;
+                border: 2px solid #000;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                margin-top: 0.5rem;
+                transition: all 0.3s;
+                font-size: 0.75rem;
+            `;
+            speakerBtn.onclick = function(e) {
+                e.stopPropagation();
+                if (SpeechSynthesis.speaking) {
+                    SpeechSynthesis.cancel();
+                    speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    speakerBtn.style.background = '#fff';
+                } else {
+                    speakText(text, messageElement);
+                }
+            };
+            messageElement.querySelector('.message-bubble').appendChild(speakerBtn);
+        }
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        // Visual feedback
+        speakerBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        speakerBtn.style.background = '#fbbf24';
+        speakerBtn.style.borderColor = '#fbbf24';
+        
+        utterance.onend = function() {
+            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.style.background = '#fff';
+            speakerBtn.style.borderColor = '#000';
+        };
+        
+        utterance.onerror = function(event) {
+            console.error('Speech synthesis error:', event);
+            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            speakerBtn.style.background = '#fff';
+        };
+        
+        SpeechSynthesis.speak(utterance);
+    };
+    
+    /**
+     * AI応答に自動でスピーカーボタンを追加
+     */
+    function addSpeakerButtonToAIMessages() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1 && node.classList && node.classList.contains('message-ai')) {
+                        const bubble = node.querySelector('.message-bubble');
+                        if (bubble && !bubble.querySelector('.tts-speaker-btn')) {
+                            const text = bubble.textContent;
+                            
+                            // Add speaker button
+                            const speakerBtn = document.createElement('button');
+                            speakerBtn.className = 'tts-speaker-btn';
+                            speakerBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                            speakerBtn.title = '読み上げる';
+                            speakerBtn.style.cssText = `
+                                background: #fff;
+                                border: 2px solid #000;
+                                border-radius: 50%;
+                                width: 28px;
+                                height: 28px;
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                cursor: pointer;
+                                margin-left: 0.5rem;
+                                transition: all 0.3s;
+                                font-size: 0.875rem;
+                                vertical-align: middle;
+                            `;
+                            speakerBtn.onclick = function(e) {
+                                e.stopPropagation();
+                                speakText(text, node);
+                            };
+                            
+                            bubble.appendChild(speakerBtn);
+                        }
+                    }
+                });
+            });
+        });
+        
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) {
+            observer.observe(chatMessages, {
+                childList: true,
+                subtree: true
+            });
+        }
+    }
+    
+    /**
+     * トースト通知
+     */
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = 'voice-toast';
+        
+        const bgColors = {
+            'info': '#2563eb',
+            'success': '#10b981',
+            'error': '#dc2626',
+            'warning': '#f59e0b'
+        };
+        
+        const icons = {
+            'info': 'fa-info-circle',
+            'success': 'fa-check-circle',
+            'error': 'fa-exclamation-circle',
+            'warning': 'fa-exclamation-triangle'
+        };
+        
+        toast.innerHTML = `
+            <i class="fas ${icons[type]}"></i>
+            <span>${message}</span>
+        `;
+        
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${bgColors[type]};
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+            max-width: 90%;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideDown 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+    
+    // Initialize speaker buttons for AI messages
+    document.addEventListener('DOMContentLoaded', function() {
+        addSpeakerButtonToAIMessages();
+        
+        // Check browser support
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput && !SpeechRecognition) {
+            const voiceBtn = document.getElementById('voice-input-btn');
+            if (voiceBtn) {
+                voiceBtn.style.opacity = '0.5';
+                voiceBtn.style.cursor = 'not-allowed';
+                voiceBtn.title = 'お使いのブラウザは音声入力に対応していません';
+            }
+        }
+    });
 
 })();
 </script>
