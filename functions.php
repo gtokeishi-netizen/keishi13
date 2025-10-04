@@ -368,3 +368,91 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
         echo '<!-- Files loaded: ' . count($required_files) . ' -->';
     });
 }
+
+/**
+ * =============================================================================
+ * お問い合わせフォーム処理
+ * =============================================================================
+ */
+
+/**
+ * お問い合わせフォーム送信処理
+ */
+add_action('wp_ajax_submit_contact_form', 'gi_handle_contact_form');
+add_action('wp_ajax_nopriv_submit_contact_form', 'gi_handle_contact_form');
+
+function gi_handle_contact_form() {
+    // Nonce検証
+    if (!isset($_POST['contact_nonce']) || !wp_verify_nonce($_POST['contact_nonce'], 'contact_form_nonce')) {
+        wp_send_json_error(array('message' => 'セキュリティチェックに失敗しました'));
+        return;
+    }
+    
+    // データの取得とサニタイズ
+    $name = isset($_POST['contact_name']) ? sanitize_text_field($_POST['contact_name']) : '';
+    $email = isset($_POST['contact_email']) ? sanitize_email($_POST['contact_email']) : '';
+    $company = isset($_POST['contact_company']) ? sanitize_text_field($_POST['contact_company']) : '';
+    $subject = isset($_POST['contact_subject']) ? sanitize_text_field($_POST['contact_subject']) : '';
+    $message = isset($_POST['contact_message']) ? sanitize_textarea_field($_POST['contact_message']) : '';
+    
+    // バリデーション
+    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
+        wp_send_json_error(array('message' => '必須項目をすべて入力してください'));
+        return;
+    }
+    
+    if (!is_email($email)) {
+        wp_send_json_error(array('message' => 'メールアドレスの形式が正しくありません'));
+        return;
+    }
+    
+    // 管理者メール送信
+    $to = get_option('admin_email');
+    $email_subject = '[Grant Insight] お問い合わせ: ' . $subject;
+    
+    $email_body = "【お問い合わせ内容】\n\n";
+    $email_body .= "お名前: {$name}\n";
+    $email_body .= "メールアドレス: {$email}\n";
+    $email_body .= "会社名・団体名: {$company}\n";
+    $email_body .= "件名: {$subject}\n\n";
+    $email_body .= "お問い合わせ内容:\n";
+    $email_body .= $message . "\n\n";
+    $email_body .= "---\n";
+    $email_body .= "送信日時: " . current_time('Y-m-d H:i:s') . "\n";
+    $email_body .= "送信元IP: " . $_SERVER['REMOTE_ADDR'] . "\n";
+    
+    $headers = array(
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>',
+        'Reply-To: ' . $name . ' <' . $email . '>'
+    );
+    
+    // メール送信
+    $sent = wp_mail($to, $email_subject, $email_body, $headers);
+    
+    if ($sent) {
+        // 自動返信メール
+        $auto_reply_subject = '[Grant Insight] お問い合わせを受け付けました';
+        $auto_reply_body = "{$name} 様\n\n";
+        $auto_reply_body .= "この度は、Grant Insight Perfectにお問い合わせいただき、誠にありがとうございます。\n\n";
+        $auto_reply_body .= "以下の内容でお問い合わせを受け付けました。\n";
+        $auto_reply_body .= "2営業日以内にご返信させていただきます。\n\n";
+        $auto_reply_body .= "【お問い合わせ内容】\n";
+        $auto_reply_body .= "件名: {$subject}\n\n";
+        $auto_reply_body .= $message . "\n\n";
+        $auto_reply_body .= "---\n";
+        $auto_reply_body .= "Grant Insight Perfect\n";
+        $auto_reply_body .= get_site_url() . "\n";
+        
+        $auto_reply_headers = array(
+            'Content-Type: text/plain; charset=UTF-8',
+            'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
+        );
+        
+        wp_mail($email, $auto_reply_subject, $auto_reply_body, $auto_reply_headers);
+        
+        wp_send_json_success(array('message' => 'お問い合わせを送信しました'));
+    } else {
+        wp_send_json_error(array('message' => 'メール送信に失敗しました'));
+    }
+}
