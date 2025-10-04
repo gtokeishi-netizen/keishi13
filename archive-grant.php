@@ -154,12 +154,28 @@ $all_categories = get_terms([
     'order' => 'DESC'
 ]);
 
-$all_prefectures = get_terms([
+// 47都道府県を北海道から沖縄まで固定順序で取得
+$prefecture_order = gi_get_all_prefectures();
+$all_prefectures_terms = get_terms([
     'taxonomy' => 'grant_prefecture',
-    'hide_empty' => false,
-    'orderby' => 'name',
-    'order' => 'ASC'
+    'hide_empty' => false
 ]);
+
+// タームをslugでマップ化
+$prefecture_term_map = [];
+if (!empty($all_prefectures_terms) && !is_wp_error($all_prefectures_terms)) {
+    foreach ($all_prefectures_terms as $term) {
+        $prefecture_term_map[$term->slug] = $term;
+    }
+}
+
+// 固定順序でタームオブジェクトを並べ替え
+$all_prefectures = [];
+foreach ($prefecture_order as $pref_data) {
+    if (isset($prefecture_term_map[$pref_data['slug']])) {
+        $all_prefectures[] = $prefecture_term_map[$pref_data['slug']];
+    }
+}
 
 // 市町村タクソノミー取得
 $all_municipalities = get_terms([

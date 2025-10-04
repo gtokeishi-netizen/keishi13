@@ -185,6 +185,7 @@
         
         .gi-header.hidden {
             transform: translateY(-120%);
+            transition: transform 0.3s ease-out;
         }
         
         /* Floating Announcement Bar */
@@ -1260,10 +1261,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Hide/show header on scroll
-        if (scrollTop > lastScrollTop && scrollTop > 200 && !isMobileMenuOpen && !isSearchOpen) {
+        // Hide/show header on scroll (improved sensitivity)
+        if (scrollTop > lastScrollTop && scrollTop > 80 && !isMobileMenuOpen && !isSearchOpen) {
+            // Scrolling down - hide header
             header.classList.add('hidden');
-        } else {
+        } else if (scrollTop < lastScrollTop) {
+            // Scrolling up - show header
             header.classList.remove('hidden');
         }
         
