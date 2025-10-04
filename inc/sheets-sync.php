@@ -1487,7 +1487,7 @@ class GoogleSheetsSync {
             ),
             'Y' => array(
                 'field_name' => '地域に関する備考',
-                'field_key' => 'region_notes',
+                'field_key' => 'area_notes',
                 'type' => 'textarea',
                 'description' => '地域制限の詳細説明・備考'
             ),
@@ -1506,20 +1506,20 @@ class GoogleSheetsSync {
             ),
             'AB' => array(
                 'field_name' => '申請難易度',
-                'field_key' => 'application_difficulty',
+                'field_key' => 'difficulty_level',
                 'type' => 'select',
                 'choices' => array('easy', 'normal', 'hard', 'very_hard'),
                 'description' => '申請の難易度レベル（簡単〜非常に困難）'
             ),
             'AC' => array(
                 'field_name' => '対象経費',
-                'field_key' => 'target_expenses',
+                'field_key' => 'eligible_expenses_detailed',
                 'type' => 'textarea',
                 'description' => '補助対象となる経費の詳細'
             ),
             'AD' => array(
                 'field_name' => '補助率',
-                'field_key' => 'subsidy_rate',
+                'field_key' => 'subsidy_rate_detailed',
                 'type' => 'text',
                 'description' => '補助率・補助割合（例：2/3、50%）'
             ),
@@ -1617,12 +1617,12 @@ class GoogleSheetsSync {
             
             // 新規フィールド (31列対応)
             'external_link' => 23,          // X列: 外部リンク
-            'region_notes' => 24,           // Y列: 地域に関する備考
-            'required_documents' => 25,      // Z列: 必要書類
+            'area_notes' => 24,             // Y列: 地域に関する備考
+            'required_documents_detailed' => 25,  // Z列: 必要書類
             'adoption_rate' => 26,          // AA列: 採択率
-            'application_difficulty' => 27,  // AB列: 申請難易度
-            'target_expenses' => 28,        // AC列: 対象経費
-            'subsidy_rate' => 29,           // AD列: 補助率
+            'difficulty_level' => 27,        // AB列: 申請難易度
+            'eligible_expenses_detailed' => 28, // AC列: 対象経費
+            'subsidy_rate_detailed' => 29,  // AD列: 補助率
         );
         
         // タクソノミーフィールドのテスト

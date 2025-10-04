@@ -159,32 +159,8 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            array(
-                'key' => 'field_subsidy_rate',
-                'label' => '補助率',
-                'name' => 'subsidy_rate',
-                'type' => 'text',
-                'instructions' => '補助率を入力してください。',
-                'required' => 0,
-                'default_value' => '',
-                'placeholder' => '例: 2/3以内、100%、定額',
-                'wrapper' => array(
-                    'width' => '33.33',
-                ),
-            ),
-            
-            array(
-                'key' => 'field_amount_note',
-                'label' => '金額に関する備考',
-                'name' => 'amount_note',
-                'type' => 'textarea',
-                'instructions' => '金額に関する特記事項があれば入力してください。',
-                'required' => 0,
-                'rows' => 3,
-                'wrapper' => array(
-                    'width' => '66.67',
-                ),
-            ),
+            // ❌ Removed unused fields: field_subsidy_rate and field_amount_note
+            // Spreadsheet uses subsidy_rate_detailed (AD column) as source of truth
             
             // ========== 締切・ステータス ==========
             array(
@@ -248,18 +224,8 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            array(
-                'key' => 'field_deadline_note',
-                'label' => '締切に関する備考',
-                'name' => 'deadline_note',
-                'type' => 'textarea',
-                'instructions' => '締切に関する特記事項があれば入力してください。',
-                'required' => 0,
-                'rows' => 2,
-                'wrapper' => array(
-                    'width' => '50',
-                ),
-            ),
+            // ❌ Removed unused field: field_deadline_note
+            // Not present in spreadsheet configuration
             
             // ========== 対象・条件 ==========
             array(
@@ -305,21 +271,8 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            array(
-                'key' => 'field_grant_success_rate',
-                'label' => '採択率（%）',
-                'name' => 'grant_success_rate',
-                'type' => 'number',
-                'instructions' => '過去の採択率があれば入力してください。',
-                'required' => 0,
-                'default_value' => 0,
-                'min' => 0,
-                'max' => 100,
-                'step' => 1,
-                'wrapper' => array(
-                    'width' => '25',
-                ),
-            ),
+            // ❌ Removed duplicate field: field_grant_success_rate
+            // Spreadsheet uses field_adoption_rate (AA column) as source of truth
             
             array(
                 'key' => 'field_required_documents',
