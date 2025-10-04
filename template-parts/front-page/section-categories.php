@@ -258,7 +258,7 @@ if (function_exists('gi_get_cached_stats')) {
             <!-- デバッグ情報パネル（管理者のみ） -->
             <?php if (current_user_can('manage_options') && (isset($_GET['debug_counts']) || defined('WP_DEBUG') && WP_DEBUG)) : ?>
             <div class="debug-panel" style="background:#f0f0f0;border:1px solid #ccc;padding:15px;margin:20px 0;border-radius:8px;">
-                <h4 style="margin-top:0;">🔧 Prefecture Counts Debug Info (管理者のみ)</h4>
+                <h4 style="margin-top:0;"><i class="fas fa-wrench"></i> Prefecture Counts Debug Info (管理者のみ)</h4>
                 <?php
                 $total_grants = wp_count_posts('grant')->publish;
                 $cache_status = get_transient('gi_prefecture_counts_v2') !== false ? 'キャッシュ有り' : 'キャッシュ無し';
@@ -269,10 +269,10 @@ if (function_exists('gi_get_cached_stats')) {
                 <p><strong>投稿のある都道府県数:</strong> <?php echo $prefectures_with_posts; ?> / <?php echo count($all_prefectures); ?></p>
                 <p>
                     <a href="<?php echo add_query_arg('refresh_counts', '1'); ?>" style="background:#007cba;color:white;padding:5px 10px;text-decoration:none;border-radius:3px;">
-                        🔄 カウンターを強制更新
+                        <i class="fas fa-sync-alt"></i> カウンターを強制更新
                     </a>
                     <a href="<?php echo remove_query_arg(array('debug_counts', 'refresh_counts')); ?>" style="background:#666;color:white;padding:5px 10px;text-decoration:none;border-radius:3px;margin-left:10px;">
-                        ❌ デバッグを閉じる
+                        <i class="fas fa-times"></i> デバッグを閉じる
                     </a>
                 </p>
                 <?php if ($prefectures_with_posts > 0) : ?>
@@ -499,7 +499,7 @@ if (function_exists('gi_get_cached_stats')) {
                     
                     <!-- 日本地図表示エリア -->
                     <div class="japan-map-container">
-                        <h5 class="map-title">🗾 地域を選択して絞り込み</h5>
+                        <h5 class="map-title"><i class="fas fa-map-marked-alt"></i> 地域を選択して絞り込み</h5>
                         
                         <!-- リアルな日本地図 SVG -->
                         <svg viewBox="0 0 800 1100" class="japan-map-svg" xmlns="http://www.w3.org/2000/svg">

@@ -60,17 +60,11 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         autocomplete="off">
                     <div class="search-actions">
                         <button class="voice-btn" aria-label="音声入力">
-                            <svg width="16" height="16" viewBox="0 0 16 16">
-                                <path d="M8 11c1.66 0 3-1.34 3-3V3c0-1.66-1.34-3-3-3S5 1.34 5 3v5c0 1.66 1.34 3 3 3z"/>
-                                <path d="M13 8c0 2.76-2.24 5-5 5s-5-2.24-5-5H1c0 3.53 2.61 6.43 6 6.92V16h2v-1.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                            </svg>
+                            <i class="fas fa-microphone"></i>
                         </button>
                         <button id="ai-search-btn" class="search-btn">
                             <span class="btn-text">検索</span>
-                            <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20">
-                                <path d="M9 2a7 7 0 100 14A7 7 0 009 2zm0 12a5 5 0 110-10 5 5 0 010 10z"/>
-                                <path d="M13.5 13.5L18 18"/>
-                            </svg>
+                            <i class="fas fa-search btn-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -123,9 +117,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                             placeholder="質問を入力..."
                             rows="1"></textarea>
                         <button id="chat-send" class="chat-send-btn">
-                            <svg width="18" height="18" viewBox="0 0 18 18">
-                                <path d="M2 9l14-7-5 7 5 7z"/>
-                            </svg>
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
 
@@ -146,19 +138,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         </h3>
                         <div class="view-controls">
                             <button class="view-btn active" data-view="grid">
-                                <svg width="16" height="16" viewBox="0 0 16 16">
-                                    <rect x="1" y="1" width="6" height="6"/>
-                                    <rect x="9" y="1" width="6" height="6"/>
-                                    <rect x="1" y="9" width="6" height="6"/>
-                                    <rect x="9" y="9" width="6" height="6"/>
-                                </svg>
+                                <i class="fas fa-th"></i>
                             </button>
                             <button class="view-btn" data-view="list">
-                                <svg width="16" height="16" viewBox="0 0 16 16">
-                                    <rect x="1" y="2" width="14" height="2"/>
-                                    <rect x="1" y="7" width="14" height="2"/>
-                                    <rect x="1" y="12" width="14" height="2"/>
-                                </svg>
+                                <i class="fas fa-list"></i>
                             </button>
                         </div>
                     </div>
@@ -210,16 +193,12 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                             data-grant-id="<?php echo $grant->ID; ?>" 
                                             data-post-id="<?php echo $grant->ID; ?>"
                                             data-grant-title="<?php echo esc_attr($grant->post_title); ?>">
-                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                            <path d="M7 1L9 5L13 5L10 8L11 12L7 10L3 12L4 8L1 5L5 5L7 1Z" stroke="currentColor" stroke-width="1.5"/>
-                                        </svg>
+                                        <i class="fas fa-robot"></i>
                                         AI質問
                                     </button>
                                     <a href="<?php echo get_permalink($grant->ID); ?>" class="card-link">
                                         詳細を見る
-                                        <svg width="12" height="12" viewBox="0 0 12 12">
-                                            <path d="M2 6h8m0 0L7 3m3 3L7 9"/>
-                                        </svg>
+                                        <i class="fas fa-arrow-right"></i>
                                     </a>
                                 </div>
                             </div>
@@ -2495,16 +2474,12 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                 data-grant-id="${grant.id}" 
                                 data-post-id="${grant.id}"
                                 data-grant-title="${grant.title}">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M7 1L9 5L13 5L10 8L11 12L7 10L3 12L4 8L1 5L5 5L7 1Z" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
+                            <i class="fas fa-robot"></i>
                             AI質問
                         </button>
                         <a href="${grant.permalink}" class="card-link">
                             詳細を見る
-                            <svg width="12" height="12" viewBox="0 0 12 12">
-                                <path d="M2 6h8m0 0L7 3m3 3L7 9"/>
-                            </svg>
+                            <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -3174,9 +3149,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                                 placeholder="質問を入力してください..."
                                 rows="2"></textarea>
                             <button class="send-btn" data-grant-id="${grantId}">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M2 8L14 2L9 8L14 14L2 8Z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
+                                <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
                     </div>
