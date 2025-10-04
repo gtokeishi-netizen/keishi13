@@ -1031,6 +1031,232 @@ function gi_ajax_submit_ai_feedback() {
 }
 
 /**
+ * =============================================================================
+ * Missing Helper Functions - Simple Response Generators
+ * =============================================================================
+ */
+
+/**
+ * 簡単な検索サマリー生成
+ */
+function gi_generate_simple_search_summary($count, $query) {
+    if ($count === 0) {
+        return "「{$query}」に該当する助成金が見つかりませんでした。キーワードを変更して再度お試しください。";
+    }
+    
+    if ($count === 1) {
+        return "「{$query}」で1件の助成金が見つかりました。";
+    }
+    
+    return "「{$query}」で{$count}件の助成金が見つかりました。詳細は各カードの「詳細を見る」または「AI質問」ボタンからご確認ください。";
+}
+
+/**
+ * 簡単なチャット応答生成
+ */
+function gi_generate_simple_chat_response($message, $intent) {
+    $message_lower = mb_strtolower($message);
+    
+    // 挨拶への応答
+    if (preg_match('/(こんにちは|おはよう|こんばんは|はじめまして)/', $message_lower)) {
+        return "こんにちは！Grant Insight Perfectの補助金AIアシスタントです。どのような補助金をお探しですか？";
+    }
+    
+    // 意図に基づく応答
+    switch ($intent) {
+        case 'search':
+            return "どのような助成金をお探しですか？業種、目的、地域などを教えていただくと、最適な助成金をご提案できます。";
+        
+        case 'application':
+            return "申請に関するご質問ですね。具体的にどの助成金の申請方法についてお知りになりたいですか？";
+        
+        case 'information':
+            return "詳しい情報をお調べします。どの助成金についての詳細をお知りになりたいですか？";
+        
+        case 'comparison':
+            return "助成金の比較についてお答えします。どのような観点（金額、対象、締切など）で比較をご希望ですか？";
+        
+        case 'recommendation':
+            return "おすすめの助成金をご提案させていただきます。お客様の事業内容や目的を教えてください。";
+        
+        default:
+            return "ご質問ありがとうございます。具体的な内容をお聞かせいただけると、より詳しい回答をお提供できます。";
+    }
+}
+
+/**
+ * 簡単な助成金応答生成
+ */
+function gi_generate_simple_grant_response($question, $grant_details, $intent) {
+    $title = $grant_details['title'] ?? '助成金';
+    $organization = $grant_details['organization'] ?? '';
+    $max_amount = $grant_details['max_amount'] ?? '';
+    $deadline = $grant_details['deadline'] ?? '';
+    $grant_target = $grant_details['grant_target'] ?? '';
+    
+    $response = "「{$title}」についてお答えします。\n\n";
+    
+    switch ($intent) {
+        case 'application':
+            $response .= "【申請について】\n";
+            if ($organization) {
+                $response .= "実施機関：{$organization}\n";
+            }
+            if ($grant_target) {
+                $response .= "\n対象者：{$grant_target}\n";
+            }
+            $response .= "\n詳しい申請方法は、実施機関の公式サイトをご確認ください。";
+            break;
+        
+        case 'amount':
+            $response .= "【助成金額】\n";
+            if ($max_amount) {
+                $response .= "最大助成額：{$max_amount}\n";
+            } else {
+                $response .= "助成額の詳細は実施機関にお問い合わせください。\n";
+            }
+            $response .= "\n※実際の助成額は事業規模や申請内容により異なります。";
+            break;
+        
+        case 'deadline':
+            $response .= "【申請締切】\n";
+            if ($deadline) {
+                $response .= "締切：{$deadline}\n";
+            } else {
+                $response .= "締切情報は実施機関の公式サイトでご確認ください。\n";
+            }
+            $response .= "\n※締切は変更される場合がありますので、最新情報をご確認ください。";
+            break;
+        
+        case 'eligibility':
+            $response .= "【申請対象】\n";
+            if ($grant_target) {
+                $response .= $grant_target . "\n";
+            } else {
+                $response .= "対象者の詳細は実施機関にお問い合わせください。\n";
+            }
+            break;
+        
+        default:
+            $response .= "【基本情報】\n";
+            if ($max_amount) {
+                $response .= "・助成額：{$max_amount}\n";
+            }
+            if ($deadline) {
+                $response .= "・締切：{$deadline}\n";
+            }
+            if ($organization) {
+                $response .= "・実施機関：{$organization}\n";
+            }
+            $response .= "\nより詳しい情報は「詳細を見る」ボタンからご確認ください。";
+    }
+    
+    return $response;
+}
+
+/**
+ * 検索履歴保存
+ */
+function gi_save_search_history($query, $params, $results_count, $session_id) {
+    global $wpdb;
+    
+    $table = $wpdb->prefix . 'gi_search_history';
+    
+    // テーブルが存在するか確認
+    if ($wpdb->get_var("SHOW TABLES LIKE '{$table}'") != $table) {
+        return false;
+    }
+    
+    return $wpdb->insert(
+        $table,
+        [
+            'session_id' => $session_id,
+            'user_id' => get_current_user_id() ?: null,
+            'search_query' => $query,
+            'search_filter' => maybe_serialize($params),
+            'results_count' => $results_count,
+            'created_at' => current_time('mysql')
+        ],
+        ['%s', '%d', '%s', '%s', '%d', '%s']
+    );
+}
+
+/**
+ * 人気検索キーワード取得
+ */
+function gi_get_popular_search_terms($limit = 10) {
+    global $wpdb;
+    
+    $table = $wpdb->prefix . 'gi_search_history';
+    
+    // テーブルが存在するか確認
+    if ($wpdb->get_var("SHOW TABLES LIKE '{$table}'") != $table) {
+        // フォールバック
+        return [
+            ['term' => 'IT導入補助金', 'count' => 100],
+            ['term' => 'ものづくり補助金', 'count' => 95],
+            ['term' => '小規模事業者持続化補助金', 'count' => 90],
+            ['term' => '事業再構築補助金', 'count' => 85],
+            ['term' => '雇用調整助成金', 'count' => 80]
+        ];
+    }
+    
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT search_query as term, COUNT(*) as count
+        FROM {$table}
+        WHERE search_query != ''
+        AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY search_query
+        ORDER BY count DESC
+        LIMIT %d
+    ", $limit), ARRAY_A);
+    
+    return $results ?: [];
+}
+
+/**
+ * 検索履歴取得
+ */
+function gi_get_search_history($limit = 20) {
+    global $wpdb;
+    
+    $table = $wpdb->prefix . 'gi_search_history';
+    
+    // テーブルが存在するか確認
+    if ($wpdb->get_var("SHOW TABLES LIKE '{$table}'") != $table) {
+        return [];
+    }
+    
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return [];
+    }
+    
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT *
+        FROM {$table}
+        WHERE user_id = %d
+        ORDER BY created_at DESC
+        LIMIT %d
+    ", $user_id, $limit), ARRAY_A);
+    
+    return $results ?: [];
+}
+
+/**
+ * AI機能の利用可否チェック
+ */
+function gi_check_ai_capabilities() {
+    return [
+        'openai_configured' => class_exists('GI_OpenAI_Integration') && GI_OpenAI_Integration::getInstance()->is_configured(),
+        'semantic_search' => class_exists('GI_Grant_Semantic_Search'),
+        'simple_responses' => true, // 常に利用可能
+        'voice_recognition' => true, // ブラウザAPIで利用可能
+        'fallback_mode' => true
+    ];
+}
+
+/**
  * 追加ヘルパー関数
  */
 function gi_build_tax_query($filter) {
