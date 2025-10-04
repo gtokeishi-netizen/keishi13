@@ -1400,10 +1400,11 @@ $mobile_quick_stats = array(
     transform: scale(0.98);
 }
 
-/* === モバイルレイアウト === */
+/* === モバイルレイアウト（最適化版） === */
 .mobile-layout {
     display: block;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-lg) 0 var(--spacing-md) 0; /* 上下の余白を削減 */
+    min-height: auto; /* 最小高さを削除 */
 }
 
 @media (min-width: 1024px) {
@@ -1418,7 +1419,8 @@ $mobile_quick_stats = array(
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-md); /* XLからMDに変更して余白削減 */
+    padding: 0 var(--spacing-md); /* 左右のパディングを追加 */
 }
 
 .mobile-badge {
@@ -1427,13 +1429,13 @@ $mobile_quick_stats = array(
     gap: var(--spacing-sm);
     background: var(--color-black);
     color: var(--color-white);
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: var(--spacing-xs) var(--spacing-md); /* パディング削減 */
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    margin: 0 auto;
+    margin: 0 auto var(--spacing-xs) auto; /* 下マージンを削減 */
     width: fit-content;
 }
 
@@ -1448,18 +1450,19 @@ $mobile_quick_stats = array(
 .mobile-title {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs); /* SMからXSに変更 */
+    margin-bottom: var(--spacing-sm); /* 下マージン追加 */
 }
 
 .mobile-title-1 {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl); /* 3XLから2XLに縮小 */
     font-weight: var(--font-weight-light);
     color: var(--text-secondary);
     line-height: var(--line-height-tight);
 }
 
 .mobile-title-2 {
-    font-size: var(--font-size-4xl);
+    font-size: var(--font-size-3xl); /* 4XLから3XLに縮小 */
     font-weight: var(--font-weight-black);
     line-height: var(--line-height-tight);
 }
@@ -1481,21 +1484,23 @@ $mobile_quick_stats = array(
 }
 
 .mobile-title-continuation {
-    margin-top: var(--spacing-sm);
+    margin-top: 0; /* マージン削除 */
+    margin-bottom: var(--spacing-xs); /* 下マージンを最小に */
 }
 
 .mobile-title-3 {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl); /* 3XLから2XLに縮小 */
     font-weight: var(--font-weight-light);
     color: var(--text-primary);
     line-height: var(--line-height-tight);
 }
 
 .mobile-description {
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-relaxed);
+    font-size: var(--font-size-sm); /* baseからsmに縮小 */
+    line-height: var(--line-height-normal); /* relaxedからnormalに */
     color: var(--text-secondary);
     font-weight: var(--font-weight-normal);
+    margin-bottom: var(--spacing-xs); /* 下マージンを最小に */
 }
 
 /* 以下のモバイル統計関連CSSを削除（モバイル簡素化のため）
@@ -1504,15 +1509,16 @@ CSS removed for mobile simplification */
 .mobile-cta {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm); /* MDからSMに削減 */
+    margin-top: var(--spacing-sm); /* 上マージンを追加 */
 }
 
 .mobile-btn-primary,
 .mobile-btn-secondary {
     width: 100%;
     border: none;
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg); /* XLからLGに */
+    padding: var(--spacing-md) var(--spacing-lg); /* 上下パディング削減 */
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
@@ -1636,47 +1642,145 @@ CSS removed for mobile simplification */
 }
 
 @media (max-width: 768px) {
+    .hero-stylish {
+        padding-top: 60px; /* ヘッダー分のパディングを削減 */
+        padding-bottom: 40px;
+    }
+    
     .container-main {
         padding: 0 var(--spacing-md);
     }
     
+    .mobile-layout {
+        padding: var(--spacing-md) 0; /* さらに余白削減 */
+    }
+    
+    .mobile-content {
+        gap: var(--spacing-sm); /* gapをさらに削減 */
+    }
+    
     .mobile-title-1 {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-xl); /* 2XLからXLに */
     }
     
     .mobile-title-2 {
-        font-size: var(--font-size-3xl);
+        font-size: var(--font-size-2xl); /* 3XLから2XLに */
     }
     
     .mobile-title-3 {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-xl); /* 2XLからXLに */
     }
     
     .mobile-description {
+        font-size: var(--font-size-xs); /* SMからXSに */
+        line-height: 1.5;
+    }
+    
+    .mobile-btn-primary,
+    .mobile-btn-secondary {
+        padding: var(--spacing-sm) var(--spacing-md); /* さらにパディング削減 */
         font-size: var(--font-size-sm);
     }
 }
 
 @media (max-width: 640px) {
-    .mobile-title-1 {
-        font-size: var(--font-size-xl);
+    .hero-stylish {
+        padding-top: 50px; /* さらに削減 */
+        padding-bottom: 30px;
     }
     
-    .mobile-title-2 {
-        font-size: var(--font-size-2xl);
-    }
-    
-    .mobile-title-3 {
-        font-size: var(--font-size-xl);
-    }
-    
-    .mobile-description {
-        font-size: var(--font-size-sm);
-        line-height: var(--line-height-normal);
+    .mobile-layout {
+        padding: var(--spacing-sm) 0; /* 最小パディング */
     }
     
     .mobile-content {
-        gap: var(--spacing-lg);
+        gap: 10px; /* 固定値で最小gap */
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .mobile-badge {
+        padding: 4px 12px; /* 最小パディング */
+        font-size: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-title {
+        gap: 6px; /* 最小gap */
+        margin-bottom: 8px;
+    }
+    
+    .mobile-title-1 {
+        font-size: var(--font-size-lg); /* XLからLGに */
+    }
+    
+    .mobile-title-2 {
+        font-size: var(--font-size-xl); /* 2XLからXLに */
+    }
+    
+    .mobile-title-3 {
+        font-size: var(--font-size-lg); /* XLからLGに */
+    }
+    
+    .mobile-title-continuation {
+        margin-bottom: 6px;
+    }
+    
+    .mobile-description {
+        font-size: 13px; /* 固定サイズ */
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+    
+    .mobile-cta {
+        gap: 10px; /* 最小gap */
+        margin-top: 8px;
+    }
+    
+    .mobile-btn-primary,
+    .mobile-btn-secondary {
+        padding: 10px 16px; /* 固定パディング */
+        font-size: 14px;
+        border-radius: 10px;
+    }
+    
+    .btn-icon {
+        font-size: 16px;
+    }
+}
+
+/* 超小型スマホ対応 */
+@media (max-width: 375px) {
+    .hero-stylish {
+        padding-top: 40px;
+        padding-bottom: 20px;
+    }
+    
+    .mobile-layout {
+        padding: 8px 0;
+    }
+    
+    .mobile-content {
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .mobile-title-1,
+    .mobile-title-3 {
+        font-size: var(--font-size-base);
+    }
+    
+    .mobile-title-2 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .mobile-description {
+        font-size: 12px;
+    }
+    
+    .mobile-btn-primary,
+    .mobile-btn-secondary {
+        padding: 8px 12px;
+        font-size: 13px;
     }
 }
 
