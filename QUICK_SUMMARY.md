@@ -2,11 +2,12 @@
 
 ## 🎯 What Was Built
 
-### 4 New Pages (Ready to Deploy)
+### 5 New Pages (Ready to Deploy)
 1. **About Page** (`/about/`) - Service introduction with 6 sections
-2. **Contact Page** (`/contact/`) - Working contact form with email
-3. **Privacy Policy** (`/privacy/`) - Legal privacy statement (10 sections)
-4. **Terms of Service** (`/terms/`) - Legal terms (15 articles)
+2. **FAQ Page** (`/faq/`) - Frequently asked questions with 18 Q&As
+3. **Contact Page** (`/contact/`) - Working contact form with email
+4. **Privacy Policy** (`/privacy/`) - Legal privacy statement (10 sections)
+5. **Terms of Service** (`/terms/`) - Legal terms (15 articles)
 
 ### Core Feature: Auto-Creation System
 - New categories, prefectures, municipalities, and tags are **automatically created** during Google Sheets sync
@@ -18,21 +19,25 @@
 
 ### 1. Create Pages in WordPress Admin
 ```
-Pages → Add New → Create these 4 pages:
+Pages → Add New → Create these 5 pages:
 
 1. Page Title: "About"
    Permalink: /about/
    Template: "About Page"
+
+2. Page Title: "FAQ" (or "よくある質問")
+   Permalink: /faq/
+   Template: "FAQ Page"
    
-2. Page Title: "Contact" 
+3. Page Title: "Contact" 
    Permalink: /contact/
    Template: "Contact Page"
    
-3. Page Title: "Privacy Policy"
+4. Page Title: "Privacy Policy"
    Permalink: /privacy/
    Template: "Privacy Policy Page"
    
-4. Page Title: "Terms of Service"
+5. Page Title: "Terms of Service"
    Permalink: /terms/
    Template: "Terms of Service Page"
 ```
@@ -87,12 +92,13 @@ All 4 pages use the same design system for consistency.
 ## ✅ Deployment Checklist
 
 ### Must Do Now:
-- [ ] Create 4 pages in WordPress
+- [ ] Create 5 pages in WordPress
 - [ ] Set correct permalinks
 - [ ] Select page templates
 - [ ] Test contact form
 - [ ] Verify emails work
 - [ ] Update company info in Privacy/Terms
+- [ ] Review FAQ content (update as needed)
 
 ### Should Do Soon:
 - [ ] Add pages to navigation menu
@@ -106,6 +112,7 @@ All 4 pages use the same design system for consistency.
 ## 📂 Important Files
 
 - `page-about.php` - About page template
+- `page-faq.php` - FAQ page template
 - `page-contact.php` - Contact page template  
 - `page-privacy.php` - Privacy page template
 - `page-terms.php` - Terms page template
@@ -137,6 +144,7 @@ All 4 pages use the same design system for consistency.
 
 After setup, pages will be live at:
 - https://joseikin-insight.com/about/
+- https://joseikin-insight.com/faq/
 - https://joseikin-insight.com/contact/
 - https://joseikin-insight.com/privacy/
 - https://joseikin-insight.com/terms/
@@ -145,7 +153,7 @@ After setup, pages will be live at:
 
 ## 📊 Stats
 
-- **4 new page templates** created
+- **5 new page templates** created
 - **1,575 lines** of code added
 - **187 lines** of code removed (cleanup)
 - **100% field mapping** verified
