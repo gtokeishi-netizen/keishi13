@@ -2099,11 +2099,11 @@ function gi_calculate_difficulty_score($post_id) {
     $score = max(1, min(5, $score));
     
     $labels = [
-        1 => ['label' => '非常に易しい', 'stars' => '★☆☆☆☆', 'class' => 'very-easy'],
-        2 => ['label' => 'やや易しい', 'stars' => '★★☆☆☆', 'class' => 'easy'],
-        3 => ['label' => '普通', 'stars' => '★★★☆☆', 'class' => 'normal'],
-        4 => ['label' => 'やや難しい', 'stars' => '★★★★☆', 'class' => 'hard'],
-        5 => ['label' => '非常に難しい', 'stars' => '★★★★★', 'class' => 'very-hard']
+        1 => ['label' => '非常に易しい', 'stars' => '1/5', 'class' => 'very-easy', 'dots' => 1],
+        2 => ['label' => 'やや易しい', 'stars' => '2/5', 'class' => 'easy', 'dots' => 2],
+        3 => ['label' => '普通', 'stars' => '3/5', 'class' => 'normal', 'dots' => 3],
+        4 => ['label' => 'やや難しい', 'stars' => '4/5', 'class' => 'hard', 'dots' => 4],
+        5 => ['label' => '非常に難しい', 'stars' => '5/5', 'class' => 'very-hard', 'dots' => 5]
     ];
     
     $difficulty = round($score);

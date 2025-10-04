@@ -268,7 +268,7 @@ static $assets_loaded = false;
 .grant-view-card .grant-card-unified {
     position: relative;
     width: 100%;
-    min-height: 480px;
+    min-height: 420px;
     background: var(--clean-white);
     border: 1px solid var(--clean-gray-200);
     border-radius: var(--clean-radius-xl);
@@ -591,9 +591,9 @@ static $assets_loaded = false;
 
 .grant-info-item {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0.75rem;
     background: var(--clean-white);
     border: 1px solid var(--clean-gray-200);
     border-radius: var(--clean-radius-md);
@@ -608,62 +608,22 @@ static $assets_loaded = false;
     border-color: var(--clean-gray-800);
 }
 
-.grant-info-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--clean-gray-100);
-    border-radius: var(--clean-radius-md);
-    color: var(--clean-gray-600);
-    font-size: 1.125rem;
-    flex-shrink: 0;
-    transition: var(--clean-transition);
-}
-
-.grant-info-item:hover .grant-info-icon {
-    transform: scale(1.05);
-}
-
-.grant-info-item--amount .grant-info-icon {
-    background: var(--clean-gradient-primary);
-    color: var(--clean-white);
-}
-
-.grant-info-item--target .grant-info-icon {
-    background: var(--clean-gradient-dark);
-    color: var(--clean-white);
-}
-
-.grant-info-item--location .grant-info-icon {
-    background: var(--clean-gradient-accent);
-    color: var(--clean-white);
-}
-
-.grant-info-item--rate .grant-info-icon {
-    background: var(--clean-gradient-secondary);
-    color: var(--clean-gray-800);
-}
-
 .grant-info-content {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
-.grant-info-value {
+.grant-info-label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--clean-gray-900);
-    white-space: normal;        /* nowrap から normal に変更 */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;          /* 行間を追加 */
-    max-height: 2.6em;         /* 2行分の高さ制限 */
-    word-break: break-word;    /* 長い文字を改行 */
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--clean-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
-
 
 .grant-info-value {
     display: block;

@@ -1807,13 +1807,11 @@ $region_mapping = [
                        class="clean-search-input"
                        value="<?php echo esc_attr($search_params['search']); ?>"
                        autocomplete="off">
-                <i class="fas fa-search clean-search-icon"></i>
                 <button type="button" id="clean-search-clear" class="clean-search-clear" <?php echo empty($search_params['search']) ? 'style="display:none"' : ''; ?>>
-                    <i class="fas fa-times"></i>
+                    ×
                 </button>
             </div>
             <div class="ai-search-hint" style="text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">
-                <i class="fas fa-magic" style="margin-right: 0.25rem;"></i>
                 AI機能強化検索：意図を理解して最適な補助金を提案します
             </div>
         </div>
@@ -1821,42 +1819,33 @@ $region_mapping = [
         <!-- Quick Filters -->
         <div class="clean-filters" role="group" aria-label="クイックフィルター">
             <button class="clean-filter-pill <?php echo empty($search_params['status']) && empty($search_params['is_featured']) && empty($search_params['amount']) ? 'active' : ''; ?>" data-filter="all" aria-pressed="<?php echo empty($search_params['status']) && empty($search_params['is_featured']) && empty($search_params['amount']) ? 'true' : 'false'; ?>">
-                <i class="fas fa-list" aria-hidden="true"></i>
                 すべて
             </button>
             <button class="clean-filter-pill <?php echo $search_params['is_featured'] === '1' ? 'active' : ''; ?>" data-filter="featured" aria-pressed="<?php echo $search_params['is_featured'] === '1' ? 'true' : 'false'; ?>">
-                <i class="fas fa-star" aria-hidden="true"></i>
                 おすすめ
             </button>
             <button class="clean-filter-pill <?php echo $search_params['status'] === 'active' ? 'active' : ''; ?>" data-filter="active" aria-pressed="<?php echo $search_params['status'] === 'active' ? 'true' : 'false'; ?>">
-                <i class="fas fa-circle-dot" aria-hidden="true"></i>
                 募集中
                 <?php if ($stats['active_grants'] > 0): ?>
                 <span class="clean-filter-count" aria-label="<?php echo $stats['active_grants']; ?>件"><?php echo $stats['active_grants']; ?></span>
                 <?php endif; ?>
             </button>
             <button class="clean-filter-pill <?php echo $search_params['amount'] === '1000-3000' || $search_params['amount'] === '3000+' ? 'active' : ''; ?>" data-filter="large-amount" aria-pressed="<?php echo $search_params['amount'] === '1000-3000' || $search_params['amount'] === '3000+' ? 'true' : 'false'; ?>">
-                <i class="fas fa-coins" aria-hidden="true"></i>
                 高額助成金
             </button>
             <button class="clean-filter-pill <?php echo $search_params['amount'] === '0-100' ? 'active' : ''; ?>" data-filter="small-medium" aria-pressed="<?php echo $search_params['amount'] === '0-100' ? 'true' : 'false'; ?>">
-                <i class="fas fa-piggy-bank" aria-hidden="true"></i>
                 中小規模
             </button>
             <button class="clean-filter-pill" data-filter="upcoming" aria-pressed="false">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                 募集予定
             </button>
             <button class="clean-filter-pill" data-filter="deadline-soon" aria-pressed="false">
-                <i class="fas fa-clock" aria-hidden="true"></i>
                 締切間近
             </button>
             
             <!-- 提案6: AI Filter Optimization Button -->
             <button class="clean-filter-pill ai-optimize-filter-btn" onclick="openFilterOptimization()" aria-pressed="false" style="background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); color: #fff; border: 2px solid #000;">
-                <i class="fas fa-magic" aria-hidden="true"></i>
                 AI最適化
-                <i class="fas fa-sparkles" style="font-size: 0.75rem; margin-left: 0.25rem;"></i>
             </button>
         </div>
     </div>
@@ -1876,13 +1865,11 @@ $region_mapping = [
                 </select>
 
                 <button id="clean-filter-toggle" class="clean-filter-button" aria-expanded="false" aria-controls="clean-filter-sidebar">
-                    <i class="fas fa-sliders-h" aria-hidden="true"></i>
                     詳細フィルター
                     <span id="clean-filter-count" class="clean-filter-count" style="display:none" aria-label="フィルター適用数">0</span>
                 </button>
                 
                 <button id="clean-clear-all-filters" class="clean-filter-button" style="display:none" aria-label="すべてのフィルターをクリア">
-                    <i class="fas fa-times" aria-hidden="true"></i>
                     クリア
                 </button>
             </div>
@@ -1893,13 +1880,13 @@ $region_mapping = [
                             class="clean-view-btn <?php echo $search_params['view'] === 'grid' ? 'active' : ''; ?>" 
                             data-view="grid" 
                             title="グリッド表示">
-                        <i class="fas fa-th"></i>
+                        グリッド
                     </button>
                     <button id="clean-list-view" 
                             class="clean-view-btn <?php echo $search_params['view'] === 'list' ? 'active' : ''; ?>" 
                             data-view="list" 
                             title="リスト表示">
-                        <i class="fas fa-list"></i>
+                        リスト
                     </button>
                 </div>
             </div>
@@ -1918,7 +1905,7 @@ $region_mapping = [
                     <div class="clean-filter-header">
                         <h3 id="filter-title" class="clean-filter-title">詳細フィルター</h3>
                         <button id="clean-filter-close" class="clean-filter-close" aria-label="フィルターパネルを閉じる">
-                            <i class="fas fa-times" aria-hidden="true"></i>
+                            ×
                         </button>
                     </div>
 
@@ -2023,66 +2010,11 @@ $region_mapping = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Category Filters with Font Awesome Icons (統一デザイン) -->
-                        <?php if (!empty($all_categories) && !is_wp_error($all_categories)): 
-                        // Font Awesome アイコンマッピング（トップページと統一）
-                        $category_icons = [
-                            'it' => 'fas fa-laptop-code',
-                            'digital' => 'fas fa-laptop-code',
-                            'dx' => 'fas fa-laptop-code',
-                            'manufacturing' => 'fas fa-industry',
-                            'ものづくり' => 'fas fa-industry',
-                            '製造' => 'fas fa-industry',
-                            'startup' => 'fas fa-rocket',
-                            '創業' => 'fas fa-rocket',
-                            'スタートアップ' => 'fas fa-rocket',
-                            'store' => 'fas fa-store',
-                            '小規模' => 'fas fa-store',
-                            '商業' => 'fas fa-store',
-                            'environment' => 'fas fa-leaf',
-                            '環境' => 'fas fa-leaf',
-                            '省エネ' => 'fas fa-leaf',
-                            'sdgs' => 'fas fa-leaf',
-                            'employment' => 'fas fa-users',
-                            '人材' => 'fas fa-users',
-                            '雇用' => 'fas fa-users',
-                            'agriculture' => 'fas fa-seedling',
-                            '農業' => 'fas fa-seedling',
-                            'tourism' => 'fas fa-plane',
-                            '観光' => 'fas fa-plane',
-                            'healthcare' => 'fas fa-heartbeat',
-                            '医療' => 'fas fa-heartbeat',
-                            'education' => 'fas fa-graduation-cap',
-                            '教育' => 'fas fa-graduation-cap',
-                            'research' => 'fas fa-flask',
-                            '研究' => 'fas fa-flask',
-                            'export' => 'fas fa-globe',
-                            '輸出' => 'fas fa-globe',
-                            'women' => 'fas fa-female',
-                            '女性' => 'fas fa-female',
-                            'regional' => 'fas fa-map-marked-alt',
-                            '地域' => 'fas fa-map-marked-alt',
-                            'disaster' => 'fas fa-shield-alt',
-                            '防災' => 'fas fa-shield-alt',
-                        ];
-                        
-                        // Font Awesomeアイコン取得関数
-                        function get_category_fa_icon($slug, $name, $icon_map) {
-                            // スラッグと名前の両方をチェック
-                            $search_strings = [$slug, $name];
-                            foreach ($search_strings as $search) {
-                                foreach ($icon_map as $key => $icon) {
-                                    if (stripos($search, $key) !== false) {
-                                        return $icon;
-                                    }
-                                }
-                            }
-                            return 'fas fa-folder'; // デフォルトアイコン
-                        }
-                        ?>
+                        <!-- Category Filters (アイコンなし白黒デザイン) -->
+                        <?php if (!empty($all_categories) && !is_wp_error($all_categories)): ?>
                         <div class="clean-filter-group category-filter-group">
                             <h4 class="clean-filter-group-title">
-                                <i class="fas fa-folder-open"></i> カテゴリ
+                                カテゴリ
                             </h4>
                             <div class="category-grid-container">
                                 <?php 
@@ -2096,7 +2028,6 @@ $region_mapping = [
                                 foreach ($all_categories as $index => $category): 
                                     $is_selected_cat = in_array($category->slug, $selected_categories);
                                     $is_hidden = !$show_all_cat_initially && $index >= $category_limit;
-                                    $category_fa_icon = get_category_fa_icon($category->slug, $category->name, $category_icons);
                                 ?>
                                 <label class="category-chip-fa <?php echo $is_selected_cat ? 'selected' : ''; ?> <?php echo $is_hidden ? 'clean-filter-more-item hidden' : ''; ?>" title="<?php echo esc_attr($category->name); ?>">
                                     <input type="checkbox" 
@@ -2105,9 +2036,6 @@ $region_mapping = [
                                            class="clean-filter-checkbox category-checkbox"
                                            <?php checked($is_selected_cat); ?>
                                            style="display: none;">
-                                    <div class="category-icon-wrapper">
-                                        <i class="<?php echo esc_attr($category_fa_icon); ?> category-fa-icon"></i>
-                                    </div>
                                     <span class="category-name"><?php echo esc_html($category->name); ?></span>
                                     <?php if ($category->count > 0): ?>
                                     <span class="category-count-badge"><?php echo esc_html($category->count); ?></span>
@@ -2119,8 +2047,6 @@ $region_mapping = [
                             <button type="button" class="clean-filter-more-btn" data-target="category">
                                 <span class="show-more-text <?php echo $show_all_cat_initially ? 'hidden' : ''; ?>">さらに表示 (+<?php echo $category_count - $category_limit; ?>)</span>
                                 <span class="show-less-text <?php echo !$show_all_cat_initially ? 'hidden' : ''; ?>">表示を減らす</span>
-                                <i class="fas fa-chevron-down show-more-icon <?php echo $show_all_cat_initially ? 'hidden' : ''; ?>"></i>
-                                <i class="fas fa-chevron-up show-less-icon <?php echo !$show_all_cat_initially ? 'hidden' : ''; ?>"></i>
                             </button>
                             <?php endif; ?>
                         </div>
@@ -2187,7 +2113,6 @@ $region_mapping = [
                                        class="clean-filter-checkbox method-checkbox"
                                        aria-describedby="method-online-desc">
                                 <span class="clean-filter-label" id="method-online-desc">
-                                    <i class="fas fa-laptop" aria-hidden="true"></i>
                                     オンライン申請
                                 </span>
                             </label>
@@ -2198,7 +2123,6 @@ $region_mapping = [
                                        class="clean-filter-checkbox method-checkbox"
                                        aria-describedby="method-mail-desc">
                                 <span class="clean-filter-label" id="method-mail-desc">
-                                    <i class="fas fa-envelope" aria-hidden="true"></i>
                                     郵送申請
                                 </span>
                             </label>
@@ -2209,7 +2133,6 @@ $region_mapping = [
                                        class="clean-filter-checkbox method-checkbox"
                                        aria-describedby="method-direct-desc">
                                 <span class="clean-filter-label" id="method-direct-desc">
-                                    <i class="fas fa-building" aria-hidden="true"></i>
                                     持参申請
                                 </span>
                             </label>
@@ -2218,7 +2141,6 @@ $region_mapping = [
                         <!-- Reset Filters -->
                         <div class="clean-filter-actions">
                             <button type="button" id="clean-reset-filters" class="clean-reset-button">
-                                <i class="fas fa-undo" aria-hidden="true"></i>
                                 フィルターをリセット
                             </button>
                         </div>
@@ -2265,8 +2187,8 @@ $region_mapping = [
                                     'total' => $grants_query->max_num_pages,
                                     'current' => max(1, $search_params['page']),
                                     'format' => '?paged=%#%',
-                                    'prev_text' => '<i class="fas fa-chevron-left"></i>',
-                                    'next_text' => '<i class="fas fa-chevron-right"></i>',
+                                    'prev_text' => '&laquo;',
+                                    'next_text' => '&raquo;',
                                     'type' => 'array',
                                     'end_size' => 2,
                                     'mid_size' => 2
@@ -2287,7 +2209,7 @@ $region_mapping = [
                         <?php else: ?>
                             <div class="clean-no-results">
                                 <div class="clean-no-results-icon">
-                                    <i class="fas fa-search"></i>
+                                    ×
                                 </div>
                                 <h3 class="clean-no-results-title">該当する助成金が見つかりませんでした</h3>
                                 <p class="clean-no-results-text">検索条件を変更して再度お試しください。</p>
@@ -3031,7 +2953,7 @@ $region_mapping = [
         elements.clean_grants_display.innerHTML = `
             <div class="clean-no-results">
                 <div class="clean-no-results-icon">
-                    <i class="fas fa-search"></i>
+                    ×
                 </div>
                 <h3 class="clean-no-results-title">該当する助成金が見つかりませんでした</h3>
                 <p class="clean-no-results-text">検索条件を変更して再度お試しください。</p>
@@ -3049,7 +2971,7 @@ $region_mapping = [
         elements.clean_grants_display.innerHTML = `
             <div class="clean-no-results">
                 <div class="clean-no-results-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
+                    !
                 </div>
                 <h3 class="clean-no-results-title">エラーが発生しました</h3>
                 <p class="clean-no-results-text">しばらく時間をおいて再度お試しください</p>
@@ -3254,8 +3176,7 @@ function openFilterOptimization() {
             <div style="padding: 2rem;">
                 ${recommendations.length > 0 ? `
                     <div style="margin-bottom: 2rem;">
-                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fas fa-lightbulb" style="color: #fbbf24;"></i>
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;">
                             推奨フィルター設定
                         </h3>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -3305,8 +3226,7 @@ function openFilterOptimization() {
                 `}
                 
                 <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f9ff; border-radius: 0.75rem; border-left: 4px solid #2563eb;">
-                    <h4 style="margin: 0 0 0.75rem 0; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fas fa-info-circle"></i>
+                    <h4 style="margin: 0 0 0.75rem 0; font-weight: 700; font-size: 0.875rem;">
                         分析に基づく推奨理由
                     </h4>
                     <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8125rem; color: #333; line-height: 1.6;">
