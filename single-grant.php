@@ -179,6 +179,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     --mono-white: #ffffff;
     
     /* Accent colors for status */
+    --accent-yellow: #FFD500;
     --accent-danger: #dc2626;
     --accent-warning: #f59e0b;
     --accent-success: #059669;
@@ -404,7 +405,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
 .info-icon {
     width: 48px;
     height: 48px;
-    background: var(--mono-black);
+    background: linear-gradient(135deg, var(--mono-black) 0%, var(--mono-charcoal) 100%);
     color: var(--mono-white);
     border-radius: 50%;
     display: flex;
@@ -412,6 +413,14 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     justify-content: center;
     margin: 0 auto var(--space-4);
     font-size: var(--text-xl);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all var(--transition-base);
+}
+
+.info-card:hover .info-icon {
+    background: linear-gradient(135deg, var(--accent-yellow) 0%, #fbbf24 100%);
+    color: var(--mono-black);
+    transform: scale(1.1);
 }
 
 .info-label {
@@ -466,6 +475,11 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     box-shadow: var(--shadow-soft);
     border-left: 4px solid var(--mono-black);
     position: relative;
+    transition: border-left-color var(--transition-base);
+}
+
+.content-section:hover {
+    border-left-color: var(--accent-yellow);
 }
 
 .section-header {
@@ -607,9 +621,10 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
 }
 
 .btn-primary:hover {
-    background: var(--mono-charcoal);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-medium);
+    background: var(--accent-yellow);
+    color: var(--mono-black);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 213, 0, 0.3);
 }
 
 .btn-secondary {
@@ -833,6 +848,12 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
 <main class="grant-stylish">
     <!-- Hero Section -->
     <header class="grant-hero">
+        <?php if ($grant_data['is_featured']): ?>
+        <div class="status-badge" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); margin-bottom: var(--space-3);">
+            ⭐ 注目の助成金
+        </div>
+        <?php endif; ?>
+        
         <div class="status-badge <?php echo $status_data['class']; ?> <?php echo $deadline_class; ?>">
             <?php echo $status_data['label']; ?>
             <?php if ($days_remaining > 0 && $days_remaining <= 30): ?>
@@ -888,6 +909,23 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     <div class="content-layout">
         <!-- Main Content -->
         <div class="content-main">
+            <?php if ($grant_data['ai_summary']): ?>
+            <!-- AI Summary Section -->
+            <section class="content-section" style="border-left-color: var(--accent-info);">
+                <header class="section-header">
+                    <div class="section-icon">🤖</div>
+                    <h2 class="section-title">AI要約</h2>
+                </header>
+                <div class="section-content">
+                    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: var(--space-6); border-radius: var(--radius-lg); border-left: 4px solid var(--accent-info);">
+                        <p style="font-size: var(--text-lg); line-height: 1.8; margin: 0;">
+                            <?php echo esc_html($grant_data['ai_summary']); ?>
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+            
             <!-- Main Content Section -->
             <section class="content-section">
                 <header class="section-header">
@@ -903,7 +941,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <section class="content-section">
                 <header class="section-header">
                     <div class="section-icon">📋</div>
-                    <h2 class="section-title">助成金詳細</h2>
+                    <h2 class="section-title">助成金詳細情報</h2>
                 </header>
                 <div class="section-content">
                     <table class="info-table">
@@ -921,22 +959,50 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                         
                         <?php if ($formatted_amount): ?>
                         <tr>
-                            <th>助成額</th>
-                            <td><strong><?php echo esc_html($formatted_amount); ?></strong></td>
+                            <th>最大助成額</th>
+                            <td><strong style="font-size: var(--text-xl);"><?php echo esc_html($formatted_amount); ?></strong></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($grant_data['min_amount'] > 0): ?>
+                        <tr>
+                            <th>最小助成額</th>
+                            <td><?php echo number_format($grant_data['min_amount']); ?>円</td>
                         </tr>
                         <?php endif; ?>
                         
                         <?php if ($grant_data['subsidy_rate']): ?>
                         <tr>
                             <th>補助率</th>
-                            <td><?php echo esc_html($grant_data['subsidy_rate']); ?></td>
+                            <td><strong><?php echo esc_html($grant_data['subsidy_rate']); ?></strong></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($grant_data['amount_note']): ?>
+                        <tr>
+                            <th>金額に関する備考</th>
+                            <td><?php echo esc_html($grant_data['amount_note']); ?></td>
                         </tr>
                         <?php endif; ?>
                         
                         <?php if ($deadline_info): ?>
                         <tr>
                             <th>申請締切</th>
-                            <td><?php echo esc_html($deadline_info); ?></td>
+                            <td><strong style="<?php echo $deadline_class === 'urgent' ? 'color: var(--accent-danger);' : ''; ?>"><?php echo esc_html($deadline_info); ?></strong></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($grant_data['application_period']): ?>
+                        <tr>
+                            <th>申請期間</th>
+                            <td><?php echo esc_html($grant_data['application_period']); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
+                        <?php if ($grant_data['deadline_note']): ?>
+                        <tr>
+                            <th>締切に関する備考</th>
+                            <td><?php echo esc_html($grant_data['deadline_note']); ?></td>
                         </tr>
                         <?php endif; ?>
                         
@@ -947,11 +1013,18 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                         </tr>
                         <?php endif; ?>
                         
+                        <?php if ($grant_data['regional_limitation']): ?>
+                        <tr>
+                            <th>地域制限</th>
+                            <td><?php echo esc_html($grant_data['regional_limitation']); ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        
                         <?php if ($grant_data['adoption_rate'] > 0): ?>
                         <tr>
                             <th>採択率</th>
                             <td>
-                                <strong><?php echo number_format($grant_data['adoption_rate'], 1); ?>%</strong>
+                                <strong style="font-size: var(--text-xl);"><?php echo number_format($grant_data['adoption_rate'], 1); ?>%</strong>
                                 <div class="progress-bar" style="margin-top: var(--space-2);">
                                     <div class="progress-fill" style="width: <?php echo min($grant_data['adoption_rate'], 100); ?>%"></div>
                                 </div>
@@ -963,8 +1036,8 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                             <th>申請難易度</th>
                             <td>
                                 <div class="difficulty-indicator">
-                                    <span style="margin-right: var(--space-2);"><?php echo $difficulty_data['emoji']; ?></span>
-                                    <?php echo $difficulty_data['label']; ?>
+                                    <span style="margin-right: var(--space-2); font-size: 1.5em;"><?php echo $difficulty_data['emoji']; ?></span>
+                                    <strong><?php echo $difficulty_data['label']; ?></strong>
                                     <div class="difficulty-dots">
                                         <?php for ($i = 1; $i <= 4; $i++): ?>
                                             <div class="difficulty-dot <?php echo $i <= $difficulty_data['dots'] ? 'filled' : ''; ?>"></div>
@@ -973,6 +1046,22 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                                 </div>
                             </td>
                         </tr>
+                        
+                        <tr>
+                            <th>ステータス</th>
+                            <td>
+                                <span class="status-badge <?php echo $status_data['class']; ?>" style="display: inline-block;">
+                                    <?php echo $status_data['label']; ?>
+                                </span>
+                            </td>
+                        </tr>
+                        
+                        <?php if ($grant_data['last_updated']): ?>
+                        <tr>
+                            <th>最終更新日</th>
+                            <td><?php echo esc_html($grant_data['last_updated']); ?></td>
+                        </tr>
+                        <?php endif; ?>
                         
                         <tr>
                             <th>閲覧数</th>
@@ -1033,6 +1122,68 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                 <div class="section-content">
                     <div style="background: var(--mono-off-white); padding: var(--space-5); border-radius: var(--radius-base); border-left: 4px solid var(--accent-warning);">
                         <?php echo wp_kses_post($grant_data['region_notes']); ?>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+            
+            <?php if ($grant_data['amount_note']): ?>
+            <!-- Amount Notes -->
+            <section class="content-section">
+                <header class="section-header">
+                    <div class="section-icon">💵</div>
+                    <h2 class="section-title">金額に関する備考</h2>
+                </header>
+                <div class="section-content">
+                    <div style="background: var(--mono-off-white); padding: var(--space-5); border-radius: var(--radius-base); border-left: 4px solid var(--accent-success);">
+                        <?php echo wp_kses_post($grant_data['amount_note']); ?>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+            
+            <?php if ($grant_data['deadline_note']): ?>
+            <!-- Deadline Notes -->
+            <section class="content-section">
+                <header class="section-header">
+                    <div class="section-icon">⏰</div>
+                    <h2 class="section-title">締切に関する備考</h2>
+                </header>
+                <div class="section-content">
+                    <div style="background: #fff5f5; padding: var(--space-5); border-radius: var(--radius-base); border-left: 4px solid var(--accent-danger);">
+                        <?php echo wp_kses_post($grant_data['deadline_note']); ?>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+            
+            <?php if ($grant_data['application_period']): ?>
+            <!-- Application Period -->
+            <section class="content-section">
+                <header class="section-header">
+                    <div class="section-icon">📆</div>
+                    <h2 class="section-title">申請期間</h2>
+                </header>
+                <div class="section-content">
+                    <div style="background: var(--mono-off-white); padding: var(--space-5); border-radius: var(--radius-base); border-left: 4px solid var(--accent-info);">
+                        <p style="font-size: var(--text-lg); font-weight: 600; margin: 0;">
+                            <?php echo esc_html($grant_data['application_period']); ?>
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <?php endif; ?>
+            
+            <?php if ($grant_data['regional_limitation']): ?>
+            <!-- Regional Limitation -->
+            <section class="content-section">
+                <header class="section-header">
+                    <div class="section-icon">🗺️</div>
+                    <h2 class="section-title">地域制限</h2>
+                </header>
+                <div class="section-content">
+                    <div style="background: var(--mono-off-white); padding: var(--space-5); border-radius: var(--radius-base); border-left: 4px solid var(--accent-warning);">
+                        <?php echo wp_kses_post($grant_data['regional_limitation']); ?>
                     </div>
                 </div>
             </section>
@@ -1120,7 +1271,29 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                         <span class="stat-number"><?php echo $difficulty_data['emoji']; ?> <?php echo $difficulty_data['dots']; ?>/4</span>
                         <span class="stat-label">申請難易度</span>
                     </div>
+                    
+                    <?php if ($grant_data['max_amount_numeric'] > 0): ?>
+                    <div class="stat-item">
+                        <span class="stat-number" style="font-size: var(--text-lg);">¥<?php echo number_format($grant_data['max_amount_numeric']); ?></span>
+                        <span class="stat-label">最大助成額</span>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if ($grant_data['min_amount'] > 0): ?>
+                    <div class="stat-item">
+                        <span class="stat-number" style="font-size: var(--text-lg);">¥<?php echo number_format($grant_data['min_amount']); ?></span>
+                        <span class="stat-label">最小助成額</span>
+                    </div>
+                    <?php endif; ?>
                 </div>
+                
+                <?php if ($grant_data['last_updated']): ?>
+                <div style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--mono-pale-gray); text-align: center;">
+                    <small style="color: var(--mono-mid-gray);">
+                        最終更新: <?php echo esc_html($grant_data['last_updated']); ?>
+                    </small>
+                </div>
+                <?php endif; ?>
             </div>
             
             <!-- Tags and Taxonomies -->
