@@ -1304,6 +1304,42 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     color: #fff;
 }
 
+/* Grant intro actions and message action links */
+.grant-intro-actions,
+.message-action-links {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.detail-link,
+.message-detail-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 2px solid #000;
+}
+
+.detail-link:hover,
+.message-detail-link:hover {
+    background: #fff;
+    color: #000;
+    transform: translateX(4px);
+}
+
+.detail-link i,
+.message-detail-link i {
+    font-size: 11px;
+}
+
 .typing-dots {
     display: flex;
     gap: 4px;
@@ -3116,7 +3152,13 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         <div class="assistant-chat" id="assistant-chat-${grantId}">
                             <div class="initial-message">
                                 <div class="message-bubble">
-                                    こんにちは！「${grantTitle}」について、どのようなことをお聞きしたいですか？
+                                    <p>こんにちは！「<strong>${grantTitle}</strong>」について、どのようなことをお聞きしたいですか？</p>
+                                    <div class="grant-intro-actions">
+                                        <a href="<?php echo home_url('/grant/'); ?>${grantId}/" class="detail-link" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            詳細ページはこちら
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3242,8 +3284,8 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                 }
 
                 if (data.success) {
-                    // Add AI response
-                    this.addAssistantMessage(chatContainer, data.data.response, 'ai');
+                    // Add AI response with detail link
+                    this.addAssistantMessage(chatContainer, data.data.response, 'ai', grantId);
                     
                     // Update suggestions
                     if (data.data.suggestions && suggestionsContainer) {
@@ -3274,12 +3316,25 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             }
         }
 
-        addAssistantMessage(container, text, type) {
+        addAssistantMessage(container, text, type, grantId = null) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `assistant-message ${type}`;
+            
+            // AIメッセージの場合は詳細ページリンクを追加
+            let messageContent = text.replace(/\n/g, '<br>');
+            if (type === 'ai' && grantId) {
+                messageContent += `
+                    <div class="message-action-links">
+                        <a href="<?php echo home_url('/grant/'); ?>${grantId}/" class="message-detail-link" target="_blank">
+                            <i class="fas fa-external-link-alt"></i> 詳細ページで確認する
+                        </a>
+                    </div>
+                `;
+            }
+            
             messageDiv.innerHTML = `
                 <div class="message-bubble ${type}">
-                    ${text.replace(/\n/g, '<br>')}
+                    ${messageContent}
                 </div>
             `;
             
