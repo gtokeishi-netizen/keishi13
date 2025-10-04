@@ -89,11 +89,60 @@ if (!empty($search_params['prefecture'])) {
     ];
 }
 if (!empty($search_params['municipality'])) {
-    $tax_query[] = [
+    // 市町村フィルター：市町村 OR その都道府県の助成金を含める
+    $municipality_slugs = explode(',', $search_params['municipality']);
+    
+    // 市町村から都道府県を取得
+    $prefecture_slugs = [];
+    foreach ($municipality_slugs as $muni_slug) {
+        $muni_term = get_term_by('slug', $muni_slug, 'grant_municipality');
+        if ($muni_term && !is_wp_error($muni_term)) {
+            // 市町村名から都道府県を推測（例：「東京都渋谷区」→「東京都」）
+            // または親タームがある場合は親タームを使用
+            if ($muni_term->parent) {
+                $parent_term = get_term($muni_term->parent, 'grant_municipality');
+                if ($parent_term && !is_wp_error($parent_term)) {
+                    $prefecture_slugs[] = $parent_term->slug;
+                }
+            }
+            
+            // 市町村名から都道府県名を抽出
+            $muni_name = $muni_term->name;
+            foreach (['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+                     '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+                     '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県',
+                     '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県',
+                     '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+                     '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県',
+                     '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'] as $pref_name) {
+                if (strpos($muni_name, $pref_name) === 0) {
+                    $pref_term = get_term_by('name', $pref_name, 'grant_prefecture');
+                    if ($pref_term && !is_wp_error($pref_term)) {
+                        $prefecture_slugs[] = $pref_term->slug;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 市町村 OR 都道府県のクエリ
+    $location_query = ['relation' => 'OR'];
+    $location_query[] = [
         'taxonomy' => 'grant_municipality',
         'field' => 'slug',
-        'terms' => explode(',', $search_params['municipality'])
+        'terms' => $municipality_slugs
     ];
+    
+    if (!empty($prefecture_slugs)) {
+        $location_query[] = [
+            'taxonomy' => 'grant_prefecture',
+            'field' => 'slug',
+            'terms' => array_unique($prefecture_slugs)
+        ];
+    }
+    
+    $tax_query[] = $location_query;
 }
 if (count($tax_query) > 1) {
     $initial_args['tax_query'] = $tax_query;

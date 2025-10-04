@@ -776,6 +776,11 @@ class GoogleSheetsSync {
                     ));
                 }
                 
+                // 都道府県から市町村への自動同期
+                if (function_exists('gi_sync_prefecture_to_municipality')) {
+                    gi_sync_prefecture_to_municipality($post_id, get_post($post_id), true);
+                }
+                
                 // カテゴリを設定（V列のデータから） ★完全連携 + 自動作成
                 if (isset($row[21]) && !empty($row[21])) {
                     $categories = array_map('trim', explode(',', $row[21]));

@@ -453,3 +453,82 @@ function gi_handle_contact_form() {
         wp_send_json_error(array('message' => 'メール送信に失敗しました'));
     }
 }
+/**
+ * 都道府県タームを持つ投稿に、自動的に市町村タームも追加
+ * 「東京都」の助成金は「東京都」タームと「東京都」市町村タームの両方を持つ
+ */
+add_action('save_post_grant', 'gi_sync_prefecture_to_municipality', 20, 3);
+function gi_sync_prefecture_to_municipality($post_id, $post, $update) {
+    // 自動保存、リビジョン、自動下書きをスキップ
+    if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+        return;
+    }
+    
+    // 都道府県タームを取得
+    $prefectures = wp_get_post_terms($post_id, 'grant_prefecture', ['fields' => 'all']);
+    
+    if (!empty($prefectures) && !is_wp_error($prefectures)) {
+        $municipality_term_ids = [];
+        
+        foreach ($prefectures as $prefecture) {
+            // 都道府県名と同じ名前の市町村タームを取得または作成
+            $muni_term = get_term_by('name', $prefecture->name, 'grant_municipality');
+            
+            if (!$muni_term) {
+                // 市町村タームが存在しない場合は作成
+                $result = wp_insert_term(
+                    $prefecture->name,
+                    'grant_municipality',
+                    [
+                        'slug' => $prefecture->slug,
+                        'description' => '都道府県レベルの助成金'
+                    ]
+                );
+                
+                if (!is_wp_error($result)) {
+                    $municipality_term_ids[] = $result['term_id'];
+                }
+            } else {
+                $municipality_term_ids[] = $muni_term->term_id;
+            }
+        }
+        
+        if (!empty($municipality_term_ids)) {
+            // 既存の市町村タームを取得
+            $existing_munis = wp_get_post_terms($post_id, 'grant_municipality', ['fields' => 'ids']);
+            if (!is_wp_error($existing_munis)) {
+                // 既存と新規をマージ
+                $all_muni_ids = array_unique(array_merge($existing_munis, $municipality_term_ids));
+                wp_set_post_terms($post_id, $all_muni_ids, 'grant_municipality', false);
+            } else {
+                // 新規のみセット
+                wp_set_post_terms($post_id, $municipality_term_ids, 'grant_municipality', false);
+            }
+        }
+    }
+}
+
+/**
+ * 既存の投稿全てに対して都道府県→市町村の同期を実行（一度だけ実行）
+ */
+add_action('admin_init', 'gi_sync_all_prefecture_to_municipality_once');
+function gi_sync_all_prefecture_to_municipality_once() {
+    $sync_done = get_option('gi_prefecture_municipality_sync_done', false);
+    
+    if (!$sync_done) {
+        // 全ての助成金投稿を取得
+        $grants = get_posts([
+            'post_type' => 'grant',
+            'posts_per_page' => -1,
+            'post_status' => 'any',
+            'fields' => 'ids'
+        ]);
+        
+        foreach ($grants as $grant_id) {
+            gi_sync_prefecture_to_municipality($grant_id, get_post($grant_id), true);
+        }
+        
+        // 完了フラグを保存
+        update_option('gi_prefecture_municipality_sync_done', true);
+    }
+}
