@@ -196,6 +196,38 @@ static $assets_loaded = false;
 
 <style>
 /* Clean Grant Card Design System - Full Monochrome Edition */
+
+/* グリッド親コンテナのサイズ制約 */
+.grants-grid,
+.grants-list,
+.grant-cards-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.grants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .grants-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .grants-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+        gap: 1.25rem;
+        padding: 1.25rem;
+    }
+}
+
 :root {
     /* Core Colors - Pure Monochrome System */
     --clean-primary: #000000;          /* Pure black for primary actions */
@@ -268,21 +300,24 @@ static $assets_loaded = false;
 .grant-view-card .grant-card-unified {
     position: relative;
     width: 100%;
-    min-height: 420px;
+    max-width: 100%;
+    min-height: 380px;
     background: var(--clean-white);
-    border: 1px solid var(--clean-gray-200);
-    border-radius: var(--clean-radius-xl);
+    border: 3px solid var(--clean-gray-900);
+    border-radius: 12px;
     overflow: hidden;
     transition: var(--clean-transition-slow);
     cursor: default;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .grant-view-card .grant-card-unified:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--clean-shadow-xl);
-    border-color: var(--clean-gray-300);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18), 0 6px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--clean-black);
 }
 
 /* ============================================
@@ -292,8 +327,8 @@ static $assets_loaded = false;
     position: relative;
     width: 100%;
     background: var(--clean-white);
-    border: 1px solid var(--clean-gray-200);
-    border-radius: var(--clean-radius-lg);
+    border: 3px solid var(--clean-gray-900);
+    border-radius: 12px;
     transition: var(--clean-transition);
     cursor: default;
     display: flex;
@@ -301,12 +336,13 @@ static $assets_loaded = false;
     align-items: stretch;
     min-height: 140px;
     margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .grant-view-list .grant-card-unified:hover {
-    box-shadow: var(--clean-shadow-lg);
-    transform: translateX(4px);
-    border-color: var(--clean-gray-800);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(6px);
+    border-color: var(--clean-black);
 }
 
 .grant-view-list .grant-status-header {
@@ -514,7 +550,7 @@ static $assets_loaded = false;
 }
 
 .grant-title {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 700;
     line-height: 1.4;
     color: var(--clean-gray-900);
@@ -524,7 +560,8 @@ static $assets_loaded = false;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-height: 3.5rem;
+    min-height: auto;
+    max-height: 3.5rem;
 }
 
 .grant-title a {
@@ -540,12 +577,12 @@ static $assets_loaded = false;
 /* AI要約セクション */
 .grant-ai-summary {
     position: relative;
-    padding: 1rem;
+    padding: 0.875rem;
     background: var(--clean-gradient-secondary);
     border: 1px solid var(--clean-gray-200);
     border-radius: var(--clean-radius-lg);
-    margin-bottom: 1.25rem;
-    min-height: 5rem;
+    margin-bottom: 1rem;
+    min-height: auto;
     max-height: 5rem;
     overflow: hidden;
     transition: var(--clean-transition);
@@ -637,33 +674,34 @@ static $assets_loaded = false;
 
 /* アクションフッター */
 .grant-card-footer {
-    padding: 1.25rem 1.5rem;
-    background: var(--clean-gradient-light);
-    border-top: 1px solid var(--clean-gray-200);
+    padding: 1rem;
+    background: #f8f8f8;
+    border-top: 3px solid var(--clean-gray-900);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
     position: relative;
     z-index: 10;
 }
 
 .grant-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex: 1;
+    flex-wrap: wrap;
 }
 
 .grant-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    min-height: 44px;
+    gap: 0.375rem;
+    padding: 0.625rem 1rem;
+    min-height: 40px;
     border: 2px solid transparent;
-    border-radius: 2rem;
-    font-size: 0.9375rem;
+    border-radius: 1.5rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--clean-transition-slow);
@@ -672,86 +710,543 @@ static $assets_loaded = false;
     position: relative;
     overflow: hidden;
     z-index: 20;
+    flex: 1;
+    min-width: 0;
 }
 
-/* 詳細ボタン */
-.grant-btn--primary {
-    background: var(--clean-gradient-primary);
-    color: var(--clean-white);
-    box-shadow: var(--clean-shadow-md);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+/* ============================================
+   みんなの銀行風 モダンボタンスタイル
+============================================ */
+
+.grant-actions-modern {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+    width: 100%;
 }
 
-.grant-btn--primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--clean-shadow-lg);
-    background: var(--clean-gradient-dark);
+/* メインCTAボタン - みんなの銀行風 */
+.grant-cta-primary {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
 }
 
-.grant-btn--secondary {
-    background: var(--clean-gray-100);
-    color: var(--clean-gray-900);
-    border: 2px solid var(--clean-gray-300);
-    box-shadow: var(--clean-shadow-sm);
+.grant-cta-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
 }
 
-.grant-btn--secondary:hover {
-    background: var(--clean-gradient-primary);
-    color: var(--clean-white);
-    transform: translateY(-1px) scale(1.01);
-    box-shadow: var(--clean-shadow-md);
-    border-color: var(--clean-gray-500);
+.grant-cta-primary:hover::before {
+    left: 100%;
 }
 
-/* AI質問ボタン */
-.grant-btn--ai {
-    background: var(--clean-gradient-accent);
-    color: var(--clean-white);
-    border: 2px solid var(--clean-gray-800);
-    box-shadow: var(--clean-shadow-md);
+.grant-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-.grant-btn--ai:hover {
-    background: var(--clean-gradient-primary);
-    color: var(--clean-white);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--clean-shadow-lg);
-    border-color: var(--clean-gray-900);
+.grant-cta-primary:active {
+    transform: translateY(0);
 }
 
-.grant-btn--ai:focus {
-    outline: 2px solid var(--clean-gray-800);
-    outline-offset: 2px;
+.cta-text {
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
 }
 
-/* AI Checklist Button */
-.grant-btn--checklist {
-    background: #fff;
-    color: #000;
-    border: 2px solid #000;
+.cta-icon {
+    font-size: 0.875rem;
+    transition: transform 0.3s ease;
 }
 
-.grant-btn--checklist:hover {
-    background: #000;
-    color: #fff;
+.grant-cta-primary:hover .cta-icon {
+    transform: translateX(4px);
 }
 
-/* AI Compare Button */
-.grant-btn--compare {
-    background: #fff;
-    color: #000;
-    border: 2px solid #000;
+/* AI機能統合メニュー */
+.grant-ai-menu-wrapper {
+    position: relative;
 }
 
-.grant-btn--compare:hover {
-    background: #000;
-    color: #fff;
+.grant-ai-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
-.grant-btn--compare.active {
-    background: #fbbf24;
-    color: #000;
-    border-color: #fbbf24;
+.grant-ai-toggle:hover {
+    background: #000000;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ai-icon {
+    font-size: 1rem;
+}
+
+.ai-text {
+    font-size: 0.9375rem;
+}
+
+.ai-arrow {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.grant-ai-toggle[aria-expanded="true"] .ai-arrow {
+    transform: rotate(180deg);
+}
+
+/* AI機能ドロップダウン */
+.grant-ai-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 280px;
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.grant-ai-dropdown[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.ai-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.ai-menu-item:last-child {
+    border-bottom: none;
+}
+
+.ai-menu-item:hover {
+    background: #fafafa;
+}
+
+.ai-menu-item:active {
+    background: #f5f5f5;
+}
+
+.ai-menu-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e5e5e5 100%);
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.ai-menu-item:hover .ai-menu-icon-wrapper {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    transform: scale(1.1);
+}
+
+.ai-menu-icon-wrapper i {
+    font-size: 1.125rem;
+    color: #525252;
+    transition: color 0.3s ease;
+}
+
+.ai-menu-item:hover .ai-menu-icon-wrapper i {
+    color: #ffffff;
+}
+
+.ai-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.ai-menu-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1.2;
+}
+
+.ai-menu-desc {
+    font-size: 0.75rem;
+    color: #737373;
+    line-height: 1.3;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+    .grant-actions-modern {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .grant-cta-primary {
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .grant-ai-toggle {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .grant-ai-dropdown {
+        right: 0;
+        left: 0;
+        min-width: 100%;
+    }
+}
+
+/* ============================================
+   みんなの銀行風 モーダル＆トースト
+============================================ */
+
+/* モーダル */
+.minna-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.minna-modal.active {
+    opacity: 1;
+}
+
+.minna-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+}
+
+.minna-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.minna-modal.active .minna-modal-content {
+    transform: scale(1);
+}
+
+.minna-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+}
+
+.minna-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.minna-modal-title i {
+    font-size: 1.5rem;
+}
+
+.minna-modal-close {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.minna-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.minna-modal-body {
+    padding: 2rem;
+    max-height: calc(80vh - 100px);
+    overflow-y: auto;
+}
+
+/* 空状態 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #e5e5e5;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state p {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+.empty-hint {
+    font-size: 0.875rem;
+    color: #737373;
+}
+
+/* チェックリストアイテム */
+.checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #fafafa;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.checklist-item:hover {
+    border-color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.checklist-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.checklist-item input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    accent-color: #000000;
+    cursor: pointer;
+}
+
+.checklist-item label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #000000;
+    cursor: pointer;
+    flex: 1;
+}
+
+.checklist-item input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: #737373;
+}
+
+.checklist-remove {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #737373;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checklist-remove:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.checklist-actions {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e5e5;
+}
+
+.minna-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.minna-btn-outline {
+    background: transparent;
+    border: 2px solid #000000;
+    color: #000000;
+}
+
+.minna-btn-outline:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+/* トースト通知 */
+.minna-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #000000;
+    transform: translateX(400px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10001;
+}
+
+.minna-toast.show {
+    transform: translateX(0);
+}
+
+.minna-toast i {
+    font-size: 1.25rem;
+}
+
+.minna-toast-success {
+    border-color: #16a34a;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.minna-toast-success i {
+    color: #16a34a;
+}
+
+.minna-toast-error {
+    border-color: #dc2626;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+}
+
+.minna-toast-error i {
+    color: #dc2626;
+}
+
+.minna-toast-info {
+    border-color: #000000;
+}
+
+.minna-toast-info i {
+    color: #000000;
+}
+
+/* モバイル対応 */
+@media (max-width: 640px) {
+    .minna-modal-content {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 90vh;
+    }
+    
+    .minna-modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .minna-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .minna-toast {
+        right: 1rem;
+        left: 1rem;
+        bottom: 1rem;
+    }
 }
 
 /* ============================================
@@ -1304,17 +1799,19 @@ static $assets_loaded = false;
 @media (max-width: 768px) {
     .grants-grid {
         grid-template-columns: 1fr;
-        padding: 1.25rem;
-        gap: 1.25rem;
+        padding: 1rem;
+        gap: 1rem;
     }
     
     .grant-view-card .grant-card-unified {
         height: auto;
-        min-height: 28rem;
+        min-height: auto;
+        max-width: 100%;
     }
     
     .grant-info-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
     
     .grant-hover-details {
@@ -1335,25 +1832,106 @@ static $assets_loaded = false;
         border-left: none;
         border-top: 1px solid var(--clean-gray-200);
         min-width: auto;
-        flex-direction: row;
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
     .grant-card-content {
-        padding: 1.25rem;
+        padding: 1rem;
     }
     
     .grant-title {
         font-size: 1.125rem;
+        min-height: auto;
     }
     
     .grant-btn {
         padding: 0.625rem 1rem;
         font-size: 0.8125rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .grant-actions {
+        flex-direction: column;
+        width: 100%;
     }
     
     /* モバイルでタップで詳細表示 */
     .grant-card-unified {
         cursor: pointer;
+    }
+    
+    /* AI要約セクションの高さ調整 */
+    .grant-ai-summary {
+        min-height: auto;
+        max-height: none;
+        padding: 0.75rem;
+    }
+    
+    .grant-ai-summary-text {
+        -webkit-line-clamp: 2;
+        font-size: 0.875rem;
+    }
+    
+    /* ステータスヘッダーをコンパクトに */
+    .grant-status-header {
+        height: 2.5rem;
+        padding: 0 1rem;
+    }
+    
+    .grant-status-badge,
+    .grant-deadline-indicator {
+        font-size: 0.75rem;
+    }
+    
+    /* 情報グリッドのパディング調整 */
+    .grant-info-item {
+        padding: 0.5rem;
+    }
+    
+    .grant-info-label {
+        font-size: 0.6875rem;
+    }
+    
+    .grant-info-value {
+        font-size: 0.8125rem;
+    }
+    
+    /* カテゴリータグ調整 */
+    .grant-category-tag {
+        padding: 0.25rem 0.625rem;
+        font-size: 0.6875rem;
+    }
+}
+
+/* さらに小さい画面向け（480px以下） */
+@media (max-width: 480px) {
+    .grants-grid {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .grant-view-card .grant-card-unified {
+        min-height: auto;
+    }
+    
+    .grant-card-content {
+        padding: 0.875rem;
+    }
+    
+    .grant-title {
+        font-size: 1rem;
+    }
+    
+    .grant-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+        min-height: 38px;
+    }
+    
+    .grant-card-footer {
+        padding: 0.75rem;
     }
 }
 
@@ -1796,21 +2374,6 @@ static $assets_loaded = false;
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // カードクリック処理（詳細ボタンのみでページ遷移）
-    document.addEventListener('click', function(e) {
-        // 詳細ボタンがクリックされた場合のみページ遷移
-        if (e.target.closest('.grant-btn--primary')) {
-            const btn = e.target.closest('.grant-btn--primary');
-            const href = btn.getAttribute('href');
-            if (href) {
-                // クリックエフェクト
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 100);
-            }
-        }
-    });
-    
     // ホバー詳細の表示・非表示制御（デスクトップのみ）
     function isDesktop() {
         return window.innerWidth > 768 && !('ontouchstart' in window);
@@ -2304,8 +2867,10 @@ document.head.appendChild(grantCardStyles);
     }
     ?>
     
-    <!-- AI申請難易度（提案2） -->
+    <!-- AI申請難易度（提案2） - REMOVED per user request -->
     <?php 
+    // AI難易度表示を削除（ユーザーリクエスト）
+    /*
     if (function_exists('gi_calculate_difficulty_score')) {
         $ai_difficulty = gi_calculate_difficulty_score($post_id);
     ?>
@@ -2313,7 +2878,8 @@ document.head.appendChild(grantCardStyles);
         <span class="difficulty-stars"><?php echo esc_html($ai_difficulty['stars']); ?></span>
         <span class="difficulty-label"><?php echo esc_html($ai_difficulty['label']); ?></span>
     </div>
-    <?php } ?>
+    <?php } */
+    ?>
     
     <!-- AI期限アラート（提案7） -->
     <?php 
@@ -2322,7 +2888,7 @@ document.head.appendChild(grantCardStyles);
         if ($urgency && $urgency['level'] !== 'safe'):
     ?>
     <div class="grant-urgency-alert" data-level="<?php echo esc_attr($urgency['level']); ?>" style="background: <?php echo esc_attr($urgency['color']); ?>;">
-        <span><?php echo esc_html(str_replace(['🔥', '⚠️', '📅'], '', $urgency['text'])); ?></span>
+        <span><?php echo esc_html(str_replace(['', '', ''], '', $urgency['text'])); ?></span>
     </div>
     <?php 
         endif;
@@ -2347,6 +2913,8 @@ document.head.appendChild(grantCardStyles);
                     endif;
                 }
                 
+                // AI難易度モバイル表示を削除（ユーザーリクエスト）
+                /*
                 if (function_exists('gi_calculate_difficulty_score')) {
                     $ai_difficulty = gi_calculate_difficulty_score($post_id);
                 ?>
@@ -2356,6 +2924,7 @@ document.head.appendChild(grantCardStyles);
                 </div>
                 <?php 
                 }
+                */
                 
                 if (function_exists('gi_get_deadline_urgency')) {
                     $urgency = gi_get_deadline_urgency($post_id);
@@ -2468,43 +3037,67 @@ document.head.appendChild(grantCardStyles);
         </div>
     </div>
     
-    <!-- アクションフッター -->
-    <footer class="grant-card-footer">
-        <div class="grant-actions">
-            <a href="<?php echo esc_url($permalink); ?>" class="grant-btn grant-btn--primary" role="button">
-                <span>詳細を見る</span>
+    <!-- アクションフッター - みんなの銀行風デザイン -->
+    <footer class="grant-card-footer minna-style">
+        <div class="grant-actions-modern">
+            <!-- メインCTAボタン（詳細を見る） -->
+            <a href="<?php echo esc_url($permalink); ?>" class="grant-cta-primary" role="button">
+                <span class="cta-text">詳細を見る</span>
+                <i class="fas fa-arrow-right cta-icon"></i>
             </a>
-            <button class="grant-btn grant-btn--ai" 
-                    data-post-id="<?php echo esc_attr($post_id); ?>" 
-                    data-grant-title="<?php echo esc_attr($title); ?>"
-                    onclick="openGrantAIChat(this)" 
-                    role="button">
-                <span>AIに質問</span>
-            </button>
-            <?php if ($official_url): ?>
-            <a href="<?php echo esc_url($official_url); ?>" class="grant-btn grant-btn--secondary" target="_blank" rel="noopener noreferrer" role="button">
-                <span>公式サイト</span>
-            </a>
-            <?php endif; ?>
             
-            <!-- AI機能ボタン群 -->
-            <button class="grant-btn grant-btn--checklist" 
-                    data-post-id="<?php echo esc_attr($post_id); ?>" 
-                    data-grant-title="<?php echo esc_attr($title); ?>"
-                    onclick="openGrantChecklist(this)" 
-                    title="AI申請チェックリスト"
-                    role="button">
-                <span>チェックリスト</span>
-            </button>
-            
-            <button class="grant-btn grant-btn--compare" 
-                    data-post-id="<?php echo esc_attr($post_id); ?>" 
-                    data-grant-title="<?php echo esc_attr($title); ?>"
-                    onclick="addToCompare(this)" 
-                    title="AI比較機能に追加"
-                    role="button">
-                <span>比較</span>
-            </button>
+            <!-- AI機能統合ボタン（ドロップダウン） -->
+            <div class="grant-ai-menu-wrapper">
+                <button class="grant-ai-toggle" 
+                        data-post-id="<?php echo esc_attr($post_id); ?>"
+                        data-grant-title="<?php echo esc_attr($title); ?>"
+                        onclick="toggleAIMenu(event, this)" 
+                        aria-label="AI機能メニュー"
+                        aria-expanded="false">
+                    <i class="fas fa-magic ai-icon"></i>
+                    <span class="ai-text">AI機能</span>
+                    <i class="fas fa-chevron-down ai-arrow"></i>
+                </button>
+                
+                <!-- ドロップダウンメニュー -->
+                <div class="grant-ai-dropdown" role="menu" aria-hidden="true">
+                    <button class="ai-menu-item" 
+                            onclick="openGrantAIChat(this.closest('[data-post-id]'))" 
+                            role="menuitem">
+                        <div class="ai-menu-icon-wrapper">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="ai-menu-content">
+                            <span class="ai-menu-title">AIに質問</span>
+                            <span class="ai-menu-desc">助成金について質問</span>
+                        </div>
+                    </button>
+                    
+                    <button class="ai-menu-item" 
+                            onclick="addToCompare(this.closest('[data-post-id]'))" 
+                            role="menuitem">
+                        <div class="ai-menu-icon-wrapper">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="ai-menu-content">
+                            <span class="ai-menu-title">AI比較</span>
+                            <span class="ai-menu-desc">他の助成金と比較</span>
+                        </div>
+                    </button>
+                    
+                    <button class="ai-menu-item" 
+                            onclick="addToChecklist(this.closest('[data-post-id]'))" 
+                            role="menuitem">
+                        <div class="ai-menu-icon-wrapper">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="ai-menu-content">
+                            <span class="ai-menu-title">チェックリスト</span>
+                            <span class="ai-menu-desc">申請準備を管理</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
     </footer>
     
@@ -2613,11 +3206,206 @@ if (!$ai_features_js_loaded):
 ?>
 <script>
 // ============================================================================
-// AI機能JavaScript（モノクローム対応）
+// AI機能JavaScript（みんなの銀行風UI対応）
 // ============================================================================
 
 // グローバル比較リスト
 window.compareList = window.compareList || [];
+
+/**
+ * AI機能メニューのトグル
+ */
+function toggleAIMenu(event, button) {
+    event.stopPropagation();
+    
+    const dropdown = button.nextElementSibling;
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    
+    // 他の開いているメニューを閉じる
+    document.querySelectorAll('.grant-ai-dropdown[aria-hidden="false"]').forEach(menu => {
+        if (menu !== dropdown) {
+            menu.setAttribute('aria-hidden', 'true');
+            menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // 現在のメニューをトグル
+    if (isExpanded) {
+        dropdown.setAttribute('aria-hidden', 'true');
+        button.setAttribute('aria-expanded', 'false');
+    } else {
+        dropdown.setAttribute('aria-hidden', 'false');
+        button.setAttribute('aria-expanded', 'true');
+    }
+}
+
+/**
+ * チェックリスト機能を追加
+ */
+function addToChecklist(wrapper) {
+    const postId = wrapper.dataset.postId;
+    const grantTitle = wrapper.dataset.grantTitle;
+    
+    // チェックリストに追加（ローカルストレージ利用）
+    let checklist = JSON.parse(localStorage.getItem('grant_checklist') || '[]');
+    
+    // 既に存在するか確認
+    const exists = checklist.some(item => item.id === postId);
+    
+    if (!exists) {
+        checklist.push({
+            id: postId,
+            title: grantTitle,
+            addedAt: new Date().toISOString(),
+            status: 'pending'
+        });
+        
+        localStorage.setItem('grant_checklist', JSON.stringify(checklist));
+        
+        // 成功通知
+        showToast('チェックリストに追加しました', 'success');
+        
+        // チェックリスト画面を開く
+        openChecklistModal();
+    } else {
+        showToast('既にチェックリストに追加されています', 'info');
+        openChecklistModal();
+    }
+    
+    // メニューを閉じる
+    const dropdown = wrapper.querySelector('.grant-ai-dropdown');
+    if (dropdown) {
+        dropdown.setAttribute('aria-hidden', 'true');
+        wrapper.querySelector('.grant-ai-toggle').setAttribute('aria-expanded', 'false');
+    }
+}
+
+/**
+ * チェックリストモーダルを開く
+ */
+function openChecklistModal() {
+    const checklist = JSON.parse(localStorage.getItem('grant_checklist') || '[]');
+    
+    const modal = document.createElement('div');
+    modal.className = 'minna-modal checklist-modal';
+    modal.innerHTML = `
+        <div class="minna-modal-overlay" onclick="this.parentElement.remove()"></div>
+        <div class="minna-modal-content">
+            <div class="minna-modal-header">
+                <h3 class="minna-modal-title">
+                    <i class="fas fa-tasks"></i>
+                    申請チェックリスト
+                </h3>
+                <button class="minna-modal-close" onclick="this.closest('.minna-modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="minna-modal-body">
+                ${checklist.length === 0 ? `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>チェックリストは空です</p>
+                        <span class="empty-hint">助成金カードから追加してください</span>
+                    </div>
+                ` : `
+                    <div class="checklist-items">
+                        ${checklist.map((item, index) => `
+                            <div class="checklist-item" data-index="${index}">
+                                <div class="checklist-item-content">
+                                    <input type="checkbox" 
+                                           id="check-${index}" 
+                                           ${item.status === 'completed' ? 'checked' : ''}
+                                           onchange="updateChecklistStatus(${index}, this.checked)">
+                                    <label for="check-${index}">${item.title}</label>
+                                </div>
+                                <button class="checklist-remove" onclick="removeFromChecklist(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="checklist-actions">
+                        <button class="minna-btn minna-btn-outline" onclick="clearChecklist()">
+                            すべてクリア
+                        </button>
+                    </div>
+                `}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // モーダルアニメーション
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+/**
+ * チェックリストステータス更新
+ */
+function updateChecklistStatus(index, completed) {
+    let checklist = JSON.parse(localStorage.getItem('grant_checklist') || '[]');
+    if (checklist[index]) {
+        checklist[index].status = completed ? 'completed' : 'pending';
+        localStorage.setItem('grant_checklist', JSON.stringify(checklist));
+    }
+}
+
+/**
+ * チェックリストから削除
+ */
+function removeFromChecklist(index) {
+    let checklist = JSON.parse(localStorage.getItem('grant_checklist') || '[]');
+    checklist.splice(index, 1);
+    localStorage.setItem('grant_checklist', JSON.stringify(checklist));
+    
+    // モーダルを再描画
+    document.querySelector('.checklist-modal')?.remove();
+    openChecklistModal();
+    
+    showToast('チェックリストから削除しました', 'success');
+}
+
+/**
+ * チェックリストをクリア
+ */
+function clearChecklist() {
+    if (confirm('すべてのチェックリストをクリアしますか？')) {
+        localStorage.removeItem('grant_checklist');
+        document.querySelector('.checklist-modal')?.remove();
+        showToast('チェックリストをクリアしました', 'success');
+    }
+}
+
+/**
+ * トースト通知表示
+ */
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `minna-toast minna-toast-${type}`;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// メニューの外側クリックで閉じる
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.grant-ai-menu-wrapper')) {
+        document.querySelectorAll('.grant-ai-dropdown[aria-hidden="false"]').forEach(menu => {
+            menu.setAttribute('aria-hidden', 'true');
+            menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+        });
+    }
+});
 
 /**
  * AI申請チェックリスト表示

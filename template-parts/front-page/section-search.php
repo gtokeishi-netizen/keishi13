@@ -93,10 +93,10 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                         </div>
                         <div class="assistant-info">
                             <h3 class="assistant-name">補助金AIアシスタント</h3>
-                            <span class="assistant-status">オンライン</span>
+                            <span class="assistant-status-badge">オンライン</span>
                         </div>
                         <button class="ai-history-btn" onclick="toggleChatHistory()" title="会話履歴">
-                            履歴
+                            <i class="fas fa-history"></i>
                             <span class="history-count">0</span>
                         </button>
                     </div>
@@ -149,11 +149,11 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
                             <span id="results-count">0</span>件の補助金
                         </h3>
                         <div class="view-controls">
-                            <button class="view-btn active" data-view="grid">
-                                グリッド
+                            <button class="view-btn active" data-view="grid" title="グリッド表示">
+                                <i class="fas fa-th"></i>
                             </button>
-                            <button class="view-btn" data-view="list">
-                                リスト
+                            <button class="view-btn" data-view="list" title="リスト表示">
+                                <i class="fas fa-list"></i>
                             </button>
                         </div>
                     </div>
@@ -652,7 +652,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 /* Main Content */
 .ai-main-content {
     display: grid;
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 32px;
     margin-bottom: 48px;
 }
@@ -668,11 +668,11 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 }
 
 .assistant-header {
-    padding: 20px;
+    padding: 16px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     position: relative;
 }
 
@@ -708,15 +708,29 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     font-weight: 700;
 }
 
-.assistant-name {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
+.assistant-info {
+    flex: 1;
+    min-width: 0;
+    position: relative;
 }
 
-.assistant-status {
-    font-size: 11px;
+.assistant-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.assistant-status-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 9px;
     color: #10b981;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 /* AI History Button */
@@ -724,15 +738,15 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     margin-left: auto;
     background: #fff;
     border: 2px solid #000;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.75rem;
     border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 .ai-history-btn:hover {
@@ -740,12 +754,16 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     color: #fff;
 }
 
+.ai-history-btn i {
+    font-size: 0.875rem;
+}
+
 .history-count {
     background: #000;
     color: #fff;
-    padding: 0.125rem 0.5rem;
+    padding: 0.1rem 0.4rem;
     border-radius: 2px;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 700;
 }
 
@@ -898,14 +916,14 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 .message-bubble {
     max-width: 100%;
     width: 100%;
-    padding: 20px 24px;
+    padding: 14px 16px;
     background: #fff;
     border-radius: 8px;
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: 13px;
+    line-height: 1.6;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border: 1px solid #e0e0e0;
-    min-height: 80px;
+    min-height: 60px;
 }
 
 .message-user .message-bubble {
@@ -1053,8 +1071,8 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 }
 
 .view-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border: none;
     background: none;
     color: #999;
@@ -1064,6 +1082,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    font-size: 16px;
 }
 
 .view-btn:hover {
@@ -1075,8 +1094,8 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
     color: #fff;
 }
 
-.view-btn svg {
-    fill: currentColor;
+.view-btn i {
+    font-size: 14px;
 }
 
 /* モノクロームグラントカード */
@@ -2476,7 +2495,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             // Fallback suggestions - ensure all properties are defined
             const fallbackSuggestions = [
                 { icon: '🏭', text: 'ものづくり補助金', type: 'grant' },
-                { icon: '💻', text: 'IT導入補助金', type: 'grant' },
+                { icon: '', text: 'IT導入補助金', type: 'grant' },
                 { icon: '🏪', text: '小規模事業者持続化補助金', type: 'grant' },
                 { icon: '🔄', text: '事業再構築補助金', type: 'grant' }
             ];
@@ -2956,7 +2975,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (!container) return;
 
             // Show loading state
-            container.innerHTML = '<div class="no-results-loading">💡 より良い結果を探しています...</div>';
+            container.innerHTML = '<div class="no-results-loading"> より良い結果を探しています...</div>';
 
             try {
                 const formData = new FormData();
@@ -2987,13 +3006,13 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             const container = this.elements.resultsContainer;
             
             let html = `
-                <div class="smart-no-results">
+                <div class="smart-no-results no-results-container">
                     <div class="no-results-header">
-                        <div class="icon-circle">
-                            <span style="font-size: 1.5rem; font-weight: 600;">×</span>
+                        <div class="icon-circle no-results-icon">
+                            <i class="fas fa-search" style="font-size: 48px; color: #000000;"></i>
                         </div>
-                        <h3>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</h3>
-                        <p>以下の方法をお試しください</p>
+                        <h3 class="no-results-heading" style="color: #000000;">「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</h3>
+                        <p class="no-results-message" style="color: #000000;">以下の方法をお試しください</p>
                     </div>
             `;
 
@@ -3001,15 +3020,14 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.alternative_queries && suggestions.alternative_queries.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4>こちらのキーワードで検索してみませんか？</h4>
-                        <div class="suggestion-chips">
+                        <div class="search-hints">
                 `;
                 
                 suggestions.alternative_queries.forEach(alt => {
                     html += `
-                        <button class="suggestion-chip" data-query="${this.escapeHtml(alt.query)}" title="${this.escapeHtml(alt.reason)}">
+                        <button class="search-hint-item suggestion-tag" data-query="${this.escapeHtml(alt.query)}" data-type="popular" title="${this.escapeHtml(alt.reason)}">
+                            <i class="fas fa-search"></i>
                             <span class="chip-text">${this.escapeHtml(alt.query)}</span>
-                            <span class="chip-icon">→</span>
                         </button>
                     `;
                 });
@@ -3098,7 +3116,7 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             if (suggestions.example_queries && suggestions.example_queries.length > 0) {
                 html += `
                     <div class="suggestions-section">
-                        <h4><span class="icon">📝</span> 検索例</h4>
+                        <h4><span class="icon"></span> 検索例</h4>
                         <div class="example-queries">
                 `;
                 
@@ -3118,20 +3136,12 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
             }
 
             // AI Chat suggestion
-            html += `
-                <div class="suggestions-section ai-chat-cta">
-                    <div class="cta-content">
-                        <div class="cta-icon">🤖</div>
-                        <div class="cta-text">
-                            <h4>AIアシスタントに相談する</h4>
-                            <p>具体的な状況を教えていただければ、最適な助成金をご提案します</p>
-                        </div>
-                        <button class="cta-button" onclick="document.querySelector('.ai-chat-toggle')?.click()">
-                            チャットを開く
-                        </button>
-                    </div>
-                </div>
-            `;
+            // AI consultation section removed per user request
+            // html += `
+            //     <div class="suggestions-section ai-chat-cta">
+            //         ...
+            //     </div>
+            // `;
 
             html += '</div>';
             container.innerHTML = html;
@@ -3156,17 +3166,17 @@ $nonce = wp_create_nonce('gi_ai_search_nonce');
 
         getBasicNoResults(query) {
             return `
-                <div class="basic-no-results">
-                    <div class="icon">🔍</div>
-                    <h3>該当する補助金が見つかりませんでした</h3>
-                    <p>「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</p>
-                    <div class="basic-tips">
-                        <p>• キーワードを変更してみてください</p>
-                        <p>• 業種や地域を追加してみてください</p>
-                        <p>• カテゴリから探してみてください</p>
+                <div class="basic-no-results no-results-container">
+                    <div class="icon no-results-icon"><i class="fas fa-search" style="font-size: 48px; color: #000000;"></i></div>
+                    <h3 class="no-results-heading" style="color: #000000;">該当する補助金が見つかりませんでした</h3>
+                    <p class="no-results-message" style="color: #000000;">「${this.escapeHtml(query)}」の検索結果が見つかりませんでした</p>
+                    <div class="basic-tips" style="color: #000000;">
+                        <p style="color: #000000;">• キーワードを変更してみてください</p>
+                        <p style="color: #000000;">• 業種や地域を追加してみてください</p>
+                        <p style="color: #000000;">• カテゴリから探してみてください</p>
                     </div>
-                    <button class="retry-button" onclick="document.querySelector('.ai-search-input')?.focus()">
-                        再検索する
+                    <button class="retry-button grant-btn grant-btn--primary" onclick="document.querySelector('.ai-search-input')?.focus()" style="background: #000000; color: #ffffff;">
+                        <i class="fas fa-redo"></i> 再検索する
                     </button>
                 </div>
             `;

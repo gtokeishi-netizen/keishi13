@@ -211,10 +211,10 @@ function gi_prefecture_debug_page() {
     
     ?>
     <div class="wrap">
-        <h1>🗾 都道府県デバッグツール</h1>
+        <h1>都道府県デバッグツール</h1>
         
         <div class="gi-admin-notice">
-            <h3>📊 統計情報</h3>
+            <h3>統計情報</h3>
             <p><strong>総助成金投稿:</strong> <?php echo $assignment_stats['total_grants']; ?>件</p>
             <p><strong>都道府県設定済み:</strong> <?php echo $assignment_stats['assigned_grants']; ?>件 (<?php echo $assignment_stats['assignment_ratio']; ?>%)</p>
             <p><strong>都道府県未設定:</strong> <?php echo $assignment_stats['unassigned_grants']; ?>件</p>
@@ -239,7 +239,7 @@ function gi_prefecture_debug_page() {
         
         <?php if ($assignment_stats['assigned_grants'] > 0) : ?>
         <div class="postbox">
-            <h2 class="hndle">📍 都道府県別投稿数</h2>
+            <h2 class="hndle">都道府県別投稿数</h2>
             <div class="inside">
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
@@ -288,7 +288,7 @@ function gi_prefecture_debug_page() {
         </div>
         <?php else : ?>
         <div class="notice notice-warning">
-            <h3>⚠️ 都道府県設定が必要です</h3>
+            <h3>都道府県設定が必要です</h3>
             <p>助成金投稿に都道府県が設定されていません。以下の方法で設定してください：</p>
             <ol>
                 <li><strong>手動設定:</strong> <a href="<?php echo admin_url('edit.php?post_type=grant'); ?>">助成金投稿一覧</a> で各投稿を編集し、都道府県を選択</li>
@@ -299,7 +299,7 @@ function gi_prefecture_debug_page() {
         <?php endif; ?>
         
         <div class="postbox">
-            <h2 class="hndle">🔍 デバッグ情報</h2>
+            <h2 class="hndle">デバッグ情報</h2>
             <div class="inside">
                 <p><strong>キャッシュ状態:</strong> <?php echo get_transient('gi_prefecture_counts_v2') !== false ? '有効' : '無効'; ?></p>
                 <p><strong>都道府県タクソノミー:</strong> <?php echo taxonomy_exists('grant_prefecture') ? '存在' : '不存在'; ?></p>
@@ -351,9 +351,9 @@ function gi_ai_settings_page() {
     if (isset($_POST['test_connection']) && wp_verify_nonce($_POST['ai_settings_nonce'], 'gi_ai_settings')) {
         $capabilities = gi_check_ai_capabilities();
         if ($capabilities['openai_configured']) {
-            $connection_status = '<div class="notice notice-success"><p>✅ OpenAI APIへの接続が正常です！</p></div>';
+            $connection_status = '<div class="notice notice-success"><p>OpenAI APIへの接続が正常です！</p></div>';
         } else {
-            $connection_status = '<div class="notice notice-error"><p>❌ OpenAI APIキーが設定されていないか、無効です。</p></div>';
+            $connection_status = '<div class="notice notice-error"><p>OpenAI APIキーが設定されていないか、無効です。</p></div>';
         }
     }
     
@@ -450,14 +450,14 @@ function gi_ai_settings_page() {
         
         <!-- AI機能ステータス表示 -->
         <div class="gi-admin-notice" style="margin-top: 30px;">
-            <h3>🔍 AI機能ステータス</h3>
+            <h3>AI機能ステータス</h3>
             <?php
             $capabilities = gi_check_ai_capabilities();
             echo '<ul>';
-            echo '<li><strong>OpenAI API:</strong> ' . ($capabilities['openai_configured'] ? '✅ 設定済み' : '❌ 未設定') . '</li>';
-            echo '<li><strong>セマンティック検索:</strong> ' . ($capabilities['semantic_search_available'] ? '✅ 利用可能' : '❌ 利用不可') . '</li>';
-            echo '<li><strong>音声認識:</strong> ' . ($capabilities['voice_recognition_available'] ? '✅ 利用可能' : '❌ OpenAI API必要') . '</li>';
-            echo '<li><strong>AIチャット:</strong> ' . ($capabilities['chat_available'] ? '✅ 利用可能' : '❌ 利用不可') . '</li>';
+            echo '<li><strong>OpenAI API:</strong> ' . ($capabilities['openai_configured'] ? '[OK] 設定済み' : '[NG] 未設定') . '</li>';
+            echo '<li><strong>セマンティック検索:</strong> ' . ($capabilities['semantic_search_available'] ? '[OK] 利用可能' : '[NG] 利用不可') . '</li>';
+            echo '<li><strong>音声認識:</strong> ' . ($capabilities['voice_recognition_available'] ? '[OK] 利用可能' : '[NG] OpenAI API必要') . '</li>';
+            echo '<li><strong>AIチャット:</strong> ' . ($capabilities['chat_available'] ? '[OK] 利用可能' : '[NG] 利用不可') . '</li>';
             echo '</ul>';
             ?>
             <p><strong>注意:</strong> OpenAI APIキーが未設定の場合、基本的なフォールバック機能のみが動作します。</p>
@@ -498,13 +498,13 @@ function gi_ai_settings_page() {
                     
                     if (response.success) {
                         $statusDiv.html(
-                            '<h3>✅ API接続テスト成功</h3>' +
+                            '<h3>[OK] API接続テスト成功</h3>' +
                             '<p><strong>メッセージ:</strong> ' + response.data.message + '</p>' +
                             '<p><strong>時刻:</strong> ' + response.data.time + '</p>'
                         ).removeClass('notice-error').addClass('notice-success').show();
                     } else {
                         $statusDiv.html(
-                            '<h3>❌ API接続テスト失敗</h3>' +
+                            '<h3>[NG] API接続テスト失敗</h3>' +
                             '<p><strong>エラー:</strong> ' + (response.data.message || response.data) + '</p>' +
                             '<p><strong>詳細:</strong> ' + (response.data.details || 'なし') + '</p>'
                         ).removeClass('notice-success').addClass('notice-error').show();
@@ -512,7 +512,7 @@ function gi_ai_settings_page() {
                 }).fail(function() {
                     $button.val('API接続をテスト').prop('disabled', false);
                     $statusDiv.html(
-                        '<h3>❌ 接続エラー</h3>' +
+                        '<h3>[ERROR] 接続エラー</h3>' +
                         '<p>AJAX リクエストに失敗しました。</p>'
                     ).removeClass('notice-success').addClass('notice-error').show();
                 });
@@ -674,7 +674,7 @@ function gi_ai_statistics_page() {
                         <td>
                             <?php echo esc_html($search->search_query); ?>
                             <?php if ($index < 3): ?>
-                                <span style="color: #f59e0b;">🔥</span>
+                                <span style="color: #f59e0b;">[HOT]</span>
                             <?php endif; ?>
                         </td>
                         <td><?php echo number_format($search->count); ?>回</td>
@@ -792,7 +792,7 @@ class GrantPostMetaboxes {
         
         add_meta_box(
             'grant-prefecture-metabox',
-            '📍 対象都道府県',
+            '対象都道府県',
             array($this, 'render_prefecture_metabox'),
             'grant',
             'side',

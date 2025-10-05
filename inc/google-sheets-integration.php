@@ -1578,7 +1578,7 @@ class GoogleSheetsSync {
     }
     
     /**
-     * 📊 31列対応フィールド同期状態テスト
+     *  31列対応フィールド同期状態テスト
      */
     public function test_specific_field_sync() {
         $sheet_data = $this->read_sheet_data();
@@ -3339,12 +3339,12 @@ class SheetsAdminUI {
                 <h2>📋 フィールドマッピング & バリデーション設定（31列完全対応）</h2>
                 <div class="gi-validation-info">
                     <p class="description">
-                        <strong>🎯 31列完全対応</strong>：スプレッドシートの選択肢フィールドにプルダウンメニューを設定して、入力ミスを防ぎます。<br>
+                        <strong> 31列完全対応</strong>：スプレッドシートの選択肢フィールドにプルダウンメニューを設定して、入力ミスを防ぎます。<br>
                         <span class="description">A列-AE列まで31列すべてのフィールドマッピングが完了し、タクソノミー連携（都道府県・市町村・カテゴリ・タグ）と新規拡張フィールドに対応しています。</span>
                     </p>
                     
                     <div class="gi-field-mapping">
-                        <h4>📊 フィールドマッピング一覧</h4>
+                        <h4> フィールドマッピング一覧</h4>
                         <table class="widefat" style="margin: 10px 0;">
                             <thead>
                                 <tr>
@@ -3386,67 +3386,67 @@ class SheetsAdminUI {
                                     <td>open（募集中）/ upcoming（募集予定）/ closed（募集終了）/ suspended（一時停止）</td>
                                 </tr>
                                 <tr style="background: #e8f5e8;">
-                                    <td><strong>T列 ⭐完全連携</strong></td>
+                                    <td><strong>T列 完全連携</strong></td>
                                     <td>🏛️ 都道府県</td>
                                     <td><code>grant_prefecture</code></td>
                                     <td>北海道、東京都、大阪府等（タクソノミー、カンマ区切り可能）</td>
                                 </tr>
                                 <tr style="background: #e8f5e8;">
-                                    <td><strong>U列 ⭐完全連携</strong></td>
+                                    <td><strong>U列 完全連携</strong></td>
                                     <td>🏘️ 市町村</td>
                                     <td><code>grant_municipality</code></td>
                                     <td>新宿区、渋谷区、札幌市等（タクソノミー、カンマ区切り可能）</td>
                                 </tr>
                                 <tr style="background: #e8f5e8;">
-                                    <td><strong>V列 ⭐完全連携</strong></td>
+                                    <td><strong>V列 完全連携</strong></td>
                                     <td>📂 カテゴリ</td>
                                     <td><code>grant_category</code></td>
                                     <td>創業支援、研究開発、地域活性化等（タクソノミー、カンマ区切り可能）</td>
                                 </tr>
                                 <tr style="background: #e8f5e8;">
-                                    <td><strong>W列 ⭐完全連携</strong></td>
+                                    <td><strong>W列 完全連携</strong></td>
                                     <td>🏷️ タグ</td>
                                     <td><code>grant_tag</code></td>
                                     <td>スタートアップ、AI、環境等（WordPressタグ、カンマ区切り可能）</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>X列 ⭐新規</strong></td>
+                                    <td><strong>X列 新規</strong></td>
                                     <td>🔗 外部リンク</td>
                                     <td><code>external_link</code></td>
                                     <td>参考URL、関連サイトのリンク（URL形式）</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>Y列 ⭐新規</strong></td>
+                                    <td><strong>Y列 新規</strong></td>
                                     <td>📍 地域に関する備考</td>
                                     <td><code>area_notes</code></td>
                                     <td>地域制限の詳細説明・特記事項</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>Z列 ⭐新規</strong></td>
+                                    <td><strong>Z列 新規</strong></td>
                                     <td>📋 必要書類（詳細）</td>
                                     <td><code>required_documents_detailed</code></td>
                                     <td>申請に必要な書類の詳細リスト</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>AA列 ⭐新規</strong></td>
-                                    <td>📊 採択率（%）</td>
+                                    <td><strong>AA列 新規</strong></td>
+                                    <td> 採択率（%）</td>
                                     <td><code>adoption_rate</code></td>
                                     <td>0-100の数値（過去実績に基づく採択率）</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>AB列 ⭐新規</strong></td>
+                                    <td><strong>AB列 新規</strong></td>
                                     <td>⚡ 申請難易度</td>
                                     <td><code>difficulty_level</code></td>
                                     <td>初級 / 中級 / 上級 / 非常に高い</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>AC列 ⭐新規</strong></td>
-                                    <td>💰 対象経費（詳細）</td>
+                                    <td><strong>AC列 新規</strong></td>
+                                    <td> 対象経費（詳細）</td>
                                     <td><code>eligible_expenses_detailed</code></td>
                                     <td>補助対象となる経費の詳細説明</td>
                                 </tr>
                                 <tr style="background: #fff8dc;">
-                                    <td><strong>AD列 ⭐新規</strong></td>
+                                    <td><strong>AD列 新規</strong></td>
                                     <td>💸 補助率（詳細）</td>
                                     <td><code>subsidy_rate_detailed</code></td>
                                     <td>補助率の詳細（例：1/2以内、上限100万円）</td>

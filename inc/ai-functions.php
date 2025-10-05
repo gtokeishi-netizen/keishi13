@@ -455,7 +455,7 @@ class GI_Enhanced_AI_Generator {
    </style>
 
 4. デザイン要素:
-   - 📋 📊 💰 📅 📞 ✅ などのアイコン使用
+   - アイコンは使用せず、テキストのみで表現
    - 表組みでの情報整理
    - 重要部分への黄色ハイライト
    - 白黒ベースのスタイリッシュなレイアウト
@@ -640,15 +640,15 @@ class GI_Enhanced_AI_Generator {
 
 <div class="grant-content">
     <div class="grant-highlight">
-        <h2>📋 ' . esc_html($title) . '</h2>
+        <h2>■ ' . esc_html($title) . '</h2>
         <p><strong>実施機関:</strong> ' . esc_html($org) . '</p>
         <p><span class="highlight-yellow">最大助成額: ' . esc_html($max_amount) . '</span></p>
     </div>
 
-    <h2 class="grant-section">💰 助成金概要</h2>
+    <h2 class="grant-section">助成金概要</h2>
     <p>' . esc_html($title) . 'は、' . esc_html($org) . 'が実施する<span class="highlight-yellow">' . esc_html($categories) . '</span>を対象とした事業者支援制度です。事業の発展と成長を支援し、競争力強化を図ることを目的としています。</p>
 
-    <h2 class="grant-section">📊 助成金詳細</h2>
+    <h2 class="grant-section">助成金詳細</h2>
     <table class="grant-table">
         <tr>
             <th>項目</th>
@@ -672,7 +672,7 @@ class GI_Enhanced_AI_Generator {
         </tr>
     </table>
 
-    <h2 class="grant-section">✅ 対象者・応募要件</h2>
+    <h2 class="grant-section">対象者・応募要件</h2>
     <ul class="grant-list">
         <li>中小企業基本法に定める中小企業・小規模事業者</li>
         <li>個人事業主（開業届を提出している方）</li>
@@ -681,7 +681,7 @@ class GI_Enhanced_AI_Generator {
         <li><span class="highlight-yellow">事業計画書の提出が可能な事業者</span></li>
     </ul>
 
-    <h2 class="grant-section">📅 申請手順</h2>
+    <h2 class="grant-section">申請手順</h2>
     <ol class="grant-list">
         <li><span class="step-number">1</span>申請要件の確認と事前準備</li>
         <li><span class="step-number">2</span>必要書類の準備・収集</li>
@@ -691,7 +691,7 @@ class GI_Enhanced_AI_Generator {
         <li><span class="step-number">6</span>採択後の手続き・事業実施</li>
     </ol>
 
-    <h2 class="grant-section">📞 お問い合わせ</h2>
+    <h2 class="grant-section">お問い合わせ</h2>
     <div class="contact-box">
         <p><strong>実施機関:</strong> ' . esc_html($org) . '</p>
         <p><strong>受付時間:</strong> 平日 9:00～17:00（土日祝日を除く）</p>
@@ -699,7 +699,7 @@ class GI_Enhanced_AI_Generator {
     </div>
 
     <div class="grant-highlight">
-        <p><strong>⚠️ 重要:</strong> 申請期限や条件は変更される場合があります。必ず最新の公式情報をご確認の上、お申し込みください。</p>
+        <p><strong> 重要:</strong> 申請期限や条件は変更される場合があります。必ず最新の公式情報をご確認の上、お申し込みください。</p>
     </div>
 </div>';
     }
@@ -1715,7 +1715,7 @@ JSON形式で回答してください:
         if ($is_too_short) {
             $tips[] = [
                 'type' => 'length',
-                'icon' => '💡',
+                'icon' => '',
                 'title' => 'より詳しいキーワードを追加してみましょう',
                 'description' => '「業種」「目的」「地域」を組み合わせると、より的確な結果が見つかります',
                 'example' => '例: 「IT 東京 スタートアップ」'
@@ -1745,7 +1745,7 @@ JSON形式で回答してください:
         if (!$has_purpose) {
             $tips[] = [
                 'type' => 'purpose',
-                'icon' => '🎯',
+                'icon' => '',
                 'title' => '目的を明確にしてみましょう',
                 'description' => '何に使いたいかを指定すると、マッチする助成金が見つかりやすくなります',
                 'example' => '例: 「設備投資」「人材採用」「販路拡大」など'
@@ -1755,7 +1755,7 @@ JSON形式で回答してください:
         // 一般的なヒント
         $tips[] = [
             'type' => 'general',
-            'icon' => '✨',
+            'icon' => '',
             'title' => 'カテゴリから探す',
             'description' => 'カテゴリ一覧から興味のある分野を選んでみましょう',
             'action' => 'show_categories'

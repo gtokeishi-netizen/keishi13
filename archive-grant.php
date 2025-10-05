@@ -644,10 +644,13 @@ $region_mapping = [
         background: var(--gray-100);
         border-radius: var(--radius-md);
         padding: 2px;
+        gap: 2px;
     }
     
     .clean-view-btn {
-        padding: var(--space-2) var(--space-3);
+        width: 36px;
+        height: 36px;
+        padding: 0;
         background: transparent;
         border: none;
         color: var(--gray-600);
@@ -655,10 +658,18 @@ $region_mapping = [
         border-radius: calc(var(--radius-md) - 2px);
         transition: var(--transition);
         font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .clean-view-btn i {
+        font-size: 14px;
     }
     
     .clean-view-btn:hover {
         color: var(--gray-800);
+        background: rgba(0, 0, 0, 0.05);
     }
     
     .clean-view-btn.active {
@@ -788,6 +799,13 @@ $region_mapping = [
         padding: 0 var(--space-2);
         border-radius: var(--radius-sm);
         min-width: 1.25rem;
+        text-align: center;
+    }
+    
+    .category-filter-icon {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        width: 18px;
         text-align: center;
     }
     
@@ -1578,155 +1596,7 @@ $region_mapping = [
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
     
-    .category-grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: var(--space-3);
-        margin-bottom: var(--space-3);
-    }
-    
-    .category-chip-fa {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: var(--space-4);
-        background: var(--white);
-        border: 2px solid var(--gray-200);
-        border-radius: var(--radius-lg);
-        cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        text-align: center;
-        min-height: 100px;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    /* ホバー時のグラデーションエフェクト */
-    .category-chip-fa::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, 
-            transparent, 
-            rgba(0, 0, 0, 0.02), 
-            transparent
-        );
-        transition: left 0.6s ease;
-    }
-    
-    .category-chip-fa:hover::before {
-        left: 100%;
-    }
-    
-    /* 通常状態のホバー */
-    .category-chip-fa:hover {
-        border-color: var(--gray-900);
-        transform: translateY(-4px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    .category-chip-fa:hover .category-icon-wrapper {
-        transform: scale(1.1);
-    }
-    
-    /* 選択状態 */
-    .category-chip-fa.selected {
-        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
-        border-color: var(--gray-900);
-        color: var(--white);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .category-chip-fa.selected::before {
-        background: linear-gradient(90deg, 
-            transparent, 
-            rgba(255, 255, 255, 0.1), 
-            transparent
-        );
-    }
-    
-    /* アイコンラッパー */
-    .category-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--gray-100);
-        border-radius: 50%;
-        margin-bottom: var(--space-3);
-        transition: all 0.3s ease;
-    }
-    
-    .category-chip-fa.selected .category-icon-wrapper {
-        background: rgba(255, 255, 255, 0.15);
-        animation: pulse 0.6s ease;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.15); }
-    }
-    
-    /* Font Awesome アイコン */
-    .category-fa-icon {
-        font-size: 1.5rem;
-        color: var(--gray-900);
-        transition: all 0.3s ease;
-    }
-    
-    .category-chip-fa.selected .category-fa-icon {
-        color: var(--white);
-    }
-    
-    /* カテゴリ名 */
-    .category-chip-fa .category-name {
-        font-size: 0.875rem;
-        font-weight: 600;
-        line-height: 1.3;
-        margin-bottom: var(--space-1);
-        color: var(--gray-900);
-        transition: all 0.3s ease;
-    }
-    
-    .category-chip-fa.selected .category-name {
-        color: var(--white);
-        font-weight: 700;
-    }
-    
-    /* カウントバッジ */
-    .category-count-badge {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: var(--gray-900);
-        color: var(--white);
-        font-size: 0.6875rem;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 12px;
-        min-width: 24px;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .category-chip-fa.selected .category-count-badge {
-        background: rgba(255, 255, 255, 0.25);
-        color: var(--white);
-        backdrop-filter: blur(4px);
-    }
-    
-    /* フォーカス状態（アクセシビリティ） */
-    .category-chip-fa:focus-within {
-        outline: 3px solid var(--gray-900);
-        outline-offset: 2px;
-    }
+    /* Old category chip styles removed - now using simple checkbox format for consistency */
     
     /* AI検索ヒント */
     .ai-search-hint {
@@ -1812,6 +1682,730 @@ $region_mapping = [
         .category-chip-fa .category-name {
             font-size: 0.75rem;
         }
+    }
+    
+    /* ===== カーセンサー風 階層フィルター TOP Section (PC Only) ===== */
+    .hierarchical-filter-top-section {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        padding: var(--space-6) 0;
+        display: none; /* モバイルでは非表示 */
+    }
+    
+    /* PC版のみ表示 */
+    @media (min-width: 1025px) {
+        .hierarchical-filter-top-section {
+            display: block;
+        }
+    }
+    
+    .hierarchical-filter-card {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+    }
+    
+    .hierarchical-filter-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* ヘッダー */
+    .hierarchical-filter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-5);
+        background: var(--white);
+        border-bottom: 2px solid var(--gray-200);
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    
+    .hierarchical-filter-header:hover {
+        background: var(--gray-50);
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+    
+    .header-icon {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        background: var(--gray-100);
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .hierarchical-filter-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--gray-900);
+        margin: 0;
+        letter-spacing: -0.025em;
+    }
+    
+    .hierarchical-filter-subtitle {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        font-weight: 500;
+        padding: 0.25rem 0.75rem;
+        background: var(--gray-100);
+        border-radius: var(--radius-md);
+    }
+    
+    .hierarchical-collapse-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .hierarchical-collapse-btn:hover {
+        background: var(--gray-900);
+        color: var(--white);
+    }
+    
+    .hierarchical-collapse-btn i {
+        transition: transform 0.3s ease;
+    }
+    
+    .hierarchical-filter-card.collapsed .hierarchical-collapse-btn i {
+        transform: rotate(-180deg);
+    }
+    
+    /* コンテンツ */
+    .hierarchical-filter-content {
+        padding: var(--space-6);
+        max-height: 1000px;
+        overflow: hidden;
+        transition: max-height 0.5s ease, padding 0.5s ease;
+    }
+    
+    .hierarchical-filter-card.collapsed .hierarchical-filter-content {
+        max-height: 0;
+        padding: 0 var(--space-6);
+    }
+    
+    /* ステップ */
+    .filter-step {
+        margin-bottom: var(--space-8);
+    }
+    
+    .filter-step:last-child {
+        margin-bottom: 0;
+    }
+    
+    .step-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 2px solid var(--gray-200);
+    }
+    
+    .step-number {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
+        color: var(--white);
+        border-radius: 50%;
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .step-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin: 0;
+    }
+    
+    .step-hint {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-md);
+    }
+    
+    /* 地方グリッド */
+    .region-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--space-3);
+    }
+    
+    .region-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-4);
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        min-height: 110px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .region-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.03), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .region-card:hover::before {
+        left: 100%;
+    }
+    
+    .region-card:hover {
+        border-color: var(--gray-900);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .region-card.active {
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
+        border-color: var(--gray-900);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .region-card-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 50%;
+        margin-bottom: var(--space-2);
+        transition: all 0.3s ease;
+    }
+    
+    .region-card.active .region-card-icon {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .region-card-icon i {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        transition: color 0.3s ease;
+    }
+    
+    .region-card.active .region-card-icon i {
+        color: var(--white);
+    }
+    
+    .region-card-name {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        margin-bottom: var(--space-1);
+    }
+    
+    .region-card-count {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    
+    .region-card.active .region-card-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* 都道府県グリッド */
+    .prefecture-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: var(--space-2);
+    }
+    
+    .prefecture-card {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .prefecture-card-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3);
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+        min-height: 85px;
+        position: relative;
+    }
+    
+    .prefecture-card:hover .prefecture-card-inner {
+        border-color: var(--gray-400);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .prefecture-card.active .prefecture-card-inner {
+        background: var(--gray-900);
+        border-color: var(--gray-900);
+        color: var(--white);
+    }
+    
+    .prefecture-card-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: var(--space-1);
+        text-align: center;
+    }
+    
+    .prefecture-card-count {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    
+    .prefecture-card.active .prefecture-card-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .prefecture-card-check {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+    
+    .prefecture-card.active .prefecture-card-check {
+        opacity: 1;
+        background: var(--white);
+        border-color: var(--white);
+    }
+    
+    .prefecture-card-check i {
+        font-size: 0.625rem;
+        color: var(--gray-900);
+    }
+    
+    /* 市町村グリッド */
+    .municipality-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--space-2);
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: var(--space-2);
+    }
+    
+    .municipality-card {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .municipality-card-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-2) var(--space-3);
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+        min-height: 70px;
+        position: relative;
+    }
+    
+    .municipality-card:hover .municipality-card-inner {
+        border-color: var(--gray-400);
+        transform: translateX(2px);
+    }
+    
+    .municipality-card.active .municipality-card-inner {
+        background: var(--gray-800);
+        border-color: var(--gray-800);
+        color: var(--white);
+    }
+    
+    .municipality-card-name {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        margin-bottom: var(--space-1);
+        text-align: center;
+        line-height: 1.3;
+    }
+    
+    .municipality-card-count {
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    
+    .municipality-card.active .municipality-card-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .municipality-card-check {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+    
+    .municipality-card.active .municipality-card-check {
+        opacity: 1;
+        background: var(--white);
+        border-color: var(--white);
+    }
+    
+    .municipality-card-check i {
+        font-size: 0.5rem;
+        color: var(--gray-900);
+    }
+    
+    .no-municipality-message-top {
+        text-align: center;
+        padding: var(--space-4);
+        color: var(--gray-500);
+        font-size: 0.875rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-md);
+        margin-top: var(--space-3);
+    }
+    
+    /* アクションボタン */
+    .hierarchical-filter-actions {
+        display: flex;
+        gap: var(--space-3);
+        margin-top: var(--space-6);
+        padding-top: var(--space-6);
+        border-top: 2px solid var(--gray-200);
+    }
+    
+    .hierarchical-reset-btn,
+    .hierarchical-apply-btn {
+        flex: 1;
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        font-size: 0.9375rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        border: 2px solid;
+    }
+    
+    .hierarchical-reset-btn {
+        background: var(--white);
+        color: var(--gray-700);
+        border-color: var(--gray-300);
+    }
+    
+    .hierarchical-reset-btn:hover {
+        background: var(--gray-100);
+        border-color: var(--gray-400);
+    }
+    
+    .hierarchical-apply-btn {
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
+        color: var(--white);
+        border-color: var(--gray-900);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hierarchical-apply-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+    
+    .hierarchical-apply-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* スクロールバー */
+    .municipality-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .municipality-grid::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: 4px;
+    }
+    
+    .municipality-grid::-webkit-scrollbar-thumb {
+        background: var(--gray-400);
+        border-radius: 4px;
+    }
+    
+    .municipality-grid::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-600);
+    }
+    
+    /* アニメーション */
+    @keyframes hierarchicalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .filter-step-prefecture,
+    .filter-step-municipality {
+        animation: hierarchicalSlideIn 0.4s ease-out;
+    }
+    
+    /* ===== カテゴリフィルター専用スタイル ===== */
+    
+    /* カテゴリセクションの余白調整 */
+    .category-filter-section {
+        margin-top: var(--space-8);
+    }
+    
+    /* 親カテゴリグリッド */
+    .category-parent-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--space-3);
+    }
+    
+    .category-parent-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-4);
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        min-height: 110px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .category-parent-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.03), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .category-parent-card:hover::before {
+        left: 100%;
+    }
+    
+    .category-parent-card:hover {
+        border-color: var(--gray-900);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .category-parent-card.active {
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--black) 100%);
+        border-color: var(--gray-900);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .category-card-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-100);
+        border-radius: 50%;
+        margin-bottom: var(--space-2);
+        transition: all 0.3s ease;
+    }
+    
+    .category-parent-card.active .category-card-icon {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .category-card-icon i {
+        font-size: 1.5rem;
+        color: var(--gray-900);
+        transition: color 0.3s ease;
+    }
+    
+    .category-parent-card.active .category-card-icon i {
+        color: var(--white);
+    }
+    
+    .category-card-name {
+        font-size: 0.875rem;
+        font-weight: 700;
+        margin-bottom: var(--space-1);
+    }
+    
+    .category-card-count {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    
+    .category-parent-card.active .category-card-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    /* 子カテゴリグリッド */
+    .category-child-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: var(--space-2);
+    }
+    
+    .category-child-card {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .category-child-card-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3);
+        background: var(--white);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+        min-height: 85px;
+        position: relative;
+    }
+    
+    .category-child-card:hover .category-child-card-inner {
+        border-color: var(--gray-400);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .category-child-card.active .category-child-card-inner {
+        background: var(--gray-900);
+        border-color: var(--gray-900);
+        color: var(--white);
+    }
+    
+    .category-child-card-name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: var(--space-1);
+        text-align: center;
+    }
+    
+    .category-child-card-count {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    
+    .category-child-card.active .category-child-card-count {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .category-child-card-check {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--white);
+        border: 2px solid var(--gray-300);
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+    
+    .category-child-card.active .category-child-card-check {
+        opacity: 1;
+        background: var(--white);
+        border-color: var(--white);
+    }
+    
+    .category-child-card-check i {
+        font-size: 0.625rem;
+        color: var(--gray-900);
+    }
+    
+    .no-category-message-top {
+        text-align: center;
+        padding: var(--space-4);
+        color: var(--gray-500);
+        font-size: 0.875rem;
+        background: var(--gray-50);
+        border-radius: var(--radius-md);
+        margin-top: var(--space-3);
+    }
+    
+    .filter-step-category-child {
+        animation: hierarchicalSlideIn 0.4s ease-out;
     }
     </style>
     
@@ -1900,6 +2494,295 @@ $region_mapping = [
     </div>
 </section>
 
+<!-- カーセンサー風 階層フィルター TOP Section (PC Only) -->
+<section class="hierarchical-filter-top-section collapsed" id="hierarchical-filter-top">
+    <div class="clean-container">
+        <div class="hierarchical-filter-card collapsed">
+            <!-- ヘッダー -->
+            <div class="hierarchical-filter-header">
+                <div class="header-left">
+                    <i class="fas fa-map-marked-alt header-icon"></i>
+                    <h3 class="hierarchical-filter-title">地域から探す</h3>
+                    <span class="hierarchical-filter-subtitle">地方 → 都道府県 → 市町村</span>
+                </div>
+                <button type="button" class="hierarchical-collapse-btn" onclick="toggleHierarchicalFilter()" aria-label="フィルターの開閉">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <!-- コンテンツ -->
+            <div class="hierarchical-filter-content" id="hierarchical-filter-content">
+                <!-- Step 1: 地方選択 -->
+                <div class="filter-step filter-step-region">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h4 class="step-title">地方を選択</h4>
+                    </div>
+                    <div class="region-grid">
+                        <button type="button" class="region-card <?php echo empty($search_params['region']) ? 'active' : ''; ?>" data-region="all">
+                            <div class="region-card-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <span class="region-card-name">全国</span>
+                            <span class="region-card-count"><?php echo count($all_prefectures); ?>都道府県</span>
+                        </button>
+                        <?php foreach ($region_mapping as $region_name => $region_prefs): 
+                            $region_count = 0;
+                            foreach ($all_prefectures as $pref) {
+                                if (in_array($pref->name, $region_prefs)) {
+                                    $region_count++;
+                                }
+                            }
+                        ?>
+                        <button type="button" class="region-card <?php echo $search_params['region'] === $region_name ? 'active' : ''; ?>" data-region="<?php echo esc_attr($region_name); ?>">
+                            <div class="region-card-icon">
+                                <i class="fas fa-map"></i>
+                            </div>
+                            <span class="region-card-name"><?php echo esc_html($region_name); ?></span>
+                            <span class="region-card-count"><?php echo $region_count; ?>都道府県</span>
+                        </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 都道府県選択 -->
+                <div class="filter-step filter-step-prefecture" id="filter-step-prefecture">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h4 class="step-title">都道府県を選択</h4>
+                        <span class="step-hint">複数選択可</span>
+                    </div>
+                    <div class="prefecture-grid">
+                        <?php 
+                        $selected_prefectures = array_filter(explode(',', $search_params['prefecture']));
+                        foreach ($all_prefectures as $prefecture): 
+                            $is_selected = in_array($prefecture->slug, $selected_prefectures);
+                            $pref_region = '';
+                            foreach ($region_mapping as $region => $region_prefs) {
+                                if (in_array($prefecture->name, $region_prefs)) {
+                                    $pref_region = $region;
+                                    break;
+                                }
+                            }
+                        ?>
+                        <label class="prefecture-card <?php echo $is_selected ? 'active' : ''; ?>" 
+                               data-region="<?php echo esc_attr($pref_region); ?>"
+                               style="<?php echo !empty($search_params['region']) && $search_params['region'] !== $pref_region ? 'display:none;' : ''; ?>">
+                            <input type="checkbox" 
+                                   name="prefectures[]" 
+                                   value="<?php echo esc_attr($prefecture->slug); ?>" 
+                                   class="prefecture-checkbox-top"
+                                   data-prefecture-name="<?php echo esc_attr($prefecture->name); ?>"
+                                   <?php checked($is_selected); ?>
+                                   style="display: none;">
+                            <div class="prefecture-card-inner">
+                                <span class="prefecture-card-name"><?php echo esc_html($prefecture->name); ?></span>
+                                <?php if ($prefecture->count > 0): ?>
+                                <span class="prefecture-card-count"><?php echo number_format($prefecture->count); ?>件</span>
+                                <?php endif; ?>
+                                <div class="prefecture-card-check">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
+                <!-- Step 3: 市町村選択 -->
+                <?php if (!empty($all_municipalities) && !is_wp_error($all_municipalities)): ?>
+                <div class="filter-step filter-step-municipality" id="filter-step-municipality" style="<?php echo empty($selected_prefectures) ? 'display:none;' : ''; ?>">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h4 class="step-title">市町村を選択</h4>
+                        <span class="step-hint">複数選択可</span>
+                    </div>
+                    <div class="municipality-grid">
+                        <?php 
+                        $selected_municipalities = array_filter(explode(',', $search_params['municipality']));
+                        foreach ($all_municipalities as $municipality): 
+                            $is_selected = in_array($municipality->slug, $selected_municipalities);
+                            $pref_slug = $municipality_prefecture_map[$municipality->slug] ?? '';
+                        ?>
+                        <label class="municipality-card <?php echo $is_selected ? 'active' : ''; ?>" 
+                               data-municipality-slug="<?php echo esc_attr($municipality->slug); ?>"
+                               data-prefecture="<?php echo esc_attr($pref_slug); ?>"
+                               style="display:none;">
+                            <input type="checkbox" 
+                                   name="municipalities[]" 
+                                   value="<?php echo esc_attr($municipality->slug); ?>" 
+                                   class="municipality-checkbox-top"
+                                   <?php checked($is_selected); ?>
+                                   style="display: none;">
+                            <div class="municipality-card-inner">
+                                <span class="municipality-card-name"><?php echo esc_html($municipality->name); ?></span>
+                                <?php if ($municipality->count > 0): ?>
+                                <span class="municipality-card-count"><?php echo number_format($municipality->count); ?>件</span>
+                                <?php endif; ?>
+                                <div class="municipality-card-check">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="no-municipality-message-top" style="display:none;">選択した都道府県に市町村データがありません</p>
+                </div>
+                <?php endif; ?>
+                
+                <!-- アクションボタン -->
+                <div class="hierarchical-filter-actions">
+                    <button type="button" class="hierarchical-reset-btn" onclick="resetHierarchicalFilter()">
+                        <i class="fas fa-redo"></i>
+                        リセット
+                    </button>
+                    <button type="button" class="hierarchical-apply-btn" onclick="applyHierarchicalFilter()">
+                        <i class="fas fa-search"></i>
+                        この条件で検索
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- カテゴリから探す Section -->
+<section class="hierarchical-filter-top-section category-filter-section collapsed" id="category-filter-top">
+    <div class="clean-container">
+        <div class="hierarchical-filter-card collapsed">
+            <!-- ヘッダー -->
+            <div class="hierarchical-filter-header">
+                <div class="header-left">
+                    <i class="fas fa-tags header-icon"></i>
+                    <h3 class="hierarchical-filter-title">カテゴリから探す</h3>
+                    <span class="hierarchical-filter-subtitle">親カテゴリ → 子カテゴリ</span>
+                </div>
+                <button type="button" class="hierarchical-collapse-btn" onclick="toggleCategoryFilter()" aria-label="カテゴリフィルターの開閉">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <!-- コンテンツ -->
+            <div class="hierarchical-filter-content" id="category-filter-content">
+                <!-- Step 1: 親カテゴリ選択 -->
+                <div class="filter-step filter-step-category-parent">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h4 class="step-title">親カテゴリを選択</h4>
+                    </div>
+                    <div class="category-parent-grid">
+                        <?php 
+                        // 親カテゴリーのみを取得
+                        $parent_categories = get_terms([
+                            'taxonomy' => 'grant_category',
+                            'parent' => 0,
+                            'hide_empty' => true,
+                            'orderby' => 'count',
+                            'order' => 'DESC'
+                        ]);
+                        
+                        $selected_categories = array_filter(explode(',', $search_params['category']));
+                        
+                        if (!empty($parent_categories) && !is_wp_error($parent_categories)): 
+                        ?>
+                        <button type="button" class="category-parent-card <?php echo empty($search_params['category']) ? 'active' : ''; ?>" data-parent-category="all">
+                            <div class="category-card-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <span class="category-card-name">全カテゴリ</span>
+                            <span class="category-card-count"><?php echo count($all_categories); ?>件</span>
+                        </button>
+                        <?php foreach ($parent_categories as $parent_cat): 
+                            $icon_class = gi_get_category_icon($parent_cat->name);
+                            $is_selected = false;
+                            // 親カテゴリまたはその子カテゴリが選択されているかチェック
+                            foreach ($selected_categories as $sel_slug) {
+                                $sel_term = get_term_by('slug', $sel_slug, 'grant_category');
+                                if ($sel_term && ($sel_term->term_id === $parent_cat->term_id || $sel_term->parent === $parent_cat->term_id)) {
+                                    $is_selected = true;
+                                    break;
+                                }
+                            }
+                        ?>
+                        <button type="button" class="category-parent-card <?php echo $is_selected ? 'active' : ''; ?>" data-parent-category="<?php echo esc_attr($parent_cat->term_id); ?>" data-parent-slug="<?php echo esc_attr($parent_cat->slug); ?>">
+                            <div class="category-card-icon">
+                                <i class="<?php echo esc_attr($icon_class); ?>"></i>
+                            </div>
+                            <span class="category-card-name"><?php echo esc_html($parent_cat->name); ?></span>
+                            <span class="category-card-count"><?php echo number_format($parent_cat->count); ?>件</span>
+                        </button>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 子カテゴリ選択 -->
+                <div class="filter-step filter-step-category-child" id="filter-step-category-child">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h4 class="step-title">子カテゴリを選択</h4>
+                        <span class="step-hint">複数選択可</span>
+                    </div>
+                    <div class="category-child-grid">
+                        <?php 
+                        // 全ての子カテゴリを親ごとに取得
+                        foreach ($parent_categories as $parent_cat): 
+                            $child_categories = get_terms([
+                                'taxonomy' => 'grant_category',
+                                'parent' => $parent_cat->term_id,
+                                'hide_empty' => true,
+                                'orderby' => 'count',
+                                'order' => 'DESC'
+                            ]);
+                            
+                            if (!empty($child_categories) && !is_wp_error($child_categories)):
+                                foreach ($child_categories as $child_cat):
+                                    $is_selected = in_array($child_cat->slug, $selected_categories);
+                        ?>
+                        <label class="category-child-card <?php echo $is_selected ? 'active' : ''; ?>" 
+                               data-parent-category="<?php echo esc_attr($parent_cat->term_id); ?>"
+                               style="display:none;">
+                            <input type="checkbox" 
+                                   name="categories[]" 
+                                   value="<?php echo esc_attr($child_cat->slug); ?>" 
+                                   class="category-checkbox-top"
+                                   <?php checked($is_selected); ?>
+                                   style="display: none;">
+                            <div class="category-child-card-inner">
+                                <span class="category-child-card-name"><?php echo esc_html($child_cat->name); ?></span>
+                                <?php if ($child_cat->count > 0): ?>
+                                <span class="category-child-card-count"><?php echo number_format($child_cat->count); ?>件</span>
+                                <?php endif; ?>
+                                <div class="category-child-card-check">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </label>
+                        <?php 
+                                endforeach;
+                            endif;
+                        endforeach; 
+                        ?>
+                    </div>
+                    <p class="no-category-message-top" style="display:none;">選択した親カテゴリに子カテゴリがありません</p>
+                </div>
+                
+                <!-- アクションボタン -->
+                <div class="hierarchical-filter-actions">
+                    <button type="button" class="hierarchical-reset-btn" onclick="resetCategoryFilter()">
+                        <i class="fas fa-redo"></i>
+                        リセット
+                    </button>
+                    <button type="button" class="hierarchical-apply-btn" onclick="applyCategoryFilter()">
+                        <i class="fas fa-search"></i>
+                        この条件で検索
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Controls Section -->
 <section class="clean-controls">
     <div class="clean-container">
@@ -1928,14 +2811,16 @@ $region_mapping = [
                     <button id="clean-grid-view" 
                             class="clean-view-btn <?php echo $search_params['view'] === 'grid' ? 'active' : ''; ?>" 
                             data-view="grid" 
-                            title="グリッド表示">
-                        グリッド
+                            title="グリッド表示"
+                            aria-label="グリッド表示">
+                        <i class="fas fa-th"></i>
                     </button>
                     <button id="clean-list-view" 
                             class="clean-view-btn <?php echo $search_params['view'] === 'list' ? 'active' : ''; ?>" 
                             data-view="list" 
-                            title="リスト表示">
-                        リスト
+                            title="リスト表示"
+                            aria-label="リスト表示">
+                        <i class="fas fa-list"></i>
                     </button>
                 </div>
             </div>
@@ -1975,12 +2860,12 @@ $region_mapping = [
                         
                         <!-- 地域階層フィルター（カーセンサー風） -->
                         <div class="clean-filter-group region-hierarchy-filter">
-                            <h4 class="clean-filter-group-title">📍 対象地域</h4>
+                            <h4 class="clean-filter-group-title">対象地域</h4>
                             
                             <!-- 地方選択（タブ式） -->
                             <div class="region-tabs-container">
                                 <button type="button" class="region-tab <?php echo empty($search_params['region']) ? 'active' : ''; ?>" data-region="all">
-                                    🗾 全国
+                                    全国
                                 </button>
                                 <?php foreach ($region_mapping as $region_name => $prefectures): ?>
                                 <button type="button" class="region-tab <?php echo $search_params['region'] === $region_name ? 'active' : ''; ?>" data-region="<?php echo esc_attr($region_name); ?>">
@@ -2059,45 +2944,135 @@ $region_mapping = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Category Filters (アイコンなし白黒デザイン) -->
-                        <?php if (!empty($all_categories) && !is_wp_error($all_categories)): ?>
+                        <!-- Category Filters (Font Awesomeアイコン付き白黒デザイン) -->
+                        <?php if (!empty($all_categories) && !is_wp_error($all_categories)): 
+                        
+                        // カテゴリー名とFont Awesomeアイコンのマッピング（category-hierarchy.php + section-categories.phpと連携）
+                        $category_icon_map = array(
+                            // IT・DX関連
+                            'IT導入' => 'fa-laptop-code',
+                            'DX' => 'fa-laptop-code',
+                            'デジタル化' => 'fa-laptop-code',
+                            'デジタル' => 'fa-laptop-code',
+                            'IT' => 'fa-laptop-code',
+                            'システム' => 'fa-microchip',
+                            'AI' => 'fa-robot',
+                            'IoT' => 'fa-network-wired',
+                            
+                            // ものづくり・製造
+                            'ものづくり' => 'fa-industry',
+                            '製造業' => 'fa-industry',
+                            '製造' => 'fa-cogs',
+                            '生産' => 'fa-boxes',
+                            '機械' => 'fa-gear',
+                            
+                            // 創業・スタートアップ
+                            '創業' => 'fa-rocket',
+                            'スタートアップ' => 'fa-rocket',
+                            '起業' => 'fa-lightbulb',
+                            '新規事業' => 'fa-star',
+                            'イノベーション' => 'fa-brain',
+                            
+                            // 小規模事業者・商業
+                            '小規模事業者' => 'fa-store',
+                            '商業' => 'fa-shopping-cart',
+                            '店舗' => 'fa-store-alt',
+                            '販売' => 'fa-cash-register',
+                            '商店街' => 'fa-city',
+                            
+                            // 環境・省エネ・SDGs
+                            '環境' => 'fa-leaf',
+                            '省エネ' => 'fa-plug',
+                            'エネルギー' => 'fa-bolt',
+                            'SDGs' => 'fa-seedling',
+                            'カーボン' => 'fa-cloud',
+                            '再生可能' => 'fa-solar-panel',
+                            '脱炭素' => 'fa-wind',
+                            
+                            // 人材・雇用
+                            '人材育成' => 'fa-users',
+                            '雇用' => 'fa-user-tie',
+                            '採用' => 'fa-handshake',
+                            '働き方' => 'fa-briefcase',
+                            '研修' => 'fa-chalkboard-teacher',
+                            '教育' => 'fa-graduation-cap',
+                            
+                            // 研究開発
+                            '研究開発' => 'fa-flask',
+                            '研究' => 'fa-microscope',
+                            '開発' => 'fa-code',
+                            '技術' => 'fa-tools',
+                            
+                            // 輸出・海外展開
+                            '輸出' => 'fa-plane',
+                            '海外' => 'fa-globe',
+                            '国際' => 'fa-earth-americas',
+                            '貿易' => 'fa-ship',
+                            
+                            // 観光・インバウンド
+                            '観光' => 'fa-map-marked-alt',
+                            'インバウンド' => 'fa-passport',
+                            '宿泊' => 'fa-hotel',
+                            '旅行' => 'fa-suitcase-rolling',
+                            
+                            // 農業・林業・漁業
+                            '農業' => 'fa-tractor',
+                            '林業' => 'fa-tree',
+                            '漁業' => 'fa-fish',
+                            '農林水産' => 'fa-wheat',
+                            
+                            // 事業承継・M&A
+                            '事業承継' => 'fa-exchange-alt',
+                            'M&A' => 'fa-handshake',
+                            '承継' => 'fa-hand-holding-usd',
+                            
+                            // BCP・防災
+                            'BCP' => 'fa-shield-alt',
+                            '防災' => 'fa-hard-hat',
+                            '災害' => 'fa-exclamation-triangle',
+                            
+                            // その他
+                            'その他' => 'fa-ellipsis-h',
+                            'デフォルト' => 'fa-folder'
+                        );
+                        
+                        // カテゴリーに最適なアイコンを取得する関数
+                        function get_category_icon($category_name, $icon_map) {
+                            foreach ($icon_map as $keyword => $icon) {
+                                if (strpos($category_name, $keyword) !== false) {
+                                    return $icon;
+                                }
+                            }
+                            return 'fa-folder'; // デフォルトアイコン
+                        }
+                        
+                        ?>
                         <div class="clean-filter-group category-filter-group">
                             <h4 class="clean-filter-group-title">
                                 カテゴリ
                             </h4>
-                            <div class="category-grid-container">
+                            <div class="clean-filter-list-container category-list">
                                 <?php 
-                                $category_limit = 12;
                                 $selected_categories = explode(',', $search_params['category']);
-                                $category_count = count($all_categories);
                                 
-                                $has_selected_cat = !empty(array_filter($selected_categories));
-                                $show_all_cat_initially = $has_selected_cat;
-                                
-                                foreach ($all_categories as $index => $category): 
+                                foreach ($all_categories as $category): 
                                     $is_selected_cat = in_array($category->slug, $selected_categories);
-                                    $is_hidden = !$show_all_cat_initially && $index >= $category_limit;
+                                    $icon_class = get_category_icon($category->name, $category_icon_map);
                                 ?>
-                                <label class="category-chip-fa <?php echo $is_selected_cat ? 'selected' : ''; ?> <?php echo $is_hidden ? 'clean-filter-more-item hidden' : ''; ?>" title="<?php echo esc_attr($category->name); ?>">
+                                <label class="clean-filter-option category-option">
                                     <input type="checkbox" 
                                            name="categories[]" 
                                            value="<?php echo esc_attr($category->slug); ?>" 
                                            class="clean-filter-checkbox category-checkbox"
-                                           <?php checked($is_selected_cat); ?>
-                                           style="display: none;">
-                                    <span class="category-name"><?php echo esc_html($category->name); ?></span>
+                                           <?php checked($is_selected_cat); ?>>
+                                    <i class="fas <?php echo esc_attr($icon_class); ?> category-filter-icon"></i>
+                                    <span class="clean-filter-label"><?php echo esc_html($category->name); ?></span>
                                     <?php if ($category->count > 0): ?>
-                                    <span class="category-count-badge"><?php echo esc_html($category->count); ?></span>
+                                    <span class="clean-filter-count"><?php echo esc_html($category->count); ?></span>
                                     <?php endif; ?>
                                 </label>
                                 <?php endforeach; ?>
                             </div>
-                            <?php if ($category_count > $category_limit): ?>
-                            <button type="button" class="clean-filter-more-btn" data-target="category">
-                                <span class="show-more-text <?php echo $show_all_cat_initially ? 'hidden' : ''; ?>">さらに表示 (+<?php echo $category_count - $category_limit; ?>)</span>
-                                <span class="show-less-text <?php echo !$show_all_cat_initially ? 'hidden' : ''; ?>">表示を減らす</span>
-                            </button>
-                            <?php endif; ?>
                         </div>
                         <?php endif; ?>
 
@@ -3261,7 +4236,7 @@ function openFilterOptimization() {
                     </div>
                 ` : `
                     <div style="text-align: center; padding: 3rem 1rem;">
-                        <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+                        <div style="font-size: 4rem; margin-bottom: 1rem; font-weight: 700;">検索</div>
                         <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem;">
                             まだ十分なデータがありません
                         </h3>
@@ -3460,6 +4435,386 @@ function getAverageAmount(history) {
     if (amounts.length === 0) return '未分析';
     const avg = amounts.reduce((sum, val) => sum + val, 0) / amounts.length;
     return Math.floor(avg / 10000) + '万円';
+}
+
+// ============================================
+// カーセンサー風 階層フィルター機能
+// ============================================
+
+/**
+ * 階層フィルターの開閉
+ */
+function toggleHierarchicalFilter() {
+    const card = document.querySelector('.hierarchical-filter-card');
+    if (card) {
+        card.classList.toggle('collapsed');
+    }
+}
+
+/**
+ * 地方選択時の処理
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // 地方カードのクリック処理
+    document.querySelectorAll('.region-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            const region = this.dataset.region;
+            
+            // すべての地方カードから active を削除
+            document.querySelectorAll('.region-card').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            
+            // クリックされたカードを active に
+            this.classList.add('active');
+            
+            // 都道府県の表示を更新
+            const prefectureCards = document.querySelectorAll('.prefecture-card');
+            
+            if (region === 'all') {
+                // 全国選択時：すべての都道府県を表示
+                prefectureCards.forEach(function(card) {
+                    card.style.display = '';
+                });
+            } else {
+                // 特定地方選択時：その地方の都道府県のみ表示
+                prefectureCards.forEach(function(card) {
+                    const cardRegion = card.dataset.region;
+                    card.style.display = cardRegion === region ? '' : 'none';
+                });
+            }
+            
+            // 都道府県ステップを表示
+            const prefectureStep = document.getElementById('filter-step-prefecture');
+            if (prefectureStep) {
+                prefectureStep.style.display = 'block';
+            }
+        });
+    });
+    
+    // 都道府県チェックボックスの処理
+    document.querySelectorAll('.prefecture-checkbox-top').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const label = this.closest('.prefecture-card');
+            
+            if (this.checked) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+            
+            // 選択された都道府県を取得
+            const selectedPrefectures = Array.from(
+                document.querySelectorAll('.prefecture-checkbox-top:checked')
+            ).map(cb => cb.value);
+            
+            // 市町村の表示を更新
+            updateMunicipalityDisplay(selectedPrefectures);
+            
+            // サイドバーの都道府県チェックボックスも同期
+            syncSidebarPrefectures();
+        });
+    });
+    
+    // 市町村チェックボックスの処理
+    document.querySelectorAll('.municipality-checkbox-top').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const label = this.closest('.municipality-card');
+            
+            if (this.checked) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+            
+            // サイドバーの市町村チェックボックスも同期
+            syncSidebarMunicipalities();
+        });
+    });
+});
+
+/**
+ * 市町村表示の更新
+ */
+function updateMunicipalityDisplay(selectedPrefectures) {
+    const municipalityStep = document.getElementById('filter-step-municipality');
+    const municipalityCards = document.querySelectorAll('.municipality-card');
+    const noMunicipalityMessage = document.querySelector('.no-municipality-message-top');
+    
+    if (!municipalityStep) return;
+    
+    if (selectedPrefectures.length > 0) {
+        municipalityStep.style.display = 'block';
+        
+        let visibleCount = 0;
+        municipalityCards.forEach(function(card) {
+            const prefecture = card.dataset.prefecture;
+            if (selectedPrefectures.includes(prefecture)) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        if (noMunicipalityMessage) {
+            noMunicipalityMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    } else {
+        municipalityStep.style.display = 'none';
+    }
+}
+
+/**
+ * サイドバーの都道府県チェックボックスを同期
+ */
+function syncSidebarPrefectures() {
+    const topCheckboxes = document.querySelectorAll('.prefecture-checkbox-top:checked');
+    const sidebarCheckboxes = document.querySelectorAll('.prefecture-checkbox');
+    
+    const selectedValues = Array.from(topCheckboxes).map(cb => cb.value);
+    
+    sidebarCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = selectedValues.includes(checkbox.value);
+    });
+}
+
+/**
+ * サイドバーの市町村チェックボックスを同期
+ */
+function syncSidebarMunicipalities() {
+    const topCheckboxes = document.querySelectorAll('.municipality-checkbox-top:checked');
+    const sidebarCheckboxes = document.querySelectorAll('.municipality-checkbox');
+    
+    const selectedValues = Array.from(topCheckboxes).map(cb => cb.value);
+    
+    sidebarCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = selectedValues.includes(checkbox.value);
+    });
+}
+
+/**
+ * 階層フィルターのリセット
+ */
+function resetHierarchicalFilter() {
+    // 地方選択をリセット
+    document.querySelectorAll('.region-card').forEach(function(card) {
+        card.classList.remove('active');
+        if (card.dataset.region === 'all') {
+            card.classList.add('active');
+        }
+    });
+    
+    // 都道府県選択をリセット
+    document.querySelectorAll('.prefecture-checkbox-top').forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    document.querySelectorAll('.prefecture-card').forEach(function(card) {
+        card.classList.remove('active');
+        card.style.display = '';
+    });
+    
+    // 市町村選択をリセット
+    document.querySelectorAll('.municipality-checkbox-top').forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    document.querySelectorAll('.municipality-card').forEach(function(card) {
+        card.classList.remove('active');
+    });
+    
+    // 市町村ステップを非表示
+    const municipalityStep = document.getElementById('filter-step-municipality');
+    if (municipalityStep) {
+        municipalityStep.style.display = 'none';
+    }
+    
+    // サイドバーも同期してリセット
+    syncSidebarPrefectures();
+    syncSidebarMunicipalities();
+    
+    // 地域フィルターの状態もリセット
+    const regionTabs = document.querySelectorAll('.region-tab');
+    regionTabs.forEach(function(tab) {
+        tab.classList.remove('active');
+        if (tab.dataset.region === 'all') {
+            tab.classList.add('active');
+        }
+    });
+}
+
+/**
+ * 階層フィルターを適用して検索
+ */
+function applyHierarchicalFilter() {
+    // CleanGrants の loadGrants 関数を呼び出す
+    if (window.CleanGrants && window.CleanGrants.loadGrants) {
+        // フィルター状態を更新してから検索
+        const updateEvent = new Event('change');
+        document.querySelector('.prefecture-checkbox-top')?.dispatchEvent(updateEvent);
+        
+        // 少し遅延させて確実にフィルター状態を反映
+        setTimeout(function() {
+            window.CleanGrants.loadGrants();
+            
+            // 検索実行後、結果セクションまでスムーズスクロール
+            const resultsSection = document.querySelector('.clean-main');
+            if (resultsSection) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    } else {
+        // フォールバック：ページリロード
+        location.reload();
+    }
+}
+
+/**
+ * ============================================================
+ * カテゴリフィルター機能
+ * ============================================================
+ */
+
+/**
+ * カテゴリフィルターの開閉
+ */
+function toggleCategoryFilter() {
+    const card = document.querySelector('.category-filter-section .hierarchical-filter-card');
+    if (card) {
+        card.classList.toggle('collapsed');
+    }
+}
+
+/**
+ * カテゴリフィルターの初期化
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // 親カテゴリカードのクリック処理
+    document.querySelectorAll('.category-parent-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            const parentCategory = this.dataset.parentCategory;
+            
+            // すべての親カテゴリカードから active を削除
+            document.querySelectorAll('.category-parent-card').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            
+            // クリックされたカードを active に
+            this.classList.add('active');
+            
+            // 子カテゴリの表示を更新
+            const childCards = document.querySelectorAll('.category-child-card');
+            
+            if (parentCategory === 'all') {
+                // 全カテゴリ選択時：すべての子カテゴリを非表示
+                childCards.forEach(function(card) {
+                    card.style.display = 'none';
+                });
+                
+                // 子カテゴリステップを非表示
+                const childStep = document.getElementById('filter-step-category-child');
+                if (childStep) {
+                    childStep.style.display = 'none';
+                }
+            } else {
+                // 特定親カテゴリ選択時：その子カテゴリのみ表示
+                let visibleCount = 0;
+                childCards.forEach(function(card) {
+                    const cardParent = card.dataset.parentCategory;
+                    if (cardParent === parentCategory) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // 子カテゴリステップを表示
+                const childStep = document.getElementById('filter-step-category-child');
+                if (childStep) {
+                    childStep.style.display = 'block';
+                }
+                
+                // メッセージ表示の更新
+                const noChildMessage = document.querySelector('.no-category-message-top');
+                if (noChildMessage) {
+                    noChildMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            }
+        });
+    });
+    
+    // 子カテゴリチェックボックスの処理
+    document.querySelectorAll('.category-checkbox-top').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const label = this.closest('.category-child-card');
+            
+            if (this.checked) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+        });
+    });
+});
+
+/**
+ * カテゴリフィルターのリセット
+ */
+function resetCategoryFilter() {
+    // 親カテゴリ選択をリセット
+    document.querySelectorAll('.category-parent-card').forEach(function(card) {
+        card.classList.remove('active');
+        if (card.dataset.parentCategory === 'all') {
+            card.classList.add('active');
+        }
+    });
+    
+    // 子カテゴリ選択をリセット
+    document.querySelectorAll('.category-checkbox-top').forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    document.querySelectorAll('.category-child-card').forEach(function(card) {
+        card.classList.remove('active');
+        card.style.display = 'none';
+    });
+    
+    // 子カテゴリステップを非表示
+    const childStep = document.getElementById('filter-step-category-child');
+    if (childStep) {
+        childStep.style.display = 'none';
+    }
+}
+
+/**
+ * カテゴリフィルターを適用して検索
+ */
+function applyCategoryFilter() {
+    // 選択された子カテゴリを取得
+    const selectedCategories = Array.from(
+        document.querySelectorAll('.category-checkbox-top:checked')
+    ).map(cb => cb.value);
+    
+    // カテゴリが選択されていない場合は親カテゴリを使用
+    if (selectedCategories.length === 0) {
+        const activeParent = document.querySelector('.category-parent-card.active');
+        if (activeParent && activeParent.dataset.parentCategory !== 'all') {
+            const parentSlug = activeParent.dataset.parentSlug;
+            if (parentSlug) {
+                selectedCategories.push(parentSlug);
+            }
+        }
+    }
+    
+    // URLにカテゴリパラメータを追加
+    const url = new URL(window.location.href);
+    if (selectedCategories.length > 0) {
+        url.searchParams.set('category', selectedCategories.join(','));
+    } else {
+        url.searchParams.delete('category');
+    }
+    
+    // ページ遷移
+    window.location.href = url.toString();
 }
 </script>
 
