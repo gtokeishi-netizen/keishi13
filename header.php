@@ -978,7 +978,7 @@
 <?php if (get_theme_mod('gi_show_announcement', false)): ?>
 <div id="gi-announcement" class="gi-announcement">
     <i class="fas fa-sparkles" style="margin-right: 0.5rem; color: var(--color-primary);"></i>
-    <?php echo esc_html(get_theme_mod('gi_announcement_text', '🎯 最新助成金情報を随時更新中！あなたにぴったりの支援制度を見つけよう')); ?>
+    <?php echo esc_html(get_theme_mod('gi_announcement_text', '最新助成金情報を随時更新中！あなたにぴったりの支援制度を見つけよう')); ?>
     <?php if ($announcement_link = get_theme_mod('gi_announcement_link', get_post_type_archive_link('grant'))): ?>
         <a href="<?php echo esc_url($announcement_link); ?>">今すぐ検索する →</a>
     <?php endif; ?>
@@ -1469,7 +1469,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('gi-loaded');
     }, 100);
     
-    console.log('✨ Grant Insight Ultra Stylish Header initialized successfully!');
+    console.log('[OK] Grant Insight Ultra Stylish Header initialized successfully!');
     
     // ===============================================
     // GLOBAL API

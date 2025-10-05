@@ -159,7 +159,7 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            // ❌ Removed unused fields: field_subsidy_rate and field_amount_note
+            // [REMOVED] Unused fields: field_subsidy_rate and field_amount_note
             // Spreadsheet uses subsidy_rate_detailed (AD column) as source of truth
             
             // ========== 締切・ステータス ==========
@@ -224,7 +224,7 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            // ❌ Removed unused field: field_deadline_note
+            // [REMOVED] Unused field: field_deadline_note
             // Not present in spreadsheet configuration
             
             // ========== 対象・条件 ==========
@@ -271,7 +271,7 @@ function gi_register_acf_field_groups() {
                 ),
             ),
             
-            // ❌ Removed duplicate field: field_grant_success_rate
+            // [REMOVED] Duplicate field: field_grant_success_rate
             // Spreadsheet uses field_adoption_rate (AA column) as source of truth
             
             array(

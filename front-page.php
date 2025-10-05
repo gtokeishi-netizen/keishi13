@@ -82,6 +82,23 @@ html {
         <?php get_template_part('template-parts/front-page/section', 'categories'); ?>
     </section>
 
+    <?php
+    /**
+     * 4. Category Hierarchy Section
+     * カテゴリー階層表示（親→子構造）
+     * User Request: 大枠のカテゴリ→中枠の階層構造を実装
+     */
+    ?>
+    <section class="front-page-section section-animate" id="category-hierarchy-section">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 48px;">
+                <h2 class="section-title" style="font-size: 32px; font-weight: 700; color: #000000; margin-bottom: 16px;">カテゴリー別に探す</h2>
+                <p class="section-description" style="font-size: 16px; color: #666666;">補助金・助成金を分野別に検索できます</p>
+            </div>
+            <?php get_template_part('template-parts/category', 'hierarchy'); ?>
+        </div>
+    </section>
+
 </main>
 
 <!-- フローティングナビゲーション削除済み -->
@@ -160,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('load', function() {
             const perfData = performance.getEntriesByType('navigation')[0];
             if (perfData) {
-                console.log('🚀 ページ読み込み時間:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+                console.log('[パフォーマンス] ページ読み込み時間:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
             }
         });
     }
@@ -188,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // リサイズ時の処理（ナビゲーション削除により簡略化）
     // 必要に応じてリサイズ処理をここに追加
     
-    console.log('✅ Grant Insight Perfect - フロントページ初期化完了');
+    console.log('[OK] Grant Insight Perfect - フロントページ初期化完了');
 });
 </script>
 

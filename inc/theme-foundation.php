@@ -82,11 +82,38 @@ function gi_enqueue_scripts() {
     // 統合されたメインCSS
     wp_enqueue_style('gi-main-css', get_template_directory_uri() . '/assets/css/main.css', array(), GI_THEME_VERSION);
     
+    // みんなの銀行風スタイル（白黒スタイリッシュデザイン）
+    wp_enqueue_style('gi-minna-bank-style', get_template_directory_uri() . '/assets/css/minna-bank-style.css', array('gi-main-css'), GI_THEME_VERSION);
+    
+    // UI/UX修正CSS（ユーザーフィードバックに基づく修正）
+    wp_enqueue_style('gi-ui-ux-fixes', get_template_directory_uri() . '/assets/css/ui-ux-fixes.css', array('gi-minna-bank-style'), GI_THEME_VERSION);
+    
+    // UI/UX Advanced Fixes（スクリーンショット分析に基づく追加修正）
+    wp_enqueue_style('gi-ui-ux-advanced', get_template_directory_uri() . '/assets/css/ui-ux-advanced-fixes.css', array('gi-ui-ux-fixes'), GI_THEME_VERSION);
+    
+    // Color Contrast Fixes（色のコントラスト問題修正 - 全ページ対応）
+    wp_enqueue_style('gi-contrast-fixes', get_template_directory_uri() . '/assets/css/contrast-fixes.css', array('gi-ui-ux-advanced'), GI_THEME_VERSION);
+    
+    // Chat UI Fixes（チャットUI改善 - フォントサイズ拡大と重なり修正）
+    wp_enqueue_style('gi-chat-ui-fixes', get_template_directory_uri() . '/assets/css/chat-ui-fixes.css', array('gi-contrast-fixes'), GI_THEME_VERSION);
+    
+    // Final UI Fixes（最終UI修正 - チャットエリア縮小、検索結果、アイコン統一）
+    wp_enqueue_style('gi-final-ui-fixes', get_template_directory_uri() . '/assets/css/final-ui-fixes.css', array('gi-chat-ui-fixes'), GI_THEME_VERSION);
+    
+    // Cleanup Fixes（クリーンアップ修正 - ビュー切り替えアイコン化、AIボタン削除、矢印削除）
+    wp_enqueue_style('gi-cleanup-fixes', get_template_directory_uri() . '/assets/css/cleanup-fixes.css', array('gi-final-ui-fixes'), GI_THEME_VERSION);
+    
     // Google Fonts（日本語フォント）
     wp_enqueue_style('google-fonts-noto', 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap', array(), null);
     
+    // Font Awesome（モノクロアイコン用）
+    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', array(), '6.4.0');
+    
     // メインJavaScript
     wp_enqueue_script('gi-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), GI_THEME_VERSION, true);
+    
+    // UI/UX拡張JavaScript（スクリーンショット分析に基づく改善）
+    wp_enqueue_script('gi-ui-ux-enhancements', get_template_directory_uri() . '/assets/js/ui-ux-enhancements.js', array('jquery', 'gi-main'), GI_THEME_VERSION, true);
     
     // AI機能は削除されました
     

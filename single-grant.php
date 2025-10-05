@@ -137,7 +137,7 @@ if ($grant_data['deadline_date']) {
     $deadline_info = $grant_data['deadline'];
 }
 
-// 📊 申請難易度設定 (31列対応 - AB列)
+//  申請難易度設定 (31列対応 - AB列)
 $difficulty_configs = array(
     'easy' => array('label' => '簡単', 'dots' => 1, 'emoji' => '🟢'),
     'normal' => array('label' => '普通', 'dots' => 2, 'emoji' => '🟡'),
@@ -267,23 +267,8 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     }
 }
 
-/* Film strip header effect */
-.grant-stylish::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: repeating-linear-gradient(
-        90deg,
-        var(--mono-black) 0px,
-        var(--mono-black) 10px,
-        var(--mono-white) 10px,
-        var(--mono-white) 20px
-    );
-    z-index: 1;
-}
+/* Film strip header effect - REMOVED per user request */
+/* ユーザーリクエストにより削除: 上部の装飾線は不要 */
 
 /* Hero Section - Magazine style */
 .grant-hero {
@@ -850,7 +835,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
     <header class="grant-hero">
         <?php if ($grant_data['is_featured']): ?>
         <div class="status-badge" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); margin-bottom: var(--space-3);">
-            ⭐ 注目の助成金
+             注目の助成金
         </div>
         <?php endif; ?>
         
@@ -879,7 +864,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             
             <?php if ($deadline_info): ?>
             <div class="info-card">
-                <div class="info-icon">📅</div>
+                <div class="info-icon"></div>
                 <div class="info-label">申請締切</div>
                 <div class="info-value <?php echo $deadline_class === 'urgent' ? 'urgent' : ''; ?>">
                     <?php echo esc_html($deadline_info); ?>
@@ -889,7 +874,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             
             <?php if ($grant_data['adoption_rate'] > 0): ?>
             <div class="info-card">
-                <div class="info-icon">📊</div>
+                <div class="info-icon"></div>
                 <div class="info-label">採択率</div>
                 <div class="info-value"><?php echo number_format($grant_data['adoption_rate'], 1); ?>%</div>
             </div>
@@ -897,7 +882,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             
             <?php if ($grant_data['organization']): ?>
             <div class="info-card">
-                <div class="info-icon">🏢</div>
+                <div class="info-icon"></div>
                 <div class="info-label">実施機関</div>
                 <div class="info-value" style="font-size: var(--text-lg);"><?php echo esc_html($grant_data['organization']); ?></div>
             </div>
@@ -1075,7 +1060,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <!-- Target Details -->
             <section class="content-section">
                 <header class="section-header">
-                    <div class="section-icon">🎯</div>
+                    <div class="section-icon"></div>
                     <h2 class="section-title">対象者・対象事業</h2>
                 </header>
                 <div class="section-content">
@@ -1088,7 +1073,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <!-- Target Expenses (31列対応 - AC列) -->
             <section class="content-section">
                 <header class="section-header">
-                    <div class="section-icon">💰</div>
+                    <div class="section-icon"></div>
                     <h2 class="section-title">対象経費</h2>
                 </header>
                 <div class="section-content">
@@ -1210,7 +1195,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <!-- Action Buttons -->
             <div class="sidebar-card">
                 <h3 class="sidebar-title">
-                    🚀 アクション
+                     アクション
                 </h3>
                 <div class="action-buttons">
                     <?php if ($grant_data['official_url']): ?>
@@ -1242,7 +1227,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
             <!-- Statistics -->
             <div class="sidebar-card">
                 <h3 class="sidebar-title">
-                    📊 統計情報
+                     統計情報
                 </h3>
                 <div class="stats-grid">
                     <?php if ($grant_data['adoption_rate'] > 0): ?>
@@ -1437,7 +1422,7 @@ update_post_meta($post_id, 'views_count', $grant_data['views_count']);
                 <div style="display: grid; gap: var(--space-3); margin-bottom: var(--space-5);">
                     <?php if ($similar_amount) : ?>
                     <div style="display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--mono-charcoal);">
-                        <div style="width: 24px; height: 24px; background: var(--mono-off-white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); flex-shrink: 0;">💰</div>
+                        <div style="width: 24px; height: 24px; background: var(--mono-off-white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); flex-shrink: 0;"></div>
                         <span style="font-weight: 600;"><?php echo esc_html($similar_amount); ?></span>
                     </div>
                     <?php endif; ?>

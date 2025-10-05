@@ -986,11 +986,11 @@ if (function_exists('gi_get_cached_stats')) {
 
 /* 最新の助成金 */
 .recent-grants {
-    margin: 20px 0;
-    padding: 20px;
+    margin: 24px 0;
+    padding: 24px;
     background: #fafafa;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    border: 2px solid #e0e0e0;
 }
 
 .recent-grants-label {
@@ -1025,15 +1025,20 @@ a.recent-grant-item:hover {
 }
 
 .grant-title {
-    font-size: 13px;
+    font-size: 12px;
     color: #333333;
     flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .grant-amount {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     color: #000000;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .card-link {
@@ -1677,91 +1682,11 @@ a.recent-grant-item:hover {
         gap: 30px;
     }
     
-    /* スマホ専用：2×2グリッド レイアウト最適化 */
+    /* スマホ: 1カラムレイアウト（元のデザイン） */
     .main-categories-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        grid-template-columns: 1fr;
+        gap: 20px;
         margin-bottom: 30px;
-        max-width: 100%;
-    }
-    
-    .card-content {
-        padding: 12px;
-        min-height: 200px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    
-    .card-header {
-        margin-bottom: 10px;
-        align-items: center;
-    }
-    
-    .card-title {
-        font-size: 13px;
-        margin-bottom: 4px;
-        line-height: 1.2;
-        font-weight: 700;
-        max-height: 2.4em;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-    }
-    
-    .card-description {
-        font-size: 10px;
-        margin-bottom: 8px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.2;
-        opacity: 0.8;
-    }
-    
-    .card-icon {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-        border-radius: 10px;
-    }
-    
-    .card-badge {
-        padding: 4px 8px;
-        border-radius: 8px;
-    }
-    
-    .badge-count {
-        font-size: 16px;
-        font-weight: 800;
-    }
-    
-    .badge-label {
-        font-size: 9px;
-    }
-    
-    .card-link {
-        padding: 8px 12px;
-        font-size: 11px;
-        margin-top: auto;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-    
-    /* 最新の助成金セクションをモバイルでは非表示 */
-    .recent-grants {
-        display: none;
-    }
-    
-    /* モバイルでカテゴリーカードのホバーエフェクトを簡略化 */
-    .category-card:hover {
-        transform: none;
-    }
-    
-    .category-card:active {
-        transform: scale(0.98);
     }
     
     .categories-grid {

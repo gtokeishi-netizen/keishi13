@@ -352,7 +352,7 @@ get_header(); ?>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">📊</div>
+                <div class="feature-icon"></div>
                 <h3 class="feature-title">一元管理</h3>
                 <p class="feature-description">
                     全国の助成金情報を1つのプラットフォームに集約。
@@ -460,7 +460,7 @@ get_header(); ?>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">💰</div>
+                <div class="feature-icon"></div>
                 <h3 class="feature-title">金額情報</h3>
                 <p class="feature-description">
                     最大助成額、補助率など、金額に関する
@@ -469,7 +469,7 @@ get_header(); ?>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">📅</div>
+                <div class="feature-icon"></div>
                 <h3 class="feature-title">期限管理</h3>
                 <p class="feature-description">
                     申請期限、募集ステータスを
@@ -487,7 +487,7 @@ get_header(); ?>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">🏢</div>
+                <div class="feature-icon"></div>
                 <h3 class="feature-title">実施機関</h3>
                 <p class="feature-description">
                     国・都道府県・市町村など、
@@ -496,7 +496,7 @@ get_header(); ?>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">🎯</div>
+                <div class="feature-icon"></div>
                 <h3 class="feature-title">対象情報</h3>
                 <p class="feature-description">
                     対象者、対象事業、対象経費など、

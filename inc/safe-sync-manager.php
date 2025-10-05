@@ -552,7 +552,7 @@ class SafeSyncManager {
                 </div>
                 
                 <div class="gi-stats-card">
-                    <h3>📊 Rate Limit Statistics</h3>
+                    <h3> Rate Limit Statistics</h3>
                     <table class="widefat">
                         <tr>
                             <td>Requests (Last Hour)</td>

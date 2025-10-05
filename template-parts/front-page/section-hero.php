@@ -43,17 +43,17 @@ $hero_config = array(
 
 // リアルタイム統計データ
 $live_stats = array(
-    array('number' => '12,847', 'label' => '助成金データベース', 'icon' => '📊', 'animatable' => true),
-    array('number' => '98.7%', 'label' => 'マッチング精度', 'icon' => '🎯', 'animatable' => true),
+    array('number' => '12,847', 'label' => '助成金データベース', 'icon' => '', 'animatable' => true),
+    array('number' => '98.7%', 'label' => 'マッチング精度', 'icon' => '', 'animatable' => true),
     array('number' => '24時間', 'label' => 'AI自動更新', 'icon' => '⚡', 'animatable' => true),
-    array('number' => '完全無料', 'label' => 'サービス利用', 'icon' => '✨', 'animatable' => false)
+    array('number' => '完全無料', 'label' => 'サービス利用', 'icon' => '', 'animatable' => false)
 );
 
 // タブレット用統計データ
 $tablet_stats = array(
     array('number' => '2,847', 'label' => '今月の新着', 'icon' => '📈'),
     array('number' => '156', 'label' => '申請成功', 'icon' => '✅'),
-    array('number' => '24/7', 'label' => 'サポート', 'icon' => '🛠️')
+    array('number' => '24/7', 'label' => 'サポート', 'icon' => '️')
 );
 
 // スマートフォン用クイック統計
@@ -149,7 +149,7 @@ $mobile_quick_stats = array(
                                                 <div class="control-btn maximize"></div>
                                             </div>
                                             <div class="system-title">
-                                                <span class="title-icon">📊</span>
+                                                <span class="title-icon"></span>
                                                 助成金マッチングシステム
                                             </div>
                                             <div class="system-status">
@@ -212,7 +212,7 @@ $mobile_quick_stats = array(
                                                         </div>
                                                     </div>
                                                     <div class="activity-item">
-                                                        <div class="activity-icon">🎯</div>
+                                                        <div class="activity-icon"></div>
                                                         <div class="activity-text">
                                                             <span>マッチング精度を更新</span>
                                                             <span class="activity-time">5分前</span>
@@ -276,7 +276,7 @@ $mobile_quick_stats = array(
                                             
                                             <!-- タブレットチャート -->
                                             <div class="tablet-chart">
-                                                <div class="chart-title">📊 月間推移</div>
+                                                <div class="chart-title"> 月間推移</div>
                                                 <div class="chart-bars">
                                                     <?php for ($i = 0; $i < 7; $i++): ?>
                                                     <div class="chart-bar" style="height: <?php echo rand(30, 80); ?>%;"></div>
@@ -307,7 +307,7 @@ $mobile_quick_stats = array(
                                         <!-- スマートフォンアプリ -->
                                         <div class="smartphone-app">
                                             <div class="smartphone-app-header">
-                                                <div class="smartphone-app-icon">💰</div>
+                                                <div class="smartphone-app-icon"></div>
                                                 <div class="smartphone-app-title">助成金AI</div>
                                             </div>
                                             
@@ -2127,7 +2127,7 @@ function openAIConsultation() {
 document.addEventListener('DOMContentLoaded', () => {
     try {
         window.grantHeroStylishSystem = new GrantHeroStylishSystem();
-        console.log('✨ Grant Hero Stylish System initialized successfully');
+        console.log(' Grant Hero Stylish System initialized successfully');
     } catch (error) {
         console.error('❌ Initialization error:', error);
     }
